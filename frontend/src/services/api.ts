@@ -1,11 +1,16 @@
 import axios from "axios";
 import type { TaskAnalysis, WeatherData, AnalysisResponse } from "@app-types/api";
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? "https://skycoach-ai.onrender.com"
-    : "http://localhost:8000");
+const isNetlifyRuntime =
+  typeof window !== "undefined" &&
+  window.location.hostname.endsWith("netlify.app");
+
+export const API_BASE_URL = isNetlifyRuntime
+  ? ""
+  : import.meta.env.VITE_API_URL ||
+    (import.meta.env.PROD
+      ? "https://skycoach-ai.onrender.com"
+      : "http://localhost:8000");
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
