@@ -19,7 +19,6 @@ from components.cards import (
 from components.gauges import render_hero, render_input_section, render_score_gauge
 from components.layout import render_sidebar
 from components.responsive import ResponsiveLayout
-from components.weather_backgrounds import render_weather_background
 from core.pipeline import PluginPipeline
 from core.scoring_engine import calculate_sky_score, get_alternative_activities
 from models.data_classes import Config, HistoryEntry
@@ -63,6 +62,7 @@ def main() -> None:
     pipeline = PluginPipeline(get_default_plugins())
     ResponsiveLayout.inject_responsive_css()
     ResponsiveLayout.inject_responsive_js()
+    
 
     openai_key, weather_key, city, demo_mode = render_sidebar(
         initial_openai_key=st.session_state.get("openai_api_key", ""),
@@ -71,13 +71,6 @@ def main() -> None:
         initial_demo_mode=st.session_state.get("demo_mode", True),
         history=st.session_state.get("history", []),
     )
-
-    background_weather = st.session_state.get("weather")
-    if background_weather is None:
-        background_weather = get_demo_weather(city)
-    st.session_state.background_weather = background_weather
-
-    render_weather_background(background_weather)
 
     render_motion_stage()
     render_hero()

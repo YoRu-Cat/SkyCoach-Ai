@@ -49,8 +49,6 @@ def inject_global_styles():
                 linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-primary);
-            position: relative;
-            isolation: isolate;
         }}
 
         #MainMenu, footer, header {{ visibility: hidden; }}
@@ -59,17 +57,6 @@ def inject_global_styles():
             padding-top: 1.4rem;
             padding-bottom: 1.4rem;
             max-width: 1180px;
-            position: relative;
-            z-index: 2;
-        }}
-
-        [data-testid="stSidebar"] {{
-            position: relative;
-            z-index: 3;
-            background: rgba(3, 7, 18, 0.34) !important;
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-right: 1px solid rgba(125, 211, 252, 0.12) !important;
         }}
         </style>
         """,
@@ -98,6 +85,15 @@ def inject_component_styles():
             position: relative;
             animation: fadeInUp 0.45s ease-out forwards;
             overflow: hidden;
+        }
+
+        .ui-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.06), transparent 50%);
+            pointer-events: none;
+            border-radius: 20px;
         }
 
         .ui-card::before {
