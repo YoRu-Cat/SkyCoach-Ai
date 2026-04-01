@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface ActivityInputProps {
   onAnalyze: (activity: string, city: string) => void;
   isLoading: boolean;
 }
 
-export default function ActivityInput({ onAnalyze, isLoading }: ActivityInputProps) {
-  const [activity, setActivity] = useState('');
-  const [city, setCity] = useState('New York');
+export default function ActivityInput({
+  onAnalyze,
+  isLoading,
+}: ActivityInputProps) {
+  const [activity, setActivity] = useState("");
+  const [city, setCity] = useState("New York");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +23,9 @@ export default function ActivityInput({ onAnalyze, isLoading }: ActivityInputPro
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="card space-y-6 sticky top-8">
         <div>
-          <h2 className="text-xl font-bold mb-4 text-slate-100">What's your plan?</h2>
+          <h2 className="text-xl font-bold mb-4 text-slate-100">
+            What's your plan?
+          </h2>
         </div>
 
         <div>
@@ -57,9 +62,8 @@ export default function ActivityInput({ onAnalyze, isLoading }: ActivityInputPro
         <button
           type="submit"
           disabled={isLoading || !activity.trim()}
-          className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? 'Analyzing...' : 'Analyze Activity'}
+          className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+          {isLoading ? "Analyzing..." : "Analyze Activity"}
         </button>
 
         <div className="pt-4 border-t border-slate-700">

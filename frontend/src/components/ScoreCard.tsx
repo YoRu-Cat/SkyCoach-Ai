@@ -1,29 +1,29 @@
-import React from 'react';
-import type { SkyScoreResult } from '@types/api';
+import React from "react";
+import type { SkyScoreResult } from "@types/api";
 
 interface ScoreCardProps {
   score: SkyScoreResult;
 }
 
 const getScoreColor = (score: number): string => {
-  if (score >= 80) return 'text-green-400';
-  if (score >= 60) return 'text-cyan-400';
-  if (score >= 40) return 'text-yellow-400';
-  return 'text-red-400';
+  if (score >= 80) return "text-green-400";
+  if (score >= 60) return "text-cyan-400";
+  if (score >= 40) return "text-yellow-400";
+  return "text-red-400";
 };
 
 const getScoreBackground = (score: number): string => {
-  if (score >= 80) return 'from-green-600 to-green-400';
-  if (score >= 60) return 'from-cyan-600 to-cyan-400';
-  if (score >= 40) return 'from-yellow-600 to-yellow-400';
-  return 'from-red-600 to-red-400';
+  if (score >= 80) return "from-green-600 to-green-400";
+  if (score >= 60) return "from-cyan-600 to-cyan-400";
+  if (score >= 40) return "from-yellow-600 to-yellow-400";
+  return "from-red-600 to-red-400";
 };
 
 const getScoreLabel = (score: number): string => {
-  if (score >= 80) return 'Perfect!';
-  if (score >= 60) return 'Go for it!';
-  if (score >= 40) return 'Possible';
-  return 'Not ideal';
+  if (score >= 80) return "Perfect!";
+  if (score >= 60) return "Go for it!";
+  if (score >= 40) return "Possible";
+  return "Not ideal";
 };
 
 export default function ScoreCard({ score }: ScoreCardProps) {
@@ -36,7 +36,8 @@ export default function ScoreCard({ score }: ScoreCardProps) {
         <div className="flex items-center justify-center gap-6 mb-6">
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center border-2 border-slate-600">
-              <div className={`text-4xl font-bold ${getScoreColor(score.score)}`}>
+              <div
+                className={`text-4xl font-bold ${getScoreColor(score.score)}`}>
                 {score.score}
               </div>
             </div>
@@ -80,13 +81,16 @@ export default function ScoreCard({ score }: ScoreCardProps) {
               {score.bonuses.map((bonus, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-between items-start p-2 bg-green-900/20 rounded border border-green-700/30"
-                >
+                  className="flex justify-between items-start p-2 bg-green-900/20 rounded border border-green-700/30">
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-green-300">{bonus[0]}</p>
+                    <p className="text-sm font-semibold text-green-300">
+                      {bonus[0]}
+                    </p>
                     <p className="text-xs text-slate-400">{bonus[2]}</p>
                   </div>
-                  <span className="text-sm font-bold text-green-400">+{bonus[1]}%</span>
+                  <span className="text-sm font-bold text-green-400">
+                    +{bonus[1]}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -102,13 +106,16 @@ export default function ScoreCard({ score }: ScoreCardProps) {
               {score.penalties.map((penalty, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-between items-start p-2 bg-red-900/20 rounded border border-red-700/30"
-                >
+                  className="flex justify-between items-start p-2 bg-red-900/20 rounded border border-red-700/30">
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-red-300">{penalty[0]}</p>
+                    <p className="text-sm font-semibold text-red-300">
+                      {penalty[0]}
+                    </p>
                     <p className="text-xs text-slate-400">{penalty[2]}</p>
                   </div>
-                  <span className="text-sm font-bold text-red-400">{penalty[1]}%</span>
+                  <span className="text-sm font-bold text-red-400">
+                    {penalty[1]}%
+                  </span>
                 </div>
               ))}
             </div>
@@ -122,7 +129,9 @@ export default function ScoreCard({ score }: ScoreCardProps) {
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
             Weather Factors
           </p>
-          <p className="text-sm text-slate-300">{score.weather_factors.join(', ')}</p>
+          <p className="text-sm text-slate-300">
+            {score.weather_factors.join(", ")}
+          </p>
         </div>
       )}
     </div>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { healthCheck } from '@services/api';
-import Dashboard from '@pages/Dashboard';
-import '@styles/globals.css';
+import React, { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { healthCheck } from "@services/api";
+import Dashboard from "@pages/Dashboard";
+import "@styles/globals.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +23,7 @@ function App() {
         const healthy = await healthCheck();
         setIsHealthy(healthy);
       } catch (error) {
-        console.error('API health check failed:', error);
+        console.error("API health check failed:", error);
         setIsHealthy(false);
       } finally {
         setIsLoading(false);
@@ -48,17 +48,21 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center px-4">
         <div className="card max-w-md">
-          <h1 className="text-2xl font-bold text-red-400 mb-4">Connection Error</h1>
+          <h1 className="text-2xl font-bold text-red-400 mb-4">
+            Connection Error
+          </h1>
           <p className="text-slate-300 mb-4">
             Could not connect to the SkyCoach API backend.
           </p>
           <p className="text-slate-400 text-sm">
-            Make sure the backend server is running on <code className="bg-slate-800 px-2 py-1 rounded">http://localhost:8000</code>
+            Make sure the backend server is running on{" "}
+            <code className="bg-slate-800 px-2 py-1 rounded">
+              http://localhost:8000
+            </code>
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="btn btn-primary mt-6 w-full"
-          >
+            className="btn btn-primary mt-6 w-full">
             Retry
           </button>
         </div>

@@ -5,16 +5,19 @@ Modern React 18 + TypeScript + Vite frontend for the SkyCoach AI weather-based a
 ## Setup
 
 1. Navigate to the frontend directory:
+
 ```bash
 cd frontend
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -145,6 +148,7 @@ Each component is self-contained with its own styling and logic:
 ### State Management
 
 Uses React Query for:
+
 - Caching API responses
 - Managing async states (loading, error, success)
 - Background synchronization
@@ -171,6 +175,7 @@ The frontend connects to these backend endpoints:
 ### API Connection Error
 
 Ensure the backend is running:
+
 ```bash
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
@@ -178,6 +183,7 @@ python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ### Port Already in Use
 
 Change the port in `vite.config.ts`:
+
 ```typescript
 server: {
   port: 3001,  // Change this

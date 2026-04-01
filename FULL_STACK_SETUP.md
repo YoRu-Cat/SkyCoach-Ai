@@ -3,6 +3,7 @@
 ## Quick Start (Both Frontend & Backend)
 
 ### Prerequisites
+
 - Python 3.10+
 - Node.js 18+
 - npm or yarn
@@ -10,16 +11,19 @@
 ### Backend Setup
 
 1. Navigate to project root:
+
 ```bash
 cd "e:\Java\Project\Project Ai"
 ```
 
 2. Ensure Python dependencies are installed:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. Start FastAPI backend:
+
 ```bash
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
@@ -33,16 +37,19 @@ API docs available at: `http://localhost:8000/docs`
 In a new terminal:
 
 1. Navigate to frontend:
+
 ```bash
 cd "e:\Java\Project\Project Ai\frontend"
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start development server:
+
 ```bash
 npm run dev
 ```
@@ -52,6 +59,7 @@ Frontend will open at: `http://localhost:3000`
 ## Full Stack Components
 
 ### Backend (FastAPI)
+
 ```
 Location: e:\Java\Project\Project Ai\
 Endpoints:
@@ -65,6 +73,7 @@ Endpoints:
 ```
 
 ### Frontend (React)
+
 ```
 Location: e:\Java\Project\Project Ai\frontend
 Port: 3000
@@ -79,6 +88,7 @@ Components:
 ```
 
 ### Streamlit App (Legacy)
+
 ```
 Location: e:\Java\Project\Project Ai\app.py
 Port: 8501
@@ -88,6 +98,7 @@ Command: python -m streamlit run app.py
 ## Development Workflow
 
 ### 1. Terminal 1 - Backend
+
 ```bash
 cd "e:\Java\Project\Project Ai"
 python -m uvicorn backend.main:app --reload
@@ -96,6 +107,7 @@ python -m uvicorn backend.main:app --reload
 Keep running during development.
 
 ### 2. Terminal 2 - Frontend
+
 ```bash
 cd "e:\Java\Project\Project Ai\frontend"
 npm run dev
@@ -104,6 +116,7 @@ npm run dev
 Keep running during development.
 
 ### 3. Browser
+
 Open `http://localhost:3000` and start developing.
 
 Both have hot reload enabled.
@@ -111,6 +124,7 @@ Both have hot reload enabled.
 ## Testing Individual Endpoints
 
 ### Using curl (Windows with curl installed)
+
 ```bash
 # Task analysis
 curl -X POST http://localhost:8000/api/analyze-task ^
@@ -124,6 +138,7 @@ curl -X POST http://localhost:8000/api/analyze ^
 ```
 
 ### Using Swagger UI
+
 ```
 http://localhost:8000/docs
 ```
@@ -166,15 +181,19 @@ Project Ai/
 ## Troubleshooting
 
 ### Backend Connection Error in React
+
 **Symptom**: "Could not connect to SkyCoach API"
 
 **Solution**:
+
 1. Verify backend is running: `http://localhost:8000/api/health`
 2. Check CORS configuration in `backend/main.py`
 3. Update `frontend/.env` with correct `VITE_API_URL`
 
 ### Port Already in Use
+
 **Backend**:
+
 ```bash
 # Kill process on port 8000
 netstat -ano | findstr :8000
@@ -186,6 +205,7 @@ python -m uvicorn backend.main:app --port 8001
 
 **Frontend**:
 Edit `frontend/vite.config.ts`:
+
 ```typescript
 server: {
   port: 3001,  // Change to 3001
@@ -195,11 +215,13 @@ server: {
 ### Dependencies Issues
 
 **Python**:
+
 ```bash
 pip install --upgrade -r requirements.txt
 ```
 
 **Node**:
+
 ```bash
 cd frontend
 rm -rf node_modules package-lock.json
@@ -209,12 +231,14 @@ npm install
 ## Building for Production
 
 ### Backend
+
 ```bash
 # No build needed, just run with production settings
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm run build
@@ -226,14 +250,18 @@ Output in `frontend/dist/`
 ## Environment Configuration
 
 ### Backend
+
 Set Python environment variables:
+
 ```bash
 set OPENAI_API_KEY=your_key_here
 set OPENWEATHER_API_KEY=your_key_here
 ```
 
 ### Frontend
+
 Edit `frontend/.env`:
+
 ```env
 VITE_API_URL=http://localhost:8000
 VITE_APP_NAME=SkyCoach AI
@@ -242,11 +270,13 @@ VITE_APP_NAME=SkyCoach AI
 ## Performance Tips
 
 ### Backend
+
 - Use demo weather to avoid rate limits
 - Cache API responses (React Query handles this)
 - Monitor with `uvicorn` logs
 
 ### Frontend
+
 - Inspect network with browser DevTools
 - Check "Network" tab for API response times
 - Profile components with React DevTools
@@ -254,11 +284,13 @@ VITE_APP_NAME=SkyCoach AI
 ## Monitoring
 
 ### Backend Health
+
 ```bash
 curl http://localhost:8000/api/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -268,7 +300,9 @@ Response:
 ```
 
 ### Frontend Status
+
 Check browser console for errors:
+
 - `Ctrl+Shift+J` (Windows/Linux)
 - `Cmd+Option+J` (Mac)
 
@@ -310,7 +344,9 @@ Once both are running:
 ## Support & Logs
 
 ### Backend Logs
+
 Check terminal where `uvicorn` is running:
+
 ```
 INFO:     Application startup complete.
 GET /api/health 200 OK
@@ -318,7 +354,9 @@ POST /api/analyze-task 200 OK
 ```
 
 ### Frontend Logs
+
 Check browser console (F12):
+
 ```
 [React DevTools] React is running in development mode
 API connected at http://localhost:8000

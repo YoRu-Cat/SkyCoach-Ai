@@ -44,20 +44,24 @@ frontend/
 ## Technology Stack
 
 ### Core Framework
+
 - **React 18** - UI library
 - **TypeScript** - Type-safe JavaScript
 - **Vite** - Modern build tool (HMR, fast builds)
 
 ### State & Data
+
 - **React Query** - Server state, caching, sync
 - **Axios** - HTTP client with interceptors
 
 ### Styling
+
 - **TailwindCSS** - Utility-first CSS
 - **PostCSS/Autoprefixer** - CSS processing
 - **Custom CSS** - Animations & glassmorphism
 
 ### Additional
+
 - **GSAP** - Advanced animations
 - **Lucide React** - Icon library
 
@@ -68,7 +72,7 @@ frontend/
 Modular, single-responsibility components:
 
 ```
-ActivityInput (form) 
+ActivityInput (form)
     ↓
 Dashboard (orchestrator)
     ↓ (onAnalyze callback)
@@ -88,10 +92,13 @@ Type-safe API client with React Query hooks:
 ```typescript
 // Basic API call
 const { mutate: runAnalysis, isLoading } = useFullAnalysis();
-runAnalysis({ activity, city }, {
-  onSuccess: (data) => setAnalysis(data),
-  onError: (error) => console.error(error),
-});
+runAnalysis(
+  { activity, city },
+  {
+    onSuccess: (data) => setAnalysis(data),
+    onError: (error) => console.error(error),
+  },
+);
 
 // Automatic caching, retry, stale time management
 ```
@@ -99,6 +106,7 @@ runAnalysis({ activity, city }, {
 ### 3. **State Management**
 
 Uses React Query for:
+
 - Automatic caching of API responses
 - Background data refetching
 - Loading/error states
@@ -119,13 +127,18 @@ No Redux/Zustand needed for this use case.
 }
 
 /* Animations */
-.animate-fade-in { animation: fadeIn 0.5s ease-out; }
-.animate-slide-in-left { animation: slideInFromLeft 0.5s ease-out; }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.5s ease-out;
+}
 ```
 
 ### 5. **Responsive Design**
 
 Mobile-first breakpoints:
+
 - `sm: 640px` - Tablet
 - `md: 768px` - Desktop
 - `lg: 1024px` - Large desktop
@@ -160,35 +173,39 @@ Generates optimized production build in `dist/`.
 ### Type Checking
 
 Full TypeScript compilation:
+
 - Component props are type-safe
 - API responses are validated at type level
 - IDE autocomplete for all APIs
 
 ## API Integration Grid
 
-| Endpoint | Method | Purpose | Hook |
-|----------|--------|---------|------|
-| `/analyze-task` | POST | Analyze activity text | `useAnalyzeTask()` |
-| `/weather` | POST | Fetch weather data | `useGetWeather()` |
-| `/analyze` | POST | Full pipeline | `useFullAnalysis()` |
-| `/alternatives` | GET | Alternative activities | `useGetAlternatives()` |
-| `/health` | GET | Backend health check | Direct call |
+| Endpoint        | Method | Purpose                | Hook                   |
+| --------------- | ------ | ---------------------- | ---------------------- |
+| `/analyze-task` | POST   | Analyze activity text  | `useAnalyzeTask()`     |
+| `/weather`      | POST   | Fetch weather data     | `useGetWeather()`      |
+| `/analyze`      | POST   | Full pipeline          | `useFullAnalysis()`    |
+| `/alternatives` | GET    | Alternative activities | `useGetAlternatives()` |
+| `/health`       | GET    | Backend health check   | Direct call            |
 
 ## Component Details
 
 ### ActivityInput
+
 - Form with textarea for activity description
 - Text input for city/location
 - Submit button with loading state
 - Input validation
 
 ### TaskCard
+
 - Displays original input and cleaned text
 - Shows classification (Indoor/Outdoor)
 - Confidence score with progress bar
 - Auto-judge suggestion section (if available)
 
 ### WeatherCard
+
 - Temperature with feels-like
 - Condition with emoji
 - Humidity, wind speed, precipitation
@@ -196,6 +213,7 @@ Full TypeScript compilation:
 - Grid layout for responsive display
 
 ### ScoreCard
+
 - Large circular score display (0-100)
 - Color-coded: Green/Cyan/Yellow/Red
 - Label based on score (Perfect/Go/Possible/Not ideal)
@@ -204,6 +222,7 @@ Full TypeScript compilation:
 - Weather factors list
 
 ### AlternativesCard
+
 - Grid of alternative activity suggestions
 - Hover effects
 - Classification label
@@ -220,6 +239,7 @@ Full TypeScript compilation:
 ## Testing Setup (Optional)
 
 For future implementation:
+
 ```bash
 npm install --save-dev vitest @testing-library/react
 ```
@@ -251,6 +271,7 @@ Vite also auto-proxies `/api` to backend in dev mode.
 ## Next Steps for Task #14
 
 After this structure is set up:
+
 1. Implement GSAP animations in components
 2. Add WebSocket support for real-time updates
 3. Create custom hooks for complex logic

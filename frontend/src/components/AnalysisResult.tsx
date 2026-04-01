@@ -1,9 +1,9 @@
-import React from 'react';
-import type { AnalysisResponse } from '@types/api';
-import TaskCard from './TaskCard';
-import WeatherCard from './WeatherCard';
-import ScoreCard from './ScoreCard';
-import AlternativesCard from './AlternativesCard';
+import React from "react";
+import type { AnalysisResponse } from "@types/api";
+import TaskCard from "./TaskCard";
+import WeatherCard from "./WeatherCard";
+import ScoreCard from "./ScoreCard";
+import AlternativesCard from "./AlternativesCard";
 
 interface AnalysisResultProps {
   data: AnalysisResponse;

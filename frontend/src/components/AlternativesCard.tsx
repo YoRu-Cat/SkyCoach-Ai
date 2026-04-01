@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface AlternativesCardProps {
   alternatives: string[];
@@ -19,8 +19,7 @@ export default function AlternativesCard({
         {alternatives.map((activity, idx) => (
           <div
             key={idx}
-            className="p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg hover:border-cyan-500/50 transition-colors group cursor-pointer"
-          >
+            className="p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg hover:border-cyan-500/50 transition-colors group cursor-pointer">
             <p className="text-slate-200 group-hover:text-cyan-300 transition-colors">
               {activity}
             </p>

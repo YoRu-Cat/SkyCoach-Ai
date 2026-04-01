@@ -1,5 +1,5 @@
-import React from 'react';
-import type { TaskAnalysis } from '@types/api';
+import React from "react";
+import type { TaskAnalysis } from "@types/api";
 
 interface TaskCardProps {
   task: TaskAnalysis;
@@ -7,14 +7,17 @@ interface TaskCardProps {
 
 export default function TaskCard({ task }: TaskCardProps) {
   const getClassificationColor = (classification: string) => {
-    return classification === 'Outdoor' ? 'text-amber-400' : 'text-blue-400';
+    return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
 
   return (
     <div className="card space-y-4 glow-cyan">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-100">🧠 Activity Analysis</h3>
-        <span className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
+        <h3 className="text-lg font-bold text-slate-100">
+          🧠 Activity Analysis
+        </h3>
+        <span
+          className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
           {task.classification}
         </span>
       </div>
@@ -22,7 +25,7 @@ export default function TaskCard({ task }: TaskCardProps) {
       {task.needs_clarification && (
         <div className="p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
           <p className="text-sm text-yellow-300">
-            ⚠️ {task.issue || 'Input needs clarification'}
+            ⚠️ {task.issue || "Input needs clarification"}
           </p>
         </div>
       )}
@@ -40,7 +43,7 @@ export default function TaskCard({ task }: TaskCardProps) {
             Identified Activity
           </label>
           <p className="text-slate-200 mt-1">
-            {task.activity === 'Needs clarification' ? (
+            {task.activity === "Needs clarification" ? (
               <span className="text-yellow-400">{task.activity}</span>
             ) : (
               task.activity
@@ -86,12 +89,15 @@ export default function TaskCard({ task }: TaskCardProps) {
             <div className="space-y-2">
               <div>
                 <p className="text-xs text-slate-400">Likely activity</p>
-                <p className="text-slate-200 font-semibold">{task.suggested_activity}</p>
+                <p className="text-slate-200 font-semibold">
+                  {task.suggested_activity}
+                </p>
               </div>
               <div className="flex gap-4">
                 <div>
                   <p className="text-xs text-slate-400">Classification</p>
-                  <p className={`font-semibold ${getClassificationColor(task.suggested_classification || '')}`}>
+                  <p
+                    className={`font-semibold ${getClassificationColor(task.suggested_classification || "")}`}>
                     {task.suggested_classification}
                   </p>
                 </div>

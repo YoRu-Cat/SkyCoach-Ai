@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useFullAnalysis } from '@hooks/useApi';
-import ActivityInput from '@components/ActivityInput';
-import AnalysisResult from '@components/AnalysisResult';
-import Header from '@components/Header';
-import type { AnalysisResponse } from '@types/api';
+import React, { useState } from "react";
+import { useFullAnalysis } from "@hooks/useApi";
+import ActivityInput from "@components/ActivityInput";
+import AnalysisResult from "@components/AnalysisResult";
+import Header from "@components/Header";
+import type { AnalysisResponse } from "@types/api";
 
 export default function Dashboard() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
@@ -17,16 +17,16 @@ export default function Dashboard() {
           setAnalysis(data);
         },
         onError: (error) => {
-          console.error('Analysis failed:', error);
+          console.error("Analysis failed:", error);
         },
-      }
+      },
     );
   };
 
   return (
     <div className="min-h-screen pb-12">
       <Header />
-      
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Input Section */}
