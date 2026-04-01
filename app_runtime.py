@@ -18,8 +18,10 @@ from components.cards import (
 )
 from components.gauges import render_hero, render_input_section, render_score_gauge
 from components.layout import render_sidebar
+from core.pipeline import PluginPipeline
 from core.scoring_engine import calculate_sky_score, get_alternative_activities
 from models.data_classes import Config, HistoryEntry
+from plugins.registry import get_default_plugins
 from services.ai_engine import (
     analyze_task_fallback,
     analyze_task_openai,
@@ -56,6 +58,7 @@ def main() -> None:
     init_session_state()
     inject_global_styles()
     inject_component_styles()
+    pipeline = PluginPipeline(get_default_plugins())
 
     openai_key, weather_key, city, demo_mode = render_sidebar(
         initial_openai_key=st.session_state.get("openai_api_key", ""),
@@ -75,30 +78,37 @@ def main() -> None:
     if analyze_btn and user_input:
         with st.spinner("🔮 Analyzing your activity..."):
             config = Config()
+            normalized_input = pipeline.process_task_text(user_input)
+            normalized_city = pipeline.process_city(city)
 
             if demo_mode or not openai_key:
-                task = analyze_task_fallback(user_input)
+                task = analyze_task_fallback(normalized_input)
             else:
                 try:
-                    task = analyze_task_openai(user_input, openai_key)
+                    task = analyze_task_openai(normalized_input, openai_key)
                 except Exception as exc:
                     st.warning(f"OpenAI error, using fallback: {str(exc)[:80]}")
-                    task = analyze_task_fallback(user_input)
+                    task = analyze_task_fallback(normalized_input)
+
+            task = pipeline.process_task(task)
 
             time.sleep(0.35)
 
             if demo_mode or not weather_key:
-                weather = get_demo_weather(city)
+                weather = get_demo_weather(normalized_city)
             else:
                 try:
-                    weather = get_weather_by_city(city, weather_key)
+                    weather = get_weather_by_city(normalized_city, weather_key)
                 except Exception as exc:
                     st.warning(f"Weather API error, using demo: {str(exc)[:80]}")
-                    weather = get_demo_weather(city)
+                    weather = get_demo_weather(normalized_city)
+
+            weather = pipeline.process_weather(weather)
 
             time.sleep(0.2)
 
             result = calculate_sky_score(task, weather, config)
+            result = pipeline.process_score(result)
 
             history_entry = HistoryEntry(
                 timestamp=datetime.now().strftime("%H:%M"),

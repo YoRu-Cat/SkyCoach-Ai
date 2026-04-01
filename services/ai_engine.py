@@ -5,6 +5,35 @@ from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
 
 
+def _stable_fallback_coords(city: str) -> tuple[float, float]:
+    """Generate deterministic coordinates for unknown cities in demo mode."""
+    digest = hashlib.md5(city.lower().encode()).hexdigest()
+    lat_bucket = int(digest[:6], 16) / 0xFFFFFF
+    lon_bucket = int(digest[6:12], 16) / 0xFFFFFF
+    lat = (lat_bucket * 120.0) - 60.0
+    lon = (lon_bucket * 300.0) - 150.0
+    return (round(lat, 4), round(lon, 4))
+
+
+def _resolve_demo_city_coords(city: str, city_coords: dict) -> tuple[float, float]:
+    """Resolve coordinates from known cities, then geocoding, then deterministic fallback."""
+    normalized = city.lower().strip()
+    if normalized in city_coords:
+        return city_coords[normalized]
+
+    try:
+        from geopy.geocoders import Nominatim
+
+        geolocator = Nominatim(user_agent="skycoach_demo_locator", timeout=3)
+        location = geolocator.geocode(city)
+        if location is not None:
+            return (round(location.latitude, 4), round(location.longitude, 4))
+    except Exception:
+        pass
+
+    return _stable_fallback_coords(city)
+
+
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     """Use OpenAI to analyze and classify the task."""
     from openai import OpenAI
@@ -172,9 +201,15 @@ def get_demo_weather(city: str = "New York") -> WeatherData:
         "los angeles": (34.0522, -118.2437),
         "dubai": (25.2048, 55.2708),
         "mumbai": (19.0760, 72.8777),
+        "lahore": (31.5204, 74.3587),
+        "karachi": (24.8607, 67.0011),
+        "islamabad": (33.6844, 73.0479),
+        "delhi": (28.6139, 77.2090),
+        "beijing": (39.9042, 116.4074),
+        "berlin": (52.5200, 13.4050),
     }
-    
-    lat, lon = city_coords.get(city.lower(), (40.7128, -74.0060))
+
+    lat, lon = _resolve_demo_city_coords(city, city_coords)
     
     temp = base_temp + temp_var
     wind_mph = wind_base * 2.237
