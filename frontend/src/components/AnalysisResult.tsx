@@ -1,5 +1,6 @@
-import React from "react";
-import type { AnalysisResponse } from "@types/api";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import type { AnalysisResponse } from "@app-types/api";
 import TaskCard from "./TaskCard";
 import WeatherCard from "./WeatherCard";
 import ScoreCard from "./ScoreCard";
@@ -7,26 +8,59 @@ import AlternativesCard from "./AlternativesCard";
 
 interface AnalysisResultProps {
   data: AnalysisResponse;
+  onUseSuggestion?: (value: string) => void;
 }
 
-export default function AnalysisResult({ data }: AnalysisResultProps) {
+export default function AnalysisResult({
+  data,
+  onUseSuggestion,
+}: AnalysisResultProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".analysis-panel",
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          ease: "power2.out",
+          stagger: 0.1,
+        },
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [data]);
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div ref={containerRef} className="space-y-6">
       {/* Task Analysis */}
-      <TaskCard task={data.task} />
+      <div className="analysis-panel">
+        <TaskCard task={data.task} onUseSuggestion={onUseSuggestion} />
+      </div>
 
       {/* Weather Information */}
-      <WeatherCard weather={data.weather} />
+      <div className="analysis-panel">
+        <WeatherCard weather={data.weather} />
+      </div>
 
       {/* Core Score */}
-      <ScoreCard score={data.score_result} />
+      <div className="analysis-panel">
+        <ScoreCard score={data.score_result} />
+      </div>
 
       {/* Alternatives */}
       {data.alternatives && data.alternatives.length > 0 && (
-        <AlternativesCard
-          alternatives={data.alternatives}
-          classification={data.task.classification}
-        />
+        <div className="analysis-panel">
+          <AlternativesCard
+            alternatives={data.alternatives}
+            classification={data.task.classification}
+          />
+        </div>
       )}
     </div>
   );

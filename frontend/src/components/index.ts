@@ -5,3 +5,5 @@ export { default as TaskCard } from "./TaskCard";
 export { default as WeatherCard } from "./WeatherCard";
 export { default as ScoreCard } from "./ScoreCard";
 export { default as AlternativesCard } from "./AlternativesCard";
+export { default as ScoreGauge } from "./ScoreGauge";
+export { default as WeatherBackground } from "./WeatherBackground";

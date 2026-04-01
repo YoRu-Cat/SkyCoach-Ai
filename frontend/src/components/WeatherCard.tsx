@@ -1,5 +1,4 @@
-import React from "react";
-import type { WeatherData } from "@types/api";
+import type { WeatherData } from "@app-types/api";
 
 interface WeatherCardProps {
   weather: WeatherData;
@@ -20,8 +19,12 @@ const getWeatherEmoji = (condition: string): string => {
 };
 
 export default function WeatherCard({ weather }: WeatherCardProps) {
+  const latLabel = `${Math.abs(weather.latitude).toFixed(2)}°${weather.latitude >= 0 ? "N" : "S"}`;
+  const lonLabel = `${Math.abs(weather.longitude).toFixed(2)}°${weather.longitude >= 0 ? "E" : "W"}`;
+  const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${weather.longitude - 0.18}%2C${weather.latitude - 0.12}%2C${weather.longitude + 0.18}%2C${weather.latitude + 0.12}&layer=mapnik&marker=${weather.latitude}%2C${weather.longitude}`;
+
   return (
-    <div className="card glow-cyan">
+    <div className="card glow-cyan space-y-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-slate-100">
           {getWeatherEmoji(weather.condition)} Weather
@@ -29,6 +32,18 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
         <p className="text-sm text-slate-400">
           {weather.city}, {weather.country}
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <span className="px-3 py-1 text-xs rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-200">
+          {weather.condition}
+        </span>
+        <span className="px-3 py-1 text-xs rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-200">
+          Wind {weather.wind_mph.toFixed(1)} mph
+        </span>
+        <span className="px-3 py-1 text-xs rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-200">
+          Humidity {weather.humidity}%
+        </span>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -91,11 +106,23 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
             Location
           </p>
           <p className="text-sm font-semibold text-slate-200 mt-2">
-            {weather.latitude.toFixed(2)}°N
+            {latLabel}
             <br />
-            {weather.longitude.toFixed(2)}°E
+            {lonLabel}
           </p>
         </div>
+      </div>
+
+      <div className="rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/50">
+        <div className="px-3 py-2 border-b border-slate-700/70 text-xs text-slate-400 uppercase tracking-wide">
+          Map Preview
+        </div>
+        <iframe
+          title="Location map"
+          src={mapSrc}
+          className="w-full h-56"
+          loading="lazy"
+        />
       </div>
     </div>
   );

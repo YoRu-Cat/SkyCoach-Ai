@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface ActivityInputProps {
   onAnalyze: (activity: string, city: string) => void;
@@ -11,6 +11,14 @@ export default function ActivityInput({
 }: ActivityInputProps) {
   const [activity, setActivity] = useState("");
   const [city, setCity] = useState("New York");
+  const quickActivities = [
+    "playing soccer",
+    "washing car",
+    "running in park",
+    "doing homework",
+    "jogging",
+    "cycling",
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +29,7 @@ export default function ActivityInput({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="card space-y-6 sticky top-8">
+      <div className="card space-y-6 sticky top-8 animated-card-border floating-panel">
         <div>
           <h2 className="text-xl font-bold mb-4 text-slate-100">
             What's your plan?
@@ -43,6 +51,18 @@ export default function ActivityInput({
           <p className="mt-2 text-xs text-slate-400">
             Describe the activity you're planning, even if it's incomplete
           </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {quickActivities.map((item) => (
+              <button
+                key={item}
+                type="button"
+                disabled={isLoading}
+                onClick={() => setActivity(item)}
+                className="px-2.5 py-1 text-xs rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:border-cyan-500/60 hover:text-cyan-300 transition-all hover:-translate-y-0.5">
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div>
@@ -62,7 +82,7 @@ export default function ActivityInput({
         <button
           type="submit"
           disabled={isLoading || !activity.trim()}
-          className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+          className="w-full btn btn-primary btn-shimmer disabled:opacity-50 disabled:cursor-not-allowed">
           {isLoading ? "Analyzing..." : "Analyze Activity"}
         </button>
 

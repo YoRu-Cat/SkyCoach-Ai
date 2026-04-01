@@ -197,6 +197,134 @@ button {
   animation: scaleIn 0.3s ease-out;
 }
 
+@keyframes weatherOrbA {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(22px, -16px, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes weatherOrbB {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-18px, 14px, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes weatherFog {
+  0% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+.weather-orb-a {
+  animation: weatherOrbA 11s ease-in-out infinite;
+}
+
+.weather-orb-b {
+  animation: weatherOrbB 14s ease-in-out infinite;
+}
+
+.weather-fog {
+  animation: weatherFog 9s ease-in-out infinite;
+}
+
+.score-needle {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.95), rgba(6, 182, 212, 0.2));
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.55);
+  transition: transform 0.25s ease-out;
+}
+
+@keyframes cardBorderSweep {
+  0% {
+    box-shadow:
+      0 0 0 1px rgba(6, 182, 212, 0.15),
+      0 0 18px rgba(6, 182, 212, 0.15),
+      inset 0 0 0 1px rgba(56, 189, 248, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.35),
+      0 0 30px rgba(6, 182, 212, 0.28),
+      inset 0 0 0 1px rgba(6, 182, 212, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(6, 182, 212, 0.15),
+      0 0 18px rgba(6, 182, 212, 0.15),
+      inset 0 0 0 1px rgba(56, 189, 248, 0.1);
+  }
+}
+
+@keyframes floatPanel {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(220%);
+    opacity: 0;
+  }
+}
+
+.animated-card-border {
+  animation: cardBorderSweep 3.6s ease-in-out infinite;
+}
+
+.floating-panel {
+  animation: floatPanel 5.5s ease-in-out infinite;
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 45%,
+    transparent 100%
+  );
+  animation: shimmerSlide 2.4s ease-in-out infinite;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

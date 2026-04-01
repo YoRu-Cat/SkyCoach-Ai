@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Header() {
   return (
     <header className="border-b border-slate-700/50 backdrop-blur-lg bg-slate-900/80 sticky top-0 z-40">

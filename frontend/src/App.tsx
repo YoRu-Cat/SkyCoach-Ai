@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { healthCheck } from "@services/api";
 import Dashboard from "@pages/Dashboard";

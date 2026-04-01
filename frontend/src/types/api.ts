@@ -35,14 +35,20 @@ export interface SkyScoreResult {
   score: number;
   classification: "Indoor" | "Outdoor";
   weather_factors: string[];
-  bonuses: Array<[string, number, string]>;
-  penalties: Array<[string, number, string]>;
+  bonuses: FactorDetail[];
+  penalties: FactorDetail[];
   recommendation: string;
+}
+
+export interface FactorDetail {
+  name: string;
+  value: number;
+  description: string;
 }
 
 export interface AnalysisResponse {
   task: TaskAnalysis;
   weather: WeatherData;
   score_result: SkyScoreResult;
-  alternatives: string[];
+  alternatives: Array<[string, string]>;
 }

@@ -5,7 +5,6 @@ import {
   fullAnalysis,
   getAlternatives,
 } from "@services/api";
-import type { TaskAnalysis, WeatherData, AnalysisResponse } from "@types/api";
 
 export const useAnalyzeTask = () => {
   return useMutation((text: string) => analyzeTask(text));

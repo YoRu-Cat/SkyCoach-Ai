@@ -1,0 +1,1409 @@
+Attached Element Context from Integrated Browser
+
+Element: div.lg:col-span-2
+
+HTML Path:
+html > body > div#root > div.min-h-screen.bg-gradient-to-br.from-slate-900.via-slate-800.to-slate-900 > div.min-h-screen.pb-12 > div.max-w-6xl.mx-auto.px-4.sm:px-6.lg:px-8.py-8 > div.grid.grid-cols-1.lg:grid-cols-3.gap-8 > div.lg:col-span-2
+
+Attributes:
+- class: lg:col-span-2
+
+Computed Styles:
+- margin: 0px 0px 0px 0px
+- padding: 0px 0px 0px 0px
+- --color-accent: rgb(56, 189, 248)
+- --color-glass-bg: rgba(10, 15, 30, 0.48)
+- --color-primary: rgb(6, 182, 212)
+- --color-secondary: rgb(15, 23, 42)
+- --tw-backdrop-blur: 
+- --tw-backdrop-brightness: 
+- --tw-backdrop-contrast: 
+- --tw-backdrop-grayscale: 
+- --tw-backdrop-hue-rotate: 
+- --tw-backdrop-invert: 
+- --tw-backdrop-opacity: 
+- --tw-backdrop-saturate: 
+- --tw-backdrop-sepia: 
+- --tw-blur: 
+- --tw-border-spacing-x: 0
+- --tw-border-spacing-y: 0
+- --tw-brightness: 
+- --tw-contain-layout: 
+- --tw-contain-paint: 
+- --tw-contain-size: 
+- --tw-contain-style: 
+- --tw-contrast: 
+- --tw-drop-shadow: 
+- --tw-gradient-from: #0f172a 
+- --tw-gradient-from-position: 
+- --tw-gradient-stops: #0f172a , #1e293b , #0f172a 
+- --tw-gradient-to: #0f172a 
+- --tw-gradient-to-position: 
+- --tw-gradient-via-position: 
+- --tw-grayscale: 
+- --tw-hue-rotate: 
+- --tw-invert: 
+- --tw-numeric-figure: 
+- --tw-numeric-fraction: 
+- --tw-numeric-spacing: 
+- --tw-ordinal: 
+- --tw-pan-x: 
+- --tw-pan-y: 
+- --tw-pinch-zoom: 
+- --tw-ring-color: rgb(59 130 246 / 0.5)
+- --tw-ring-inset: 
+- --tw-ring-offset-color: #fff
+- --tw-ring-offset-shadow: 0 0 #0000
+- --tw-ring-offset-width: 0px
+- --tw-ring-shadow: 0 0 #0000
+- --tw-rotate: 0
+- --tw-saturate: 
+- --tw-scale-x: 1
+- --tw-scale-y: 1
+- --tw-scroll-snap-strictness: proximity
+- --tw-sepia: 
+- --tw-shadow: 0 0 #0000
+- --tw-shadow-colored: 0 0 #0000
+- --tw-skew-x: 0
+- --tw-skew-y: 0
+- --tw-slashed-zero: 
+- --tw-translate-x: 0
+- --tw-translate-y: 0
+- -electron-corner-smoothing: none
+- -webkit-border-horizontal-spacing: 0px
+- -webkit-border-image: none
+- -webkit-border-vertical-spacing: 0px
+- -webkit-box-align: stretch
+- -webkit-box-decoration-break: slice
+- -webkit-box-direction: normal
+- -webkit-box-flex: 0
+- -webkit-box-ordinal-group: 1
+- -webkit-box-orient: horizontal
+- -webkit-box-pack: start
+- -webkit-box-reflect: none
+- -webkit-font-smoothing: auto
+- -webkit-line-break: auto
+- -webkit-line-clamp: none
+- -webkit-locale: "en"
+- -webkit-mask-box-image-outset: 0
+- -webkit-mask-box-image-repeat: stretch
+- -webkit-mask-box-image-slice: 0 fill
+- -webkit-mask-box-image-source: none
+- -webkit-mask-box-image-width: auto
+- -webkit-mask-position-x: 0%
+- -webkit-mask-position-y: 0%
+- -webkit-perspective-origin-x: 
+- -webkit-perspective-origin-y: 
+- -webkit-rtl-ordering: logical
+- -webkit-ruby-position: before
+- -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+- -webkit-text-combine: none
+- -webkit-text-decorations-in-effect: none
+- -webkit-text-fill-color: rgb(248, 250, 252)
+- -webkit-text-orientation: vertical-right
+- -webkit-text-security: none
+- -webkit-text-stroke-color: rgb(248, 250, 252)
+- -webkit-text-stroke-width: 0px
+- -webkit-transform-origin-x: 
+- -webkit-transform-origin-y: 
+- -webkit-transform-origin-z: 
+- -webkit-user-drag: auto
+- -webkit-user-modify: read-only
+- -webkit-writing-mode: horizontal-tb
+- accent-color: auto
+- align-content: normal
+- align-items: normal
+- align-self: auto
+- alignment-baseline: auto
+- all: 
+- anchor-name: none
+- anchor-scope: none
+- animation-composition: replace
+- animation-delay: 0s
+- animation-direction: normal
+- animation-duration: 0s
+- animation-fill-mode: none
+- animation-iteration-count: 1
+- animation-name: none
+- animation-play-state: running
+- animation-range-end: normal
+- animation-range-start: normal
+- animation-timeline: auto
+- animation-timing-function: ease
+- app-region: none
+- appearance: none
+- aspect-ratio: auto
+- backdrop-filter: none
+- backface-visibility: visible
+- background-attachment: scroll
+- background-blend-mode: normal
+- background-clip: border-box
+- background-color: rgba(0, 0, 0, 0)
+- background-image: none
+- background-origin: padding-box
+- background-position-x: 0%
+- background-position-y: 0%
+- background-repeat: repeat
+- background-size: auto
+- baseline-shift: 0px
+- baseline-source: auto
+- block-size: 543.797px
+- border-block-end-color: rgb(229, 231, 235)
+- border-block-end-style: solid
+- border-block-end-width: 0px
+- border-block-start-color: rgb(229, 231, 235)
+- border-block-start-style: solid
+- border-block-start-width: 0px
+- border-bottom-color: rgb(229, 231, 235)
+- border-bottom-left-radius: 0px
+- border-bottom-right-radius: 0px
+- border-bottom-style: solid
+- border-bottom-width: 0px
+- border-collapse: separate
+- border-end-end-radius: 0px
+- border-end-start-radius: 0px
+- border-image-outset: 0
+- border-image-repeat: stretch
+- border-image-slice: 100%
+- border-image-source: none
+- border-image-width: 1
+- border-inline-end-color: rgb(229, 231, 235)
+- border-inline-end-style: solid
+- border-inline-end-width: 0px
+- border-inline-start-color: rgb(229, 231, 235)
+- border-inline-start-style: solid
+- border-inline-start-width: 0px
+- border-left-color: rgb(229, 231, 235)
+- border-left-style: solid
+- border-left-width: 0px
+- border-right-color: rgb(229, 231, 235)
+- border-right-style: solid
+- border-right-width: 0px
+- border-start-end-radius: 0px
+- border-start-start-radius: 0px
+- border-top-color: rgb(229, 231, 235)
+- border-top-left-radius: 0px
+- border-top-right-radius: 0px
+- border-top-style: solid
+- border-top-width: 0px
+- bottom: auto
+- box-decoration-break: slice
+- box-shadow: none
+- box-sizing: border-box
+- break-after: auto
+- break-before: auto
+- break-inside: auto
+- buffered-rendering: auto
+- caption-side: top
+- caret-animation: auto
+- caret-color: rgb(248, 250, 252)
+- clear: none
+- clip: auto
+- clip-path: none
+- clip-rule: nonzero
+- color: rgb(248, 250, 252)
+- color-interpolation: srgb
+- color-interpolation-filters: linearrgb
+- color-rendering: auto
+- color-scheme: normal
+- column-count: auto
+- column-fill: balance
+- column-gap: normal
+- column-rule-color: rgb(248, 250, 252)
+- column-rule-style: none
+- column-rule-width: 0px
+- column-span: none
+- column-width: auto
+- contain: none
+- contain-intrinsic-block-size: none
+- contain-intrinsic-height: none
+- contain-intrinsic-inline-size: none
+- contain-intrinsic-width: none
+- container-name: none
+- container-type: normal
+- content: normal
+- content-visibility: visible
+- corner-bottom-left-shape: round
+- corner-bottom-right-shape: round
+- corner-end-end-shape: round
+- corner-end-start-shape: round
+- corner-start-end-shape: round
+- corner-start-start-shape: round
+- corner-top-left-shape: round
+- corner-top-right-shape: round
+- counter-increment: none
+- counter-reset: none
+- counter-set: none
+- cursor: auto
+- cx: 0px
+- cy: 0px
+- d: none
+- direction: ltr
+- display: block
+- dominant-baseline: auto
+- dynamic-range-limit: no-limit
+- empty-cells: show
+- field-sizing: fixed
+- fill: rgb(0, 0, 0)
+- fill-opacity: 1
+- fill-rule: nonzero
+- filter: none
+- flex-basis: auto
+- flex-direction: row
+- flex-grow: 0
+- flex-shrink: 1
+- flex-wrap: nowrap
+- float: none
+- flood-color: rgb(0, 0, 0)
+- flood-opacity: 1
+- font-family: "Plus Jakarta Sans", system-ui, sans-serif
+- font-feature-settings: normal
+- font-kerning: auto
+- font-optical-sizing: auto
+- font-palette: normal
+- font-size: 16px
+- font-size-adjust: none
+- font-stretch: 100%
+- font-style: normal
+- font-synthesis-small-caps: auto
+- font-synthesis-style: auto
+- font-synthesis-weight: auto
+- font-variant-alternates: normal
+- font-variant-caps: normal
+- font-variant-east-asian: normal
+- font-variant-emoji: normal
+- font-variant-ligatures: normal
+- font-variant-numeric: normal
+- font-variant-position: normal
+- font-variation-settings: normal
+- font-weight: 400
+- forced-color-adjust: auto
+- grid-auto-columns: auto
+- grid-auto-flow: row
+- grid-auto-rows: auto
+- grid-column-end: span 2
+- grid-column-start: span 2
+- grid-row-end: auto
+- grid-row-start: auto
+- grid-template-areas: none
+- grid-template-columns: none
+- grid-template-rows: none
+- height: 543.797px
+- hyphenate-character: auto
+- hyphenate-limit-chars: auto
+- hyphens: manual
+- image-orientation: from-image
+- image-rendering: auto
+- initial-letter: normal
+- inline-size: 714.672px
+- inset-block-end: auto
+- inset-block-start: auto
+- inset-inline-end: auto
+- inset-inline-start: auto
+- interactivity: auto
+- interest-delay-end: normal
+- interest-delay-start: normal
+- interpolate-size: numeric-only
+- isolation: auto
+- justify-content: normal
+- justify-items: normal
+- justify-self: auto
+- left: auto
+- letter-spacing: normal
+- lighting-color: rgb(255, 255, 255)
+- line-break: auto
+- line-height: 24px
+- list-style-image: none
+- list-style-position: outside
+- list-style-type: disc
+- margin-block-end: 0px
+- margin-block-start: 0px
+- margin-inline-end: 0px
+- margin-inline-start: 0px
+- marker-end: none
+- marker-mid: none
+- marker-start: none
+- mask-clip: border-box
+- mask-composite: add
+- mask-image: none
+- mask-mode: match-source
+- mask-origin: border-box
+- mask-repeat: repeat
+- mask-size: auto
+- mask-type: luminance
+- math-depth: 0
+- math-shift: normal
+- math-style: normal
+- max-block-size: none
+- max-height: none
+- max-inline-size: none
+- max-width: none
+- min-block-size: auto
+- min-height: auto
+- min-inline-size: auto
+- min-width: auto
+- mix-blend-mode: normal
+- object-fit: fill
+- object-position: 50% 50%
+- object-view-box: none
+- offset-anchor: auto
+- offset-distance: 0px
+- offset-path: none
+- offset-position: normal
+- offset-rotate: auto 0deg
+- opacity: 1
+- order: 0
+- orphans: 2
+- outline-color: rgb(248, 250, 252)
+- outline-offset: 0px
+- outline-style: none
+- outline-width: 0px
+- overflow-anchor: auto
+- overflow-block: visible
+- overflow-clip-margin: 0px
+- overflow-inline: visible
+- overflow-wrap: normal
+- overflow-x: visible
+- overflow-y: visible
+- overlay: none
+- overscroll-behavior-block: auto
+- overscroll-behavior-inline: auto
+- overscroll-behavior-x: auto
+- overscroll-behavior-y: auto
+- padding-block-end: 0px
+- padding-block-start: 0px
+- padding-inline-end: 0px
+- padding-inline-start: 0px
+- page: auto
+- page-orientation: 
+- paint-order: normal
+- perspective: none
+- perspective-origin: 357.328px 271.891px
+- pointer-events: auto
+- position: static
+- position-anchor: auto
+- position-area: none
+- position-try-fallbacks: none
+- position-try-order: normal
+- position-visibility: anchors-visible
+- print-color-adjust: economy
+- quotes: auto
+- r: 0px
+- reading-flow: normal
+- reading-order: 0
+- resize: none
+- right: auto
+- rotate: none
+- row-gap: normal
+- ruby-align: space-around
+- ruby-position: over
+- rx: auto
+- ry: auto
+- scale: none
+- scroll-behavior: auto
+- scroll-initial-target: none
+- scroll-margin-block-end: 0px
+- scroll-margin-block-start: 0px
+- scroll-margin-bottom: 0px
+- scroll-margin-inline-end: 0px
+- scroll-margin-inline-start: 0px
+- scroll-margin-left: 0px
+- scroll-margin-right: 0px
+- scroll-margin-top: 0px
+- scroll-marker-group: none
+- scroll-padding-block-end: auto
+- scroll-padding-block-start: auto
+- scroll-padding-bottom: auto
+- scroll-padding-inline-end: auto
+- scroll-padding-inline-start: auto
+- scroll-padding-left: auto
+- scroll-padding-right: auto
+- scroll-padding-top: auto
+- scroll-snap-align: none
+- scroll-snap-stop: normal
+- scroll-snap-type: none
+- scroll-target-group: none
+- scroll-timeline-axis: block
+- scroll-timeline-name: none
+- scrollbar-color: auto
+- scrollbar-gutter: auto
+- scrollbar-width: auto
+- shape-image-threshold: 0
+- shape-margin: 0px
+- shape-outside: none
+- shape-rendering: auto
+- size: 
+- speak: normal
+- stop-color: rgb(0, 0, 0)
+- stop-opacity: 1
+- stroke: none
+- stroke-dasharray: none
+- stroke-dashoffset: 0px
+- stroke-linecap: butt
+- stroke-linejoin: miter
+- stroke-miterlimit: 4
+- stroke-opacity: 1
+- stroke-width: 1px
+- tab-size: 4
+- table-layout: auto
+- text-align: start
+- text-align-last: auto
+- text-anchor: start
+- text-autospace: no-autospace
+- text-box-edge: auto
+- text-box-trim: none
+- text-combine-upright: none
+- text-decoration-color: rgb(248, 250, 252)
+- text-decoration-line: none
+- text-decoration-skip-ink: auto
+- text-decoration-style: solid
+- text-decoration-thickness: auto
+- text-emphasis-color: rgb(248, 250, 252)
+- text-emphasis-position: over
+- text-emphasis-style: none
+- text-indent: 0px
+- text-orientation: mixed
+- text-overflow: clip
+- text-rendering: auto
+- text-shadow: none
+- text-size-adjust: 100%
+- text-spacing-trim: normal
+- text-transform: none
+- text-underline-offset: auto
+- text-underline-position: auto
+- text-wrap-mode: wrap
+- text-wrap-style: auto
+- timeline-scope: none
+- top: auto
+- touch-action: auto
+- transform: none
+- transform-box: view-box
+- transform-origin: 357.336px 271.898px
+- transform-style: flat
+- transition-behavior: normal
+- transition-delay: 0s
+- transition-duration: 0s
+- transition-property: all
+- transition-timing-function: ease
+- translate: none
+- unicode-bidi: isolate
+- user-select: auto
+- vector-effect: none
+- vertical-align: baseline
+- view-timeline-axis: block
+- view-timeline-inset: auto
+- view-timeline-name: none
+- view-transition-class: none
+- view-transition-group: normal
+- view-transition-name: none
+- visibility: visible
+- white-space-collapse: collapse
+- widows: 2
+- width: 714.672px
+- will-change: auto
+- word-break: normal
+- word-spacing: 0px
+- writing-mode: horizontal-tb
+- x: 0px
+- y: 0px
+- z-index: auto
+- zoom: 1
+
+Dimensions:
+- top: 121px
+- left: 405px
+- width: 715px
+- height: 544px
+
+Inner Text:
+```text
+Enter an activity and location to get started
+```
+
+Outer HTML:
+```html
+<div class="lg:col-span-2"><div class="card text-center py-12 text-slate-400"><p>Enter an activity and location to get started</p></div></div>
+```
+
+Full Computed CSS:
+```css
+
+/* Matched Rule from user-agent */
+div {
+  display: block;
+}
+
+/* Matched Rule from user-agent */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Matched Rule from regular */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Matched Rule from regular */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Matched Rule from regular */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Matched Rule from regular */
+.lg\:col-span-2 {
+  grid-column: span 2 / span 2;
+  grid-column-start: span 2;
+  grid-column-end: span 2;
+}
+
+/* Inherited from ancestor level 1 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 1 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+.grid {
+  display: grid;
+  display: grid;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0px, 1fr));
+}
+
+/* Inherited from ancestor level 1 (regular) */
+.gap-8 {
+  gap: 2rem;
+  row-gap: 2rem;
+  column-gap: 2rem;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+.lg\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0px, 1fr));
+}
+
+/* Inherited from ancestor level 2 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 2 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.max-w-6xl {
+  max-width: 72rem;
+  max-width: 72rem;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.sm\:px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+.lg\:px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Inherited from ancestor level 3 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 3 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100vh;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+.pb-12 {
+  padding-bottom: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Inherited from ancestor level 4 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 4 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 4 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 4 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 4 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 4 (regular) */
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100vh;
+}
+
+/* Inherited from ancestor level 4 (regular) */
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* Inherited from ancestor level 4 (regular) */
+.from-slate-900 {
+  --tw-gradient-from: #0f172a var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  --tw-gradient-from: #0f172a var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* Inherited from ancestor level 4 (regular) */
+.via-slate-800 {
+  --tw-gradient-to: rgb(30 41 59 / 0)  var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to);
+  --tw-gradient-to: rgb(30 41 59 / 0)  var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+/* Inherited from ancestor level 4 (regular) */
+.to-slate-900 {
+  --tw-gradient-to: #0f172a var(--tw-gradient-to-position);
+  --tw-gradient-to: #0f172a var(--tw-gradient-to-position);
+}
+
+/* Inherited from ancestor level 5 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 5 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 5 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 5 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 5 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 6 (user-agent) */
+body {
+  display: block;
+  margin-top: 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  margin-left: 8px;
+}
+
+/* Inherited from ancestor level 6 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 6 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 6 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 6 (regular) */
+body {
+  margin: 0;
+  line-height: inherit;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  line-height: inherit;
+}
+
+/* Inherited from ancestor level 6 (regular) */
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f8fafc;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 100%);
+  background-position-x: initial;
+  background-position-y: initial;
+  background-size: initial;
+  background-repeat: initial;
+  background-attachment: initial;
+  background-origin: initial;
+  background-clip: initial;
+  background-color: initial;
+  color: rgb(248, 250, 252);
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Inherited from ancestor level 7 (user-agent) */
+html {
+  display: block;
+}
+
+/* Inherited from ancestor level 7 (user-agent) */
+:root {
+  view-transition-name: root;
+}
+
+/* Inherited from ancestor level 7 (regular) */
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+/* Inherited from ancestor level 7 (regular) */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+  box-sizing: border-box;
+  border-top-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+  border-left-width: 0px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: rgb(229, 231, 235);
+  border-right-color: rgb(229, 231, 235);
+  border-bottom-color: rgb(229, 231, 235);
+  border-left-color: rgb(229, 231, 235);
+}
+
+/* Inherited from ancestor level 7 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 7 (regular) */
+html, :host {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  font-family: Plus Jakarta Sans, system-ui, sans-serif;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.5;
+  text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Inherited from ancestor level 7 (regular) */
+html {
+  scroll-behavior: smooth;
+  scroll-behavior: smooth;
+}
+
+/* Inherited from ancestor level 7 (regular) */
+:root {
+  --color-primary: rgb(6, 182, 212);
+  --color-secondary: rgb(15, 23, 42);
+  --color-accent: rgb(56, 189, 248);
+  --color-glass-bg: rgba(10, 15, 30, 0.48);
+  --color-primary: rgb(6, 182, 212);
+  --color-secondary: rgb(15, 23, 42);
+  --color-accent: rgb(56, 189, 248);
+  --color-glass-bg: rgba(10, 15, 30, 0.48);
+}
+
+```

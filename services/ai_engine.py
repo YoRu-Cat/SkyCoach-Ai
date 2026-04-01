@@ -62,6 +62,60 @@ def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tup
     return False, None
 
 
+def _apply_auto_judge_resolution(
+    original_text: str,
+    needs_clarification: bool,
+    issue_text: Optional[str],
+    activity: str,
+    classification: str,
+    confidence: float,
+    reasoning: str,
+) -> tuple[bool, Optional[str], str, str, float, str, Optional[str], Optional[str], float]:
+    """Use auto-judge to resolve unclear input into a concrete activity when confidence is high."""
+    suggested_activity = None
+    suggested_classification = None
+    suggestion_confidence = 0.0
+
+    if not needs_clarification:
+        return (
+            needs_clarification,
+            issue_text,
+            activity,
+            classification,
+            confidence,
+            reasoning,
+            suggested_activity,
+            suggested_classification,
+            suggestion_confidence,
+        )
+
+    judge_result = auto_judge_input(original_text)
+    if judge_result["is_broken"] and judge_result["suggestion"]:
+        suggested_activity = judge_result["suggestion"]
+        suggested_classification = judge_result["classification"]
+        suggestion_confidence = judge_result["confidence"]
+
+        if suggestion_confidence >= 0.72:
+            activity = suggested_activity
+            classification = suggested_classification or classification
+            confidence = max(confidence, min(0.94, suggestion_confidence))
+            needs_clarification = False
+            issue_text = None
+            reasoning = "Auto-corrected with high-confidence suggestion"
+
+    return (
+        needs_clarification,
+        issue_text,
+        activity,
+        classification,
+        confidence,
+        reasoning,
+        suggested_activity,
+        suggested_classification,
+        suggestion_confidence,
+    )
+
+
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     """Use OpenAI to analyze and classify the task."""
     from openai import OpenAI
@@ -98,33 +152,48 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     issue_text = result.get("issue")
     needs_clarification = bool(result.get("needs_clarification", False))
 
-    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "tennis", "golf", "park", "outside"]
+    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "sport", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
     indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
     outdoor_score = _count_keyword_matches(original_text.lower(), outdoor_keywords)
     indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
     detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
 
-    suggested_activity = None
-    suggested_classification = None
-    suggestion_confidence = 0.0
+    activity = result.get("activity", "Needs clarification") if not needs_clarification else "Needs clarification"
+    classification = result.get("classification", "Indoor")
+    confidence = 0.15 if needs_clarification else float(result.get("confidence", 0.8))
+    reasoning = (result.get("reasoning", "") + (f". {issue_text}" if issue_text else "")).strip()
 
     if detected_issue:
         needs_clarification = True
         issue_text = detected_issue_text
-        
-        judge_result = auto_judge_input(original_text)
-        if judge_result["is_broken"] and judge_result["suggestion"]:
-            suggested_activity = judge_result["suggestion"]
-            suggested_classification = judge_result["classification"]
-            suggestion_confidence = judge_result["confidence"]
+
+    (
+        needs_clarification,
+        issue_text,
+        activity,
+        classification,
+        confidence,
+        reasoning,
+        suggested_activity,
+        suggested_classification,
+        suggestion_confidence,
+    ) = _apply_auto_judge_resolution(
+        original_text=original_text,
+        needs_clarification=needs_clarification,
+        issue_text=issue_text,
+        activity=activity,
+        classification=classification,
+        confidence=confidence,
+        reasoning=reasoning,
+    )
     
     return TaskAnalysis(
         original_text=text,
         cleaned_text=cleaned_text,
-        activity=result.get("activity", "Needs clarification") if not needs_clarification else "Needs clarification",
-        classification=result.get("classification", "Indoor"),
-        confidence=0.15 if needs_clarification else float(result.get("confidence", 0.8)),
-        reasoning=(result.get("reasoning", "") + (f". {issue_text}" if issue_text else "")).strip(),
+        activity=activity,
+        classification=classification,
+        confidence=confidence,
+        reasoning=reasoning,
         needs_clarification=needs_clarification,
         issue=issue_text,
         suggested_activity=suggested_activity,
@@ -139,7 +208,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     
     outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", 
                        "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn",
-                       "paint outside", "sport", "sports", "tennis", "golf", "park", "outside"]
+                       "paint outside", "sport", "sports", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
     indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying",
                       "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
     
@@ -147,17 +216,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     indoor_score = _count_keyword_matches(text_lower, indoor_keywords)
     needs_clarification, issue = _detect_input_issue(text, outdoor_score, indoor_score)
     
-    suggested_activity = None
-    suggested_classification = None
-    suggestion_confidence = 0.0
-    
     if needs_clarification:
-        judge_result = auto_judge_input(text)
-        if judge_result["is_broken"] and judge_result["suggestion"]:
-            suggested_activity = judge_result["suggestion"]
-            suggested_classification = judge_result["classification"]
-            suggestion_confidence = judge_result["confidence"]
-        
         classification = "Indoor"
         confidence = 0.15
         activity = "Needs clarification"
@@ -172,6 +231,26 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         confidence = min(0.88, 0.55 + indoor_score * 0.12)
         activity = text[:30]
         reasoning = "Classified using keyword matching (Demo Mode)"
+
+    (
+        needs_clarification,
+        issue,
+        activity,
+        classification,
+        confidence,
+        reasoning,
+        suggested_activity,
+        suggested_classification,
+        suggestion_confidence,
+    ) = _apply_auto_judge_resolution(
+        original_text=text,
+        needs_clarification=needs_clarification,
+        issue_text=issue,
+        activity=activity,
+        classification=classification,
+        confidence=confidence,
+        reasoning=reasoning,
+    )
     
     return TaskAnalysis(
         original_text=text,

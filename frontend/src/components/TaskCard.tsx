@@ -1,11 +1,11 @@
-import React from "react";
-import type { TaskAnalysis } from "@types/api";
+import type { TaskAnalysis } from "@app-types/api";
 
 interface TaskCardProps {
   task: TaskAnalysis;
+  onUseSuggestion?: (value: string) => void;
 }
 
-export default function TaskCard({ task }: TaskCardProps) {
+export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   const getClassificationColor = (classification: string) => {
     return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
@@ -108,6 +108,16 @@ export default function TaskCard({ task }: TaskCardProps) {
                   </p>
                 </div>
               </div>
+              {onUseSuggestion && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    task.suggested_activity && onUseSuggestion(task.suggested_activity)
+                  }
+                  className="mt-2 px-3 py-1.5 text-xs rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30 transition-colors">
+                  Use suggestion and re-analyze
+                </button>
+              )}
             </div>
           </div>
         </div>

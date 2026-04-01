@@ -1,7 +1,5 @@
-import React from "react";
-
 interface AlternativesCardProps {
-  alternatives: string[];
+  alternatives: Array<[string, string]>;
   classification: string;
 }
 
@@ -16,13 +14,14 @@ export default function AlternativesCard({
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {alternatives.map((activity, idx) => (
+        {alternatives.map(([activity, description], idx) => (
           <div
             key={idx}
             className="p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg hover:border-cyan-500/50 transition-colors group cursor-pointer">
-            <p className="text-slate-200 group-hover:text-cyan-300 transition-colors">
+            <p className="text-slate-200 font-semibold group-hover:text-cyan-300 transition-colors">
               {activity}
             </p>
+            <p className="text-xs text-slate-400 mt-1">{description}</p>
           </div>
         ))}
       </div>
