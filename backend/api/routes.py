@@ -43,6 +43,9 @@ def convert_task_to_response(task: TaskAnalysis) -> TaskAnalysisResponse:
         reasoning=task.reasoning,
         needs_clarification=getattr(task, "needs_clarification", False),
         issue=getattr(task, "issue", None),
+        suggested_activity=getattr(task, "suggested_activity", None),
+        suggested_classification=getattr(task, "suggested_classification", None),
+        suggestion_confidence=getattr(task, "suggestion_confidence", 0.0),
     )
 
 

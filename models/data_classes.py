@@ -31,6 +31,9 @@ class TaskAnalysis:
     reasoning: str
     needs_clarification: bool = False
     issue: Optional[str] = None
+    suggested_activity: Optional[str] = None
+    suggested_classification: Optional[str] = None
+    suggestion_confidence: float = 0.0
 
 
 @dataclass

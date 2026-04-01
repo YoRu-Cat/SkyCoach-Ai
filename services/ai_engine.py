@@ -4,6 +4,7 @@ import requests
 import json
 from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
+from services.auto_judge import auto_judge_input
 
 
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
@@ -103,9 +104,19 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
     detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
 
+    suggested_activity = None
+    suggested_classification = None
+    suggestion_confidence = 0.0
+
     if detected_issue:
         needs_clarification = True
         issue_text = detected_issue_text
+        
+        judge_result = auto_judge_input(original_text)
+        if judge_result["is_broken"] and judge_result["suggestion"]:
+            suggested_activity = judge_result["suggestion"]
+            suggested_classification = judge_result["classification"]
+            suggestion_confidence = judge_result["confidence"]
     
     return TaskAnalysis(
         original_text=text,
@@ -116,6 +127,9 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
         reasoning=(result.get("reasoning", "") + (f". {issue_text}" if issue_text else "")).strip(),
         needs_clarification=needs_clarification,
         issue=issue_text,
+        suggested_activity=suggested_activity,
+        suggested_classification=suggested_classification,
+        suggestion_confidence=suggestion_confidence,
     )
 
 
@@ -133,7 +147,17 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     indoor_score = _count_keyword_matches(text_lower, indoor_keywords)
     needs_clarification, issue = _detect_input_issue(text, outdoor_score, indoor_score)
     
+    suggested_activity = None
+    suggested_classification = None
+    suggestion_confidence = 0.0
+    
     if needs_clarification:
+        judge_result = auto_judge_input(text)
+        if judge_result["is_broken"] and judge_result["suggestion"]:
+            suggested_activity = judge_result["suggestion"]
+            suggested_classification = judge_result["classification"]
+            suggestion_confidence = judge_result["confidence"]
+        
         classification = "Indoor"
         confidence = 0.15
         activity = "Needs clarification"
@@ -158,6 +182,9 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         reasoning=reasoning,
         needs_clarification=needs_clarification,
         issue=issue,
+        suggested_activity=suggested_activity,
+        suggested_classification=suggested_classification,
+        suggestion_confidence=suggestion_confidence,
     )
 
 

@@ -40,6 +40,14 @@ def render_analysis_card(task: TaskAnalysis):
     metric("Confidence", f"{task.confidence*100:.0f}%", task.reasoning)
     if getattr(task, "needs_clarification", False):
         metric("Issue", task.issue or "Input is incomplete or unclear")
+    
+    if getattr(task, "suggested_activity", None):
+        st.markdown("<div style='height:0.75rem; border-top: 1px solid rgba(148,163,184,0.2);'></div>", unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 0.75rem; color: rgba(148,163,184,0.8); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Auto-Judge Suggestion</div>', unsafe_allow_html=True)
+        metric("Likely activity", task.suggested_activity)
+        metric("Classification", task.suggested_classification)
+        metric("Suggestion confidence", f"{task.suggestion_confidence*100:.0f}%")
+    
     card_end()
 
 
