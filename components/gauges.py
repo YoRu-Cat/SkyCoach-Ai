@@ -1,4 +1,5 @@
 import streamlit as st
+from components.ui import card_start, card_end, section_title, separator
 
 
 def render_score_gauge(score: int, classification: str):
@@ -16,8 +17,8 @@ def render_score_gauge(score: int, classification: str):
     else:
         color = "#ef4444"  # Red
     
+    card_start("SkyScore", "A compact score ring with subtle motion", "✨")
     st.markdown(f"""
-    <div class="glass-card">
         <div class="score-container">
             <div class="score-circle" style="background: conic-gradient({color} {score * 3.6}deg, rgba(255,255,255,0.1) 0deg);">
                 <div class="score-inner">
@@ -29,36 +30,37 @@ def render_score_gauge(score: int, classification: str):
         <div style="text-align: center; margin-top: 1rem;">
             <span class="status-pill status-{classification.lower()}">{classification} Activity</span>
         </div>
-    </div>
     """, unsafe_allow_html=True)
+    card_end()
 
 
 def render_hero():
     """Render hero section."""
-    st.markdown("""
-    <div style="text-align: center; padding: 1rem 0 2rem 0;">
-        <h1 class="hero-title">🌤️ SkyCoach AI</h1>
-        <p class="hero-subtitle">Your intelligent weather-based activity advisor</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 1rem 0 1.5rem 0;">
+            <h1 class="hero-title">🌤️ SkyCoach AI</h1>
+            <p class="hero-subtitle">Less noise. More signal. Beautiful weather guidance.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_input_section():
     """Render activity input section."""
-    st.markdown("""
-    <div class="glass-card">
-        <h3 style="color: white; margin-bottom: 1rem; margin-top: 0;">💭 What do you want to do?</h3>
-    """, unsafe_allow_html=True)
+    card_start("What do you want to do?", "Describe the activity in plain language", "💭")
     
     user_input = st.text_area(
         "Activity",
-        placeholder="e.g., 'washing my car' or 'gonna do some gardening today'",
+        placeholder="e.g., washing my car, going hiking, cooking dinner",
         height=100,
         label_visibility="collapsed"
     )
     
-    analyze_btn = st.button("🚀 Analyze Activity", use_container_width=True)
+    separator()
+    analyze_btn = st.button("Analyze activity", use_container_width=True)
     
-    st.markdown("</div>", unsafe_allow_html=True)
+    card_end()
     
     return user_input, analyze_btn

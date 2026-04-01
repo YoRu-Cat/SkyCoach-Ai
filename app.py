@@ -1,3 +1,7 @@
+from app_runtime import main as _run_app
+
+_run_app()
+raise SystemExit
 """
 🌤️ SkyCoach AI - Refactored Architecture
 ==========================================

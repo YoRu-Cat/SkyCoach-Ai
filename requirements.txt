@@ -21,3 +21,4 @@ pandas>=2.0.0
 
 # Additional UI Components
 streamlit-extras>=0.3.0
+streamlit-lottie>=0.0.5
