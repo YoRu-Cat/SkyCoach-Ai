@@ -1,7 +1,11 @@
 import axios from "axios";
 import type { TaskAnalysis, WeatherData, AnalysisResponse } from "@app-types/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? "https://skycoach-ai.onrender.com"
+    : "http://localhost:8000");
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,

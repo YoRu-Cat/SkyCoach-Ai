@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { healthCheck } from "@services/api";
+import { API_BASE_URL, healthCheck } from "@services/api";
 import Dashboard from "@pages/Dashboard";
 import "@styles/globals.css";
 
@@ -57,7 +57,7 @@ function App() {
           <p className="text-slate-400 text-sm">
             Make sure the backend server is running on{" "}
             <code className="bg-slate-800 px-2 py-1 rounded">
-              http://localhost:8000
+              {API_BASE_URL}
             </code>
           </p>
           <button
