@@ -8,6 +8,12 @@ requests>=2.28.0
 # Environment & Config
 python-dotenv>=1.0.0
 
+# FastAPI Backend
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+cors>=1.0.1
+
 # Streamlit UI Framework
 streamlit>=1.31.0
 
