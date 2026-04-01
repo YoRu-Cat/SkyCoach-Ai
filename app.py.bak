@@ -1,41 +1,27 @@
 """
-🌤️ SkyCoach AI - Refactored Architecture
-==========================================
-Main application with clean, modular component structure.
+🌤️ SkyCoach AI - Beautiful Weather-Based Activity Advisor
+=========================================================
+
+A stunning Streamlit application with:
+- OpenAI-powered text understanding
+- Real-time weather from OpenWeatherMap  
+- Interactive Folium maps
+- Animated SkyScore gauge
+- Glassmorphism UI with smooth animations
+
+Run with: streamlit run app.py
 """
 
 import streamlit as st
-import time
+import requests
+import json
+import folium
+from streamlit_folium import st_folium
+from dataclasses import dataclass, field
+from typing import Literal, Optional, List
 from datetime import datetime
-
-# Models & Config
-from models.data_classes import Config, HistoryEntry
-
-# Themes & Styles
-from themes.styles import inject_global_styles, inject_component_styles
-
-# Components
-from components.gauges import render_hero, render_input_section, render_score_gauge
-from components.cards import (
-    render_weather_card, 
-    render_analysis_card, 
-    render_factors_card,
-    render_mini_forecast,
-    render_alternatives
-)
-from components.layout import render_sidebar
-
-# Services (Business Logic)
-from services.ai_engine import (
-    analyze_task_openai,
-    analyze_task_fallback,
-    get_weather_by_city,
-    get_demo_weather
-)
-from services.maps import display_map_section
-
-# Core Engine
-from core.scoring_engine import calculate_sky_score, get_alternative_activities
+import time
+import hashlib
 
 
 # ============================================================================
