@@ -12,6 +12,16 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
     - Indoor + Rain > 0mm → +20%
     - Indoor + Temp > 30°C → +10%
     """
+    if getattr(task, "needs_clarification", False) or task.confidence < 0.25:
+        return SkyScoreResult(
+            score=0,
+            classification=task.classification,
+            weather_factors=["⚠️ Activity input needs clarification"],
+            bonuses=[],
+            penalties=[],
+            recommendation=task.issue or "Please enter a complete activity description so I can analyze it accurately.",
+        )
+
     score = 100
     bonuses = []
     penalties = []

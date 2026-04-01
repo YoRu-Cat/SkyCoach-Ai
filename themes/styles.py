@@ -49,6 +49,8 @@ def inject_global_styles():
                 linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-primary);
+            position: relative;
+            isolation: isolate;
         }}
 
         #MainMenu, footer, header {{ visibility: hidden; }}
@@ -57,6 +59,17 @@ def inject_global_styles():
             padding-top: 1.4rem;
             padding-bottom: 1.4rem;
             max-width: 1180px;
+            position: relative;
+            z-index: 2;
+        }}
+
+        [data-testid="stSidebar"] {{
+            position: relative;
+            z-index: 3;
+            background: rgba(3, 7, 18, 0.34) !important;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-right: 1px solid rgba(125, 211, 252, 0.12) !important;
         }}
         </style>
         """,
@@ -85,15 +98,6 @@ def inject_component_styles():
             position: relative;
             animation: fadeInUp 0.45s ease-out forwards;
             overflow: hidden;
-        }
-
-        .ui-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.06), transparent 50%);
-            pointer-events: none;
-            border-radius: 20px;
         }
 
         .ui-card::before {
@@ -548,6 +552,184 @@ def inject_component_styles():
             25% { transform: translateY(-12px) translateX(4px); }
             50% { transform: translateY(-4px) translateX(-8px); }
             75% { transform: translateY(-14px) translateX(6px); }
+        }
+
+        /* Responsive Grid & Layout Transitions */
+        html[data-breakpoint="mobile"] .hero-title {
+            font-size: 2.2rem !important;
+        }
+
+        html[data-breakpoint="tablet"] .hero-title {
+            font-size: 2.6rem !important;
+        }
+
+        html[data-breakpoint="desktop"] .hero-title {
+            font-size: 3.15rem !important;
+        }
+
+        [data-testid="column"] {
+            animation: slideInColumn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        @keyframes slideInColumn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stColumns > div:nth-child(1) { animation-delay: 0ms; }
+        .stColumns > div:nth-child(2) { animation-delay: 85ms; }
+        .stColumns > div:nth-child(3) { animation-delay: 170ms; }
+
+        /* Mobile-first responsive adjustments */
+        @media (max-width: 639px) {
+            .main .block-container {
+                padding-left: 0.8rem !important;
+                padding-right: 0.8rem !important;
+                max-width: 100% !important;
+            }
+
+            .stColumns > div {
+                gap: 0.6rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.88rem !important;
+            }
+
+            .ui-card, .glass-card {
+                padding: 0.75rem !important;
+                border-radius: 14px !important;
+            }
+
+            .score-circle {
+                width: 140px !important;
+                height: 140px !important;
+            }
+
+            .score-inner {
+                width: 110px !important;
+                height: 110px !important;
+            }
+
+            .score-value {
+                font-size: 2.4rem !important;
+            }
+
+            .weather-temp {
+                font-size: 2rem !important;
+            }
+
+            .weather-emoji {
+                font-size: 2.8rem !important;
+            }
+
+            .ui-metric {
+                padding: 0.65rem 0.75rem !important;
+                font-size: 0.9rem !important;
+            }
+
+            .ui-card-title {
+                font-size: 0.95rem !important;
+            }
+
+            .status-pill {
+                padding: 0.4rem 0.8rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
+
+        /* Tablet (640px - 1023px) */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .main .block-container {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                max-width: 100% !important;
+            }
+
+            .stColumns > div {
+                gap: 0.75rem !important;
+            }
+
+            .hero-title {
+                font-size: 2.6rem !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.94rem !important;
+            }
+
+            .ui-card, .glass-card {
+                padding: 0.9rem !important;
+            }
+
+            .score-circle {
+                width: 160px !important;
+                height: 160px !important;
+            }
+
+            .score-inner {
+                width: 125px !important;
+                height: 125px !important;
+            }
+
+            .score-value {
+                font-size: 2.6rem !important;
+            }
+
+            .weather-temp {
+                font-size: 2.2rem !important;
+            }
+
+            .weather-emoji {
+                font-size: 3rem !important;
+            }
+
+            .ui-metric {
+                padding: 0.75rem 0.85rem !important;
+            }
+        }
+
+        /* Desktop (1024px+) */
+        @media (min-width: 1024px) {
+            .main .block-container {
+                padding-top: 1.4rem;
+                padding-bottom: 1.4rem;
+                max-width: 1180px;
+            }
+        }
+
+        /* Smooth transitions for layout shifts */
+        * {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        [data-testid="stSidebar"] {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Stagger animations for multiple cards */
+        .ui-card:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .ui-card:nth-child(2) {
+            animation-delay: 50ms;
+        }
+
+        .ui-card:nth-child(3) {
+            animation-delay: 100ms;
+        }
+
+        .ui-card:nth-child(4) {
+            animation-delay: 150ms;
+        }
+
+        .ui-card:nth-child(5) {
+            animation-delay: 200ms;
         }
         </style>
         """,

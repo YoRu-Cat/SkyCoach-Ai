@@ -29,6 +29,8 @@ class TaskAnalysis:
     classification: Literal["Indoor", "Outdoor"]
     confidence: float
     reasoning: str
+    needs_clarification: bool = False
+    issue: Optional[str] = None
 
 
 @dataclass

@@ -1,4 +1,5 @@
 import hashlib
+import re
 import requests
 import json
 from typing import Optional
@@ -34,6 +35,32 @@ def _resolve_demo_city_coords(city: str, city_coords: dict) -> tuple[float, floa
     return _stable_fallback_coords(city)
 
 
+def _count_keyword_matches(text: str, keywords: list[str]) -> int:
+    """Count whole-word and phrase matches without matching fragments inside other words."""
+    count = 0
+    for keyword in keywords:
+        pattern = r"\b" + re.escape(keyword) + r"\b"
+        if re.search(pattern, text):
+            count += 1
+    return count
+
+
+def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tuple[bool, Optional[str]]:
+    """Detect incomplete, fragmented, or ambiguous activity inputs."""
+    compact = re.sub(r"\s+", " ", text).strip()
+    words = re.findall(r"[a-zA-Z']+", compact.lower())
+
+    if len(compact) < 8 or len(words) < 2:
+        return True, "Input is too short or incomplete"
+
+    if outdoor_score == 0 and indoor_score == 0:
+        if any(word in {"doing", "go", "going", "make", "want", "need", "plan", "try"} for word in words):
+            return True, "Input looks unfinished or misspelled"
+        return True, "Could not identify a clear activity"
+
+    return False, None
+
+
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     """Use OpenAI to analyze and classify the task."""
     from openai import OpenAI
@@ -52,6 +79,7 @@ def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> 
 OUTDOOR: gardening, car washing, jogging, hiking, cycling, sports, yard work, BBQ, pool
 INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, crafts"""
 
+
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -64,44 +92,72 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     )
     
     result = json.loads(response.choices[0].message.content)
+    original_text = text.strip()
+    cleaned_text = result.get("cleaned_text", text)
+    issue_text = result.get("issue")
+    needs_clarification = bool(result.get("needs_clarification", False))
+
+    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "tennis", "golf", "park", "outside"]
+    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
+    outdoor_score = _count_keyword_matches(original_text.lower(), outdoor_keywords)
+    indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
+    detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
+
+    if detected_issue:
+        needs_clarification = True
+        issue_text = detected_issue_text
     
     return TaskAnalysis(
         original_text=text,
-        cleaned_text=result.get("cleaned_text", text),
-        activity=result.get("activity", "Unknown"),
+        cleaned_text=cleaned_text,
+        activity=result.get("activity", "Needs clarification") if not needs_clarification else "Needs clarification",
         classification=result.get("classification", "Indoor"),
-        confidence=float(result.get("confidence", 0.8)),
-        reasoning=result.get("reasoning", "")
+        confidence=0.15 if needs_clarification else float(result.get("confidence", 0.8)),
+        reasoning=(result.get("reasoning", "") + (f". {issue_text}" if issue_text else "")).strip(),
+        needs_clarification=needs_clarification,
+        issue=issue_text,
     )
 
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
     """Keyword-based fallback when API unavailable."""
-    text_lower = text.lower()
+    text_lower = text.lower().strip()
     
-    outdoor_keywords = ["car", "wash", "garden", "jog", "run", "hike", "bike", 
-                       "walk", "dog", "picnic", "bbq", "swim", "yard", "lawn",
-                       "paint outside", "sport", "tennis", "golf", "park", "outside"]
-    indoor_keywords = ["cook", "read", "clean", "computer", "work", "study",
-                      "watch", "game", "craft", "laundry", "yoga", "inside", "home"]
+    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", 
+                       "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn",
+                       "paint outside", "sport", "sports", "tennis", "golf", "park", "outside"]
+    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying",
+                      "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
     
-    outdoor_score = sum(1 for kw in outdoor_keywords if kw in text_lower)
-    indoor_score = sum(1 for kw in indoor_keywords if kw in text_lower)
+    outdoor_score = _count_keyword_matches(text_lower, outdoor_keywords)
+    indoor_score = _count_keyword_matches(text_lower, indoor_keywords)
+    needs_clarification, issue = _detect_input_issue(text, outdoor_score, indoor_score)
     
-    if outdoor_score > indoor_score:
+    if needs_clarification:
+        classification = "Indoor"
+        confidence = 0.15
+        activity = "Needs clarification"
+        reasoning = issue or "Input is incomplete or unclear"
+    elif outdoor_score > indoor_score:
         classification = "Outdoor"
-        confidence = min(0.75, 0.5 + outdoor_score * 0.1)
+        confidence = min(0.88, 0.55 + outdoor_score * 0.12)
+        activity = text[:30]
+        reasoning = "Classified using keyword matching (Demo Mode)"
     else:
         classification = "Indoor"
-        confidence = min(0.75, 0.5 + indoor_score * 0.1)
+        confidence = min(0.88, 0.55 + indoor_score * 0.12)
+        activity = text[:30]
+        reasoning = "Classified using keyword matching (Demo Mode)"
     
     return TaskAnalysis(
         original_text=text,
         cleaned_text=text.title(),
-        activity=text[:30],
+        activity=activity,
         classification=classification,
         confidence=confidence,
-        reasoning="Classified using keyword matching (Demo Mode)"
+        reasoning=reasoning,
+        needs_clarification=needs_clarification,
+        issue=issue,
     )
 
 

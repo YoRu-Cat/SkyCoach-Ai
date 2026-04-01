@@ -31,10 +31,15 @@ def render_weather_card(weather: WeatherData):
 def render_analysis_card(task: TaskAnalysis):
     """Render task analysis card."""
     card_start("Activity Analysis", "Clean output from the language engine", "🧠")
+    if getattr(task, "needs_clarification", False):
+        badge("Needs clarification", "warning")
+        st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
     metric("Original input", f'"{task.original_text}"')
     metric("Cleaned text", f'"{task.cleaned_text}"')
     metric("Identified activity", task.activity)
     metric("Confidence", f"{task.confidence*100:.0f}%", task.reasoning)
+    if getattr(task, "needs_clarification", False):
+        metric("Issue", task.issue or "Input is incomplete or unclear")
     card_end()
 
 
