@@ -13,8 +13,9 @@ class Colors:
     BG_DARK = "#0b1020"
     TEXT_PRIMARY = "#f8fafc"
     TEXT_SECONDARY = "rgba(226, 232, 240, 0.72)"
-    GLASS_BG = "rgba(15, 23, 42, 0.72)"
-    GLASS_BORDER = "rgba(148, 163, 184, 0.16)"
+    GLASS_BG = "rgba(10, 15, 30, 0.58)"
+    GLASS_BORDER = "rgba(125, 211, 252, 0.18)"
+    GLASS_GLOW = "rgba(6, 182, 212, 0.08)"
 
 
 def inject_global_styles():
@@ -69,15 +70,49 @@ def inject_component_styles():
         """
         <style>
         .ui-card, .glass-card {
-            background: rgba(15, 23, 42, 0.72);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            border-radius: 18px;
+            background: rgba(10, 15, 30, 0.48);
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            border: 1px solid rgba(125, 211, 252, 0.18);
+            border-radius: 20px;
             padding: 1.05rem;
             margin-bottom: 0.9rem;
-            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px rgba(0, 0, 0, 0.24);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 1px 0 rgba(255, 255, 255, 0.04),
+                0 18px 48px rgba(0, 0, 0, 0.28),
+                0 0 1px rgba(6, 182, 212, 0.12);
+            position: relative;
             animation: fadeInUp 0.45s ease-out forwards;
+            overflow: hidden;
+        }
+
+        .ui-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.06), transparent 50%);
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
+        .ui-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.06), transparent 50%);
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
+        .ui-card:hover, .glass-card:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 1px 0 rgba(255, 255, 255, 0.06),
+                0 24px 64px rgba(0, 0, 0, 0.32),
+                0 0 32px rgba(6, 182, 212, 0.18);
+            transform: translateY(-2px);
         }
 
         .ui-card-header {
@@ -105,8 +140,9 @@ def inject_component_styles():
 
         .ui-separator {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.22), transparent);
+            background: linear-gradient(90deg, transparent 0%, rgba(125, 211, 252, 0.28) 20%, rgba(125, 211, 252, 0.28) 80%, transparent 100%);
             margin: 0.75rem 0;
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.12);
         }
 
         .ui-badge {
@@ -117,23 +153,56 @@ def inject_component_styles():
             font-size: 0.76rem;
             font-weight: 600;
             line-height: 1;
-            border: 1px solid rgba(148, 163, 184, 0.18);
+            border: 1px solid rgba(125, 211, 252, 0.22);
             color: #e2e8f0;
-            background: rgba(30, 41, 59, 0.72);
+            background: rgba(6, 15, 30, 0.52);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.06);
         }
 
-        .ui-badge-default { background: rgba(30, 41, 59, 0.72); }
-        .ui-badge-success { background: rgba(6, 95, 70, 0.25); color: #86efac; }
-        .ui-badge-warning { background: rgba(120, 53, 15, 0.25); color: #fde68a; }
-        .ui-badge-danger { background: rgba(127, 29, 29, 0.25); color: #fca5a5; }
-        .ui-badge-primary { background: rgba(30, 64, 175, 0.25); color: #bfdbfe; }
+        .ui-badge-default { 
+            background: rgba(6, 15, 30, 0.52); 
+            border-color: rgba(125, 211, 252, 0.18);
+        }
+        .ui-badge-success { 
+            background: rgba(6, 95, 70, 0.32); 
+            color: #86efac;
+            border-color: rgba(16, 185, 129, 0.24);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.12);
+        }
+        .ui-badge-warning { 
+            background: rgba(120, 53, 15, 0.32); 
+            color: #fde68a;
+            border-color: rgba(245, 158, 11, 0.24);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.12);
+        }
+        .ui-badge-danger { 
+            background: rgba(127, 29, 29, 0.32); 
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.24);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.12);
+        }
+        .ui-badge-primary { 
+            background: rgba(30, 64, 175, 0.32); 
+            color: #bfdbfe;
+            border-color: rgba(99, 102, 241, 0.24);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.12);
+        }
 
         .ui-metric {
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            background: rgba(15, 23, 42, 0.58);
+            border: 1px solid rgba(125, 211, 252, 0.16);
+            background: rgba(6, 15, 30, 0.42);
+            backdrop-filter: blur(20px);
             border-radius: 16px;
             padding: 0.82rem 0.9rem;
             margin-top: 0.6rem;
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .ui-metric:hover {
+            border-color: rgba(6, 182, 212, 0.32);
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.16);
         }
 
         .ui-metric-label {
@@ -221,7 +290,16 @@ def inject_component_styles():
             letter-spacing: 2px;
         }
 
-        .weather-card { background: linear-gradient(180deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.52) 100%); }
+        .weather-card { 
+            background: linear-gradient(180deg, rgba(10, 15, 30, 0.52) 0%, rgba(8, 12, 28, 0.48) 100%);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(125, 211, 252, 0.18);
+        }
+
+        .weather-card:hover {
+            border-color: rgba(6, 182, 212, 0.36);
+            box-shadow: 0 0 24px rgba(6, 182, 212, 0.14);
+        }
 
         .weather-temp {
             font-family: 'Space Grotesk', sans-serif;
@@ -262,46 +340,74 @@ def inject_component_styles():
         }
 
         .factor-card {
-            background: rgba(15, 23, 42, 0.55);
+            background: rgba(8, 12, 28, 0.48);
             border-radius: 14px;
             padding: 0.8rem 0.9rem;
             margin: 0.5rem 0;
-            border: 1px solid rgba(148, 163, 184, 0.12);
-            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+            border: 1px solid rgba(125, 211, 252, 0.12);
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+            backdrop-filter: blur(16px);
         }
 
         .factor-card:hover {
-            transform: translateY(-1px);
-            border-color: rgba(125, 211, 252, 0.28);
-            background: rgba(15, 23, 42, 0.68);
+            transform: translateY(-2px);
+            border-color: rgba(125, 211, 252, 0.36);
+            background: rgba(8, 12, 28, 0.62);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.12);
         }
 
-        .bonus-card { border-color: rgba(34, 197, 94, 0.18); }
-        .penalty-card { border-color: rgba(248, 113, 113, 0.18); }
+        .bonus-card { 
+            border-color: rgba(16, 185, 129, 0.18);
+        }
+        .bonus-card:hover { 
+            border-color: rgba(16, 185, 129, 0.32);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.14);
+        }
+        
+        .penalty-card { 
+            border-color: rgba(239, 68, 68, 0.18);
+        }
+        .penalty-card:hover { 
+            border-color: rgba(239, 68, 68, 0.32);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.14);
+        }
 
         .stTextArea textarea {
-            background: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            background: rgba(10, 15, 30, 0.52) !important;
+            border: 1px solid rgba(125, 211, 252, 0.18) !important;
             border-radius: 14px !important;
             color: #f8fafc !important;
             font-size: 0.98rem !important;
             padding: 0.85rem !important;
+            backdrop-filter: blur(16px) !important;
+            transition: all 0.15s ease !important;
         }
 
         .stTextArea textarea:focus {
-            border-color: rgba(125, 211, 252, 0.8) !important;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.14) !important;
+            border-color: rgba(6, 182, 212, 0.64) !important;
+            box-shadow: 
+                0 0 0 4px rgba(6, 182, 212, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
         .stTextInput input {
-            background: rgba(15, 23, 42, 0.7) !important;
-            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            background: rgba(10, 15, 30, 0.52) !important;
+            border: 1px solid rgba(125, 211, 252, 0.18) !important;
             border-radius: 12px !important;
             color: #f8fafc !important;
+            backdrop-filter: blur(16px) !important;
+            transition: all 0.15s ease !important;
+        }
+
+        .stTextInput input:focus {
+            border-color: rgba(6, 182, 212, 0.64) !important;
+            box-shadow: 
+                0 0 0 4px rgba(6, 182, 212, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
         }
 
         .stButton > button {
-            background: #e2e8f0 !important;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
             color: #0f172a !important;
             border: 1px solid rgba(226, 232, 240, 0.85) !important;
             border-radius: 12px !important;
@@ -309,59 +415,76 @@ def inject_component_styles():
             font-weight: 600 !important;
             font-size: 1rem !important;
             transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18) !important;
+            box-shadow: 
+                0 8px 24px rgba(6, 182, 212, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
         }
 
         .stButton > button:hover {
-            transform: translateY(-1px) !important;
-            background: #f8fafc !important;
-            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2) !important;
+            transform: translateY(-2px) !important;
+            background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%) !important;
+            box-shadow: 
+                0 12px 32px rgba(6, 182, 212, 0.24),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
         }
 
         [data-testid="stSidebar"] {
             background: rgba(2, 6, 23, 0.92) !important;
-            border-right: 1px solid rgba(148, 163, 184, 0.12);
+            backdrop-filter: blur(20px) !important;
+            border-right: 1px solid rgba(125, 211, 252, 0.12) !important;
         }
 
         .history-item {
-            background: rgba(15, 23, 42, 0.55);
+            background: rgba(8, 12, 28, 0.44);
             border-radius: 14px;
             padding: 0.8rem 0.95rem;
             margin: 0.5rem 0;
-            border: 1px solid rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.12);
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.2s ease;
+            backdrop-filter: blur(16px);
         }
 
         .history-item:hover {
-            background: rgba(15, 23, 42, 0.72);
+            background: rgba(8, 12, 28, 0.62);
             transform: translateY(-1px);
+            border-color: rgba(6, 182, 212, 0.28);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.1);
         }
 
         .alt-activity {
-            background: rgba(15, 23, 42, 0.55);
+            background: rgba(8, 12, 28, 0.44);
             border-radius: 14px;
             padding: 0.95rem;
             margin: 0.5rem 0;
-            border: 1px solid rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.12);
             cursor: pointer;
             transition: all 0.2s ease;
+            backdrop-filter: blur(16px);
         }
 
         .alt-activity:hover {
-            border-color: rgba(125, 211, 252, 0.3);
+            border-color: rgba(6, 182, 212, 0.36);
             transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.12);
         }
 
         .forecast-item {
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(8, 12, 28, 0.48);
+            border: 1px solid rgba(125, 211, 252, 0.12);
             border-radius: 14px;
             padding: 0.75rem;
             text-align: center;
             min-width: 80px;
+            backdrop-filter: blur(16px);
+            transition: all 0.15s ease;
+        }
+
+        .forecast-item:hover {
+            border-color: rgba(6, 182, 212, 0.32);
+            box-shadow: 0 6px 16px rgba(6, 182, 212, 0.1);
         }
 
         .ui-inline-row {
@@ -372,18 +495,59 @@ def inject_component_styles():
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(28px);
+                filter: blur(4px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+                filter: blur(0);
+            }
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(6, 182, 212, 0));
+            }
+            50% { 
+                transform: scale(1.025);
+                filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.2));
+            }
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 12px rgba(6, 182, 212, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 24px rgba(6, 182, 212, 0.24);
+            }
+        }
+
+        @keyframes parallaxShift {
+            0% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-12px) translateX(4px); }
+            50% { transform: translateY(-4px) translateX(-8px); }
+            75% { transform: translateY(-14px) translateX(6px); }
         }
         </style>
         """,
