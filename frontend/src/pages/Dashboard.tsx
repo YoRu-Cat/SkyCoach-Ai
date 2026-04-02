@@ -66,12 +66,10 @@ export default function Dashboard() {
 
       <div ref={layoutRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Input Section */}
           <div className="lg:col-span-1 input-panel">
             <ActivityInput onAnalyze={handleAnalyze} isLoading={isLoading} />
           </div>
 
-          {/* Results Section */}
           <div className="lg:col-span-2 result-shell">
             {isLoading ? (
               <div className="card flex items-center justify-center h-96 animated-card-border">

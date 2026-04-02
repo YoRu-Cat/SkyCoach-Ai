@@ -1,10 +1,11 @@
 # 🌤️ SkyCoach AI
 
-A beautiful, intelligent weather-based activity advisor built with Streamlit, OpenAI, and OpenWeatherMap.
+A beautiful, intelligent weather-based activity advisor with a React frontend and FastAPI backend.
 
 ![SkyCoach AI](https://img.shields.io/badge/SkyCoach-AI-6366f1?style=for-the-badge&logo=cloud&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.9+-3776ab?style=for-the-badge&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.31+-ff4b4b?style=for-the-badge&logo=streamlit&logoColor=white)
+![React](https://img.shields.io/badge/React-18+-61dafb?style=for-the-badge&logo=react&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11+-3776ab?style=for-the-badge&logo=python&logoColor=white)
 
 ## ✨ Features
 
@@ -17,6 +18,25 @@ A beautiful, intelligent weather-based activity advisor built with Streamlit, Op
 - 💡 **Smart Recommendations** - Alternative activity suggestions
 - 🕐 **Weather Forecast** - Upcoming hours preview
 - ✨ **Smooth CSS Animations** - Beautiful transitions and effects
+
+## 📚 Documentation
+
+Complete documentation is available in the `/docs` folder:
+
+- **[Architecture](docs/architecture/system_design.md)** - System design, data flow, and deployment
+- **Backend Services:**
+  - [AI Engine](docs/backend/ai_engine.md) - Task analysis and classification
+  - [Auto-Judge](docs/backend/auto_judge.md) - Activity suggestion engine
+  - [Scoring Engine](docs/backend/scoring_engine.md) - SkyScore calculation
+  - [Maps](docs/backend/maps.md) - Interactive map rendering
+  - [API Routes](docs/backend/api_routes.md) - REST API endpoints
+- **Frontend Components:**
+  - [Components](docs/frontend/components.md) - React UI components overview
+  - [Services](docs/frontend/services.md) - API client and HTTP handling
+  - [Hooks](docs/frontend/hooks.md) - Custom React hooks
+- **Data & Models:**
+  - [Data Models](docs/datasets/data_models.md) - Database schemas and types
+  - [Activity Corpus](docs/datasets/activity_corpus.md) - 100+ activity dataset
 
 ## 🏗️ Architecture
 

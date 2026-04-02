@@ -1,5 +1,3 @@
-"""API endpoints for task analysis and weather scoring."""
-
 from fastapi import APIRouter, HTTPException
 from typing import List, Tuple
 import sys
@@ -33,7 +31,6 @@ router = APIRouter(prefix="/api", tags=["analysis"])
 
 
 def convert_task_to_response(task: TaskAnalysis) -> TaskAnalysisResponse:
-    """Convert TaskAnalysis model to API response."""
     return TaskAnalysisResponse(
         original_text=task.original_text,
         cleaned_text=task.cleaned_text,
@@ -50,7 +47,6 @@ def convert_task_to_response(task: TaskAnalysis) -> TaskAnalysisResponse:
 
 
 def convert_weather_to_response(weather: WeatherData) -> WeatherResponse:
-    """Convert WeatherData model to API response."""
     return WeatherResponse(
         city=weather.city,
         country=weather.country,
@@ -73,7 +69,6 @@ def convert_weather_to_response(weather: WeatherData) -> WeatherResponse:
 
 @router.post("/analyze-task", response_model=TaskAnalysisResponse)
 async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
-    """Analyze an activity task and classify it."""
     try:
         if request.use_openai and request.openai_api_key:
             task = analyze_task_openai(request.text, request.openai_api_key)
@@ -87,7 +82,6 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
 
 @router.post("/weather", response_model=WeatherResponse)
 async def get_weather(request: WeatherRequest) -> WeatherResponse:
-    """Get weather data by city or coordinates."""
     try:
         if request.use_demo or not request.api_key:
             if request.city:
@@ -110,7 +104,6 @@ async def get_weather(request: WeatherRequest) -> WeatherResponse:
 
 @router.post("/score", response_model=SkyScoreResponse)
 async def calculate_score(request: SkyScoreRequest) -> SkyScoreResponse:
-    """Calculate SkyScore based on task and weather."""
     try:
         config = Config(
             rain_threshold=request.rain_threshold,

@@ -10,6 +10,9 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
     return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
 
+  const confidenceSegments = 20;
+  const filledConfidenceSegments = Math.round(task.confidence * confidenceSegments);
+
   return (
     <div className="card space-y-4 glow-cyan">
       <div className="flex items-center justify-between mb-4">
@@ -57,11 +60,13 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
               Confidence
             </label>
             <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
-                  style={{ width: `${task.confidence * 100}%` }}
-                />
+              <div className="flex-1 score-meter">
+                {Array.from({ length: confidenceSegments }, (_, index) => (
+                  <span
+                    key={index}
+                    className={`score-meter__segment ${index < filledConfidenceSegments ? "is-active" : ""}`}
+                  />
+                ))}
               </div>
               <span className="text-sm font-semibold text-slate-200">
                 {Math.round(task.confidence * 100)}%

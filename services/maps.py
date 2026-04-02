@@ -6,8 +6,6 @@ from models.data_classes import WeatherData
 
 
 def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> folium.Map:
-    """Render interactive Folium map with weather overlay."""
-
     m = folium.Map(
         location=[lat, lon],
         zoom_start=10,

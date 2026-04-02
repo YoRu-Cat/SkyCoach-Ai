@@ -4,7 +4,6 @@ from typing import Literal, Optional, List
 
 @dataclass
 class Config:
-    """Central configuration for API keys and settings."""
     openai_api_key: Optional[str] = None
     openweather_api_key: Optional[str] = None
     openai_model: str = "gpt-4o-mini"
@@ -22,7 +21,6 @@ class Config:
 
 @dataclass
 class TaskAnalysis:
-    """Result of language analysis."""
     original_text: str
     cleaned_text: str
     activity: str
@@ -38,7 +36,6 @@ class TaskAnalysis:
 
 @dataclass
 class HistoryEntry:
-    """A saved analysis entry."""
     timestamp: str
     activity: str
     classification: str
@@ -49,7 +46,6 @@ class HistoryEntry:
 
 @dataclass
 class WeatherData:
-    """Weather information from API."""
     city: str
     country: str
     latitude: float
@@ -87,7 +83,6 @@ class WeatherData:
 
 @dataclass
 class SkyScoreResult:
-    """Final scoring result."""
     score: int
     classification: str
     weather_factors: list

@@ -8,7 +8,6 @@ from services.auto_judge import auto_judge_input
 
 
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
-    """Generate deterministic coordinates for unknown cities in demo mode."""
     digest = hashlib.md5(city.lower().encode()).hexdigest()
     lat_bucket = int(digest[:6], 16) / 0xFFFFFF
     lon_bucket = int(digest[6:12], 16) / 0xFFFFFF
@@ -18,7 +17,6 @@ def _stable_fallback_coords(city: str) -> tuple[float, float]:
 
 
 def _resolve_demo_city_coords(city: str, city_coords: dict) -> tuple[float, float]:
-    """Resolve coordinates from known cities, then geocoding, then deterministic fallback."""
     normalized = city.lower().strip()
     if normalized in city_coords:
         return city_coords[normalized]
@@ -37,7 +35,6 @@ def _resolve_demo_city_coords(city: str, city_coords: dict) -> tuple[float, floa
 
 
 def _count_keyword_matches(text: str, keywords: list[str]) -> int:
-    """Count whole-word and phrase matches without matching fragments inside other words."""
     count = 0
     for keyword in keywords:
         pattern = r"\b" + re.escape(keyword) + r"\b"
@@ -47,7 +44,6 @@ def _count_keyword_matches(text: str, keywords: list[str]) -> int:
 
 
 def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tuple[bool, Optional[str]]:
-    """Detect incomplete, fragmented, or ambiguous activity inputs."""
     compact = re.sub(r"\s+", " ", text).strip()
     words = re.findall(r"[a-zA-Z']+", compact.lower())
 
@@ -71,7 +67,6 @@ def _apply_auto_judge_resolution(
     confidence: float,
     reasoning: str,
 ) -> tuple[bool, Optional[str], str, str, float, str, Optional[str], Optional[str], float]:
-    """Use auto-judge to resolve unclear input into a concrete activity when confidence is high."""
     suggested_activity = None
     suggested_classification = None
     suggestion_confidence = 0.0
@@ -117,7 +112,6 @@ def _apply_auto_judge_resolution(
 
 
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
-    """Use OpenAI to analyze and classify the task."""
     from openai import OpenAI
     
     client = OpenAI(api_key=api_key)
@@ -203,7 +197,6 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
 
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
-    """Keyword-based fallback when API unavailable."""
     text_lower = text.lower().strip()
     
     outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", 
@@ -268,7 +261,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
 
 
 def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> WeatherData:
-    """Fetch weather from OpenWeatherMap API."""
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {"lat": lat, "lon": lon, "appid": api_key, "units": units}
     
@@ -302,7 +294,6 @@ def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> 
 
 
 def get_weather_by_city(city: str, api_key: str, units: str = "metric") -> WeatherData:
-    """Fetch weather by city name."""
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {"q": city, "appid": api_key, "units": units}
     
@@ -336,7 +327,6 @@ def get_weather_by_city(city: str, api_key: str, units: str = "metric") -> Weath
 
 
 def get_demo_weather(city: str = "New York") -> WeatherData:
-    """Demo weather data for testing without API."""
     city_hash = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
     
     scenarios = [

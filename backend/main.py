@@ -1,5 +1,3 @@
-"""FastAPI application initialization and configuration."""
-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,7 +48,6 @@ app.include_router(router)
 
 @app.get("/")
 async def root():
-    """Root endpoint with API documentation link."""
     return {
         "message": "Welcome to SkyCoach API",
         "docs": "/docs",

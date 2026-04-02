@@ -33,6 +33,7 @@ body {
 /* Glassmorphism base */
 .glass {
   background: var(--color-glass-bg);
+  -webkit-backdrop-filter: blur(32px);
   backdrop-filter: blur(32px);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 16px;
@@ -133,6 +134,7 @@ button {
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: var(--color-glass-bg);
+  -webkit-backdrop-filter: blur(32px);
   backdrop-filter: blur(32px);
 }
 
@@ -249,6 +251,101 @@ button {
   background: linear-gradient(180deg, rgba(34, 211, 238, 0.95), rgba(6, 182, 212, 0.2));
   box-shadow: 0 0 14px rgba(34, 211, 238, 0.55);
   transition: transform 0.25s ease-out;
+}
+
+.score-meter {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 3px;
+  height: 10px;
+  padding: 2px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.score-meter--wide {
+  height: 12px;
+}
+
+.score-meter__segment {
+  display: block;
+  border-radius: 9999px;
+  background: rgba(71, 85, 105, 0.8);
+  transition:
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.score-meter__segment.is-active {
+  background: linear-gradient(90deg, #22d3ee 0%, #38bdf8 100%);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+  transform: scaleY(1.12);
+}
+
+.gauge-shell {
+  position: relative;
+}
+
+.gauge-ring {
+  position: absolute;
+  inset: 0;
+}
+
+.gauge-segment {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 28px;
+  margin-left: -6px;
+  margin-top: -94px;
+  border-radius: 9999px;
+  background: rgba(71, 85, 105, 0.72);
+  transform-origin: 50% 94px;
+  transition:
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.gauge-segment.is-active {
+  background: linear-gradient(180deg, #22d3ee 0%, #4ade80 100%);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.5);
+}
+
+.gauge-segment-0 { transform: rotate(0deg) translateY(-86px); }
+.gauge-segment-1 { transform: rotate(18deg) translateY(-86px); }
+.gauge-segment-2 { transform: rotate(36deg) translateY(-86px); }
+.gauge-segment-3 { transform: rotate(54deg) translateY(-86px); }
+.gauge-segment-4 { transform: rotate(72deg) translateY(-86px); }
+.gauge-segment-5 { transform: rotate(90deg) translateY(-86px); }
+.gauge-segment-6 { transform: rotate(108deg) translateY(-86px); }
+.gauge-segment-7 { transform: rotate(126deg) translateY(-86px); }
+.gauge-segment-8 { transform: rotate(144deg) translateY(-86px); }
+.gauge-segment-9 { transform: rotate(162deg) translateY(-86px); }
+.gauge-segment-10 { transform: rotate(180deg) translateY(-86px); }
+.gauge-segment-11 { transform: rotate(198deg) translateY(-86px); }
+.gauge-segment-12 { transform: rotate(216deg) translateY(-86px); }
+.gauge-segment-13 { transform: rotate(234deg) translateY(-86px); }
+.gauge-segment-14 { transform: rotate(252deg) translateY(-86px); }
+.gauge-segment-15 { transform: rotate(270deg) translateY(-86px); }
+.gauge-segment-16 { transform: rotate(288deg) translateY(-86px); }
+.gauge-segment-17 { transform: rotate(306deg) translateY(-86px); }
+.gauge-segment-18 { transform: rotate(324deg) translateY(-86px); }
+.gauge-segment-19 { transform: rotate(342deg) translateY(-86px); }
+
+.gauge-core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border-radius: 9999px;
+  background: #67e8f9;
+  box-shadow: 0 0 16px rgba(103, 232, 249, 0.65);
 }
 
 @keyframes cardBorderSweep {

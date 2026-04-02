@@ -12,13 +12,6 @@ const getScoreColor = (score: number): string => {
   return "text-red-400";
 };
 
-const getScoreBackground = (score: number): string => {
-  if (score >= 80) return "from-green-600 to-green-400";
-  if (score >= 60) return "from-cyan-600 to-cyan-400";
-  if (score >= 40) return "from-yellow-600 to-yellow-400";
-  return "from-red-600 to-red-400";
-};
-
 const getScoreLabel = (score: number): string => {
   if (score >= 80) return "Perfect!";
   if (score >= 60) return "Go for it!";
@@ -27,6 +20,9 @@ const getScoreLabel = (score: number): string => {
 };
 
 export default function ScoreCard({ score }: ScoreCardProps) {
+  const scoreSegments = 20;
+  const filledScoreSegments = Math.round(score.score / 5);
+
   return (
     <div className="card space-y-6 glow-cyan">
       <div className="text-center">
@@ -48,21 +44,20 @@ export default function ScoreCard({ score }: ScoreCardProps) {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className={`h-full bg-gradient-to-r ${getScoreBackground(score.score)}`}
-            style={{ width: `${score.score}%` }}
-          />
+        <div className="score-meter score-meter--wide">
+          {Array.from({ length: scoreSegments }, (_, index) => (
+            <span
+              key={index}
+              className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Recommendation */}
       <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
         <p className="text-sm text-slate-300">{score.recommendation}</p>
       </div>
 
-      {/* Factors */}
       <div className="space-y-4">
         {score.bonuses.length > 0 && (
           <div>

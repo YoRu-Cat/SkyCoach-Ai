@@ -3,15 +3,6 @@ from models.data_classes import TaskAnalysis, WeatherData, SkyScoreResult, Confi
 
 
 def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config) -> SkyScoreResult:
-    """
-    Calculate the SkyScore using the Decision Matrix.
-    
-    Decision Matrix:
-    - Outdoor + Rain > 0mm → -80%
-    - Outdoor + Wind > 15mph → -30%
-    - Indoor + Rain > 0mm → +20%
-    - Indoor + Temp > 30°C → +10%
-    """
     if getattr(task, "needs_clarification", False) or task.confidence < 0.25:
         return SkyScoreResult(
             score=0,

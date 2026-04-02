@@ -1,5 +1,3 @@
-"""Auto-judge feature for incomplete/broken activity inputs."""
-
 import re
 from difflib import SequenceMatcher, get_close_matches
 from typing import Optional, Tuple
@@ -87,22 +85,14 @@ ALL_ACTIVITIES = [
 
 
 def calculate_similarity(input_str: str, candidate: str) -> float:
-    """Calculate similarity ratio between input and candidate."""
     return SequenceMatcher(None, input_str.lower(), candidate.lower()).ratio()
 
 
 def extract_words(text: str) -> list[str]:
-    """Extract meaningful words from text."""
     return re.findall(r'\b[a-z]+\b', text.lower())
 
 
 def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
-    """
-    Suggest the most likely intended activity from broken/incomplete input.
-    
-    Returns:
-        Tuple of (suggested_activity, confidence, classification) or None if no good match
-    """
     if not broken_input or len(broken_input.strip()) < 3:
         return None
     
@@ -158,12 +148,6 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
 
 
 def auto_judge_input(text: str) -> dict:
-    """
-    Auto-judge broken/incomplete input and return suggestions.
-    
-    Returns:
-        Dict with keys: original, is_broken, suggestion, confidence, classification
-    """
     suggestion_result = suggest_activity(text)
     
     if suggestion_result:
