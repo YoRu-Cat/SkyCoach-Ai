@@ -1,7 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface LocationCoords {
+  latitude: number;
+  longitude: number;
+}
+
+interface AnalyzeInput {
+  activity: string;
+  city: string;
+  latitude?: number;
+  longitude?: number;
+}
 
 interface ActivityInputProps {
-  onAnalyze: (activity: string, city: string) => void;
+  onAnalyze: (input: AnalyzeInput) => void;
   isLoading: boolean;
 }
 
@@ -11,6 +23,11 @@ export default function ActivityInput({
 }: ActivityInputProps) {
   const [activity, setActivity] = useState("");
   const [city, setCity] = useState("New York");
+  const [locationMode, setLocationMode] = useState<"auto" | "manual">("auto");
+  const [coords, setCoords] = useState<LocationCoords | null>(null);
+  const [locationStatus, setLocationStatus] = useState(
+    "Detecting your location...",
+  );
   const quickActivities = [
     "playing soccer",
     "washing car",
@@ -20,10 +37,64 @@ export default function ActivityInput({
     "cycling",
   ];
 
+  const detectLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setLocationStatus(
+        "Geolocation is not supported by this browser. Switch to manual location.",
+      );
+      return;
+    }
+
+    setLocationStatus("Detecting your location...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextCoords = {
+          latitude: Number(position.coords.latitude.toFixed(6)),
+          longitude: Number(position.coords.longitude.toFixed(6)),
+        };
+        setCoords(nextCoords);
+        setLocationStatus(
+          `Using precise location (${nextCoords.latitude.toFixed(3)}, ${nextCoords.longitude.toFixed(3)})`,
+        );
+      },
+      () => {
+        setCoords(null);
+        setLocationStatus(
+          "Location permission denied or unavailable. Switch to manual location.",
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000,
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (locationMode === "auto") {
+      detectLocation();
+    }
+  }, [locationMode]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (activity.trim()) {
-      onAnalyze(activity.trim(), city.trim());
+      if (locationMode === "auto" && coords) {
+        onAnalyze({
+          activity: activity.trim(),
+          city: city.trim(),
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+        return;
+      }
+
+      onAnalyze({
+        activity: activity.trim(),
+        city: city.trim(),
+      });
     }
   };
 
@@ -32,7 +103,7 @@ export default function ActivityInput({
       <div className="card space-y-6 sticky top-8 animated-card-border floating-panel">
         <div>
           <h2 className="text-xl font-bold mb-4 text-slate-100">
-            What's your plan?
+            What&apos;s your plan?
           </h2>
         </div>
 
@@ -49,7 +120,8 @@ export default function ActivityInput({
             disabled={isLoading}
           />
           <p className="mt-2 text-xs text-slate-400">
-            Describe the activity you're planning, even if it's incomplete
+            Describe the activity you&apos;re planning, even if it&apos;s
+            incomplete
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
             {quickActivities.map((item) => (
@@ -69,14 +141,55 @@ export default function ActivityInput({
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Location
           </label>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Enter city name..."
-            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-20"
-            disabled={isLoading}
-          />
+
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => setLocationMode("auto")}
+              className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                locationMode === "auto"
+                  ? "bg-cyan-500/20 border-cyan-400 text-cyan-200"
+                  : "bg-slate-800 border-slate-700 text-slate-300 hover:border-cyan-500/60"
+              }`}>
+              Auto (GPS)
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => setLocationMode("manual")}
+              className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                locationMode === "manual"
+                  ? "bg-cyan-500/20 border-cyan-400 text-cyan-200"
+                  : "bg-slate-800 border-slate-700 text-slate-300 hover:border-cyan-500/60"
+              }`}>
+              Manual (City)
+            </button>
+          </div>
+
+          {locationMode === "auto" ? (
+            <div className="space-y-2">
+              <div className="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 text-sm">
+                {locationStatus}
+              </div>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={detectLocation}
+                className="w-full px-3 py-2 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:border-cyan-500/60 hover:text-cyan-300 transition-colors">
+                Retry Location Detection
+              </button>
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Enter city name..."
+              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-20"
+              disabled={isLoading}
+            />
+          )}
         </div>
 
         <button

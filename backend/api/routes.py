@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from services.ai_engine import (
     analyze_task_smart,
     get_demo_weather,
+    get_weather,
     get_weather_by_city,
 )
 from services.maps import render_map
@@ -195,10 +196,15 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
             openai_api_key=request.openai_api_key,
         )
         
-        if request.use_demo_weather or not request.weather_api_key:
+        weather_api_key = request.weather_api_key or os.getenv("OPENWEATHER_API_KEY")
+
+        if request.use_demo_weather or not weather_api_key:
             weather = get_demo_weather(request.city)
         else:
-            weather = get_weather_by_city(request.city, request.weather_api_key)
+            if request.latitude is not None and request.longitude is not None:
+                weather = get_weather(request.latitude, request.longitude, weather_api_key)
+            else:
+                weather = get_weather_by_city(request.city, weather_api_key)
         
         config = Config()
         score_result = calculate_sky_score(task, weather, config)

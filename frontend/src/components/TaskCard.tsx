@@ -11,7 +11,9 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   };
 
   const confidenceSegments = 20;
-  const filledConfidenceSegments = Math.round(task.confidence * confidenceSegments);
+  const filledConfidenceSegments = Math.round(
+    task.confidence * confidenceSegments,
+  );
 
   return (
     <div className="card space-y-4 glow-cyan">
@@ -38,7 +40,9 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
           <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
             Original Input
           </label>
-          <p className="text-slate-200 mt-1">"{task.original_text}"</p>
+          <p className="text-slate-200 mt-1">
+            &quot;{task.original_text}&quot;
+          </p>
         </div>
 
         <div>
@@ -117,7 +121,8 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
                 <button
                   type="button"
                   onClick={() =>
-                    task.suggested_activity && onUseSuggestion(task.suggested_activity)
+                    task.suggested_activity &&
+                    onUseSuggestion(task.suggested_activity)
                   }
                   className="mt-2 px-3 py-1.5 text-xs rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30 transition-colors">
                   Use suggestion and re-analyze

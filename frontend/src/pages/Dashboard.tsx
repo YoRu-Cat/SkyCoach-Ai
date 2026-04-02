@@ -7,6 +7,13 @@ import Header from "@components/Header";
 import WeatherBackground from "@components/WeatherBackground";
 import type { AnalysisResponse } from "@app-types/api";
 
+interface AnalyzeInput {
+  activity: string;
+  city: string;
+  latitude?: number;
+  longitude?: number;
+}
+
 export default function Dashboard() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const { mutate: runAnalysis, isLoading } = useFullAnalysis();
@@ -30,9 +37,19 @@ export default function Dashboard() {
     return () => ctx.revert();
   }, []);
 
-  const handleAnalyze = (activity: string, city: string) => {
+  const handleAnalyze = ({
+    activity,
+    city,
+    latitude,
+    longitude,
+  }: AnalyzeInput) => {
     runAnalysis(
-      { activity, city },
+      {
+        activityText: activity,
+        city,
+        latitude,
+        longitude,
+      },
       {
         onSuccess: (data) => {
           setAnalysis(data);
@@ -47,7 +64,10 @@ export default function Dashboard() {
   const handleUseSuggestion = (value: string) => {
     const city = analysis?.weather.city || "New York";
     runAnalysis(
-      { activity: value, city },
+      {
+        activityText: value,
+        city,
+      },
       {
         onSuccess: (data) => {
           setAnalysis(data);
@@ -64,7 +84,9 @@ export default function Dashboard() {
       <WeatherBackground weather={analysis?.weather} />
       <Header />
 
-      <div ref={layoutRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        ref={layoutRef}
+        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 input-panel">
             <ActivityInput onAnalyze={handleAnalyze} isLoading={isLoading} />
@@ -79,7 +101,10 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : analysis ? (
-              <AnalysisResult data={analysis} onUseSuggestion={handleUseSuggestion} />
+              <AnalysisResult
+                data={analysis}
+                onUseSuggestion={handleUseSuggestion}
+              />
             ) : (
               <div className="card text-center py-12 text-slate-300 animated-card-border floating-panel">
                 <p>Enter an activity and location to get started</p>

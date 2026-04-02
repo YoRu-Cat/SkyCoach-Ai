@@ -4,6 +4,7 @@ import {
   getWeather,
   fullAnalysis,
   getAlternatives,
+  type AnalysisParams,
 } from "@services/api";
 
 export const useAnalyzeTask = () => {
@@ -18,9 +19,7 @@ export const useGetWeather = (city: string) => {
 };
 
 export const useFullAnalysis = () => {
-  return useMutation((params: { activity: string; city: string }) =>
-    fullAnalysis(params.activity, params.city),
-  );
+  return useMutation((params: AnalysisParams) => fullAnalysis(params));
 };
 
 export const useGetAlternatives = (classification: string | null) => {

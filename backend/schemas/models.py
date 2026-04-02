@@ -91,6 +91,8 @@ class AnalysisRequest(BaseModel):
     """Complete analysis request combining task, weather, and scoring."""
     activity_text: str
     city: str = "New York"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     use_openai: bool = False
     openai_api_key: Optional[str] = None
     weather_api_key: Optional[str] = None

@@ -27,6 +27,7 @@ from services.ai_engine import (
     analyze_task_fallback,
     analyze_task_openai,
     get_demo_weather,
+    get_weather,
     get_weather_by_city,
 )
 from services.maps import display_map_section
@@ -102,7 +103,17 @@ def main() -> None:
                 weather = get_demo_weather(normalized_city)
             else:
                 try:
-                    weather = get_weather_by_city(normalized_city, weather_key)
+                    # Use auto-detected coordinates for most accurate weather
+                    auto_lat = st.session_state.get("auto_location_lat")
+                    auto_lon = st.session_state.get("auto_location_lon")
+                    loc_source = st.session_state.get("location_source", "manual")
+
+                    if auto_lat is not None and auto_lon is not None and loc_source != "manual":
+                        # Coordinates available from IP or GPS — most accurate
+                        weather = get_weather(auto_lat, auto_lon, weather_key)
+                    else:
+                        # Manual city entry — use city name lookup
+                        weather = get_weather_by_city(normalized_city, weather_key)
                 except Exception as exc:
                     st.warning(f"Weather API error, using demo: {str(exc)[:80]}")
                     weather = get_demo_weather(normalized_city)

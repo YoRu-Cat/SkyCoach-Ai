@@ -12,7 +12,6 @@ python-dotenv>=1.0.0
 fastapi>=0.104.0
 uvicorn>=0.24.0
 pydantic>=2.0.0
-cors>=1.0.1
 
 # Streamlit UI Framework
 streamlit>=1.31.0
@@ -28,3 +27,4 @@ pandas>=2.0.0
 # Additional UI Components
 streamlit-extras>=0.3.0
 streamlit-lottie>=0.0.5
+streamlit-js-eval>=0.1.0

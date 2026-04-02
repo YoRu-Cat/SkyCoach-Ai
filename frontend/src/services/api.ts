@@ -1,5 +1,16 @@
 import axios from "axios";
-import type { TaskAnalysis, WeatherData, AnalysisResponse } from "@app-types/api";
+import type {
+  TaskAnalysis,
+  WeatherData,
+  AnalysisResponse,
+} from "@app-types/api";
+
+export interface AnalysisParams {
+  activityText: string;
+  city: string;
+  latitude?: number;
+  longitude?: number;
+}
 
 const isNetlifyRuntime =
   typeof window !== "undefined" &&
@@ -18,6 +29,8 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+const useDemoWeather = import.meta.env.VITE_USE_DEMO_WEATHER === "true";
 
 export const analyzeTask = async (text: string): Promise<TaskAnalysis> => {
   const response = await apiClient.post("/analyze-task", {
@@ -38,16 +51,19 @@ export const getWeather = async (city: string): Promise<WeatherData> => {
 };
 
 export const fullAnalysis = async (
-  activityText: string,
-  city: string,
+  params: AnalysisParams,
 ): Promise<AnalysisResponse> => {
+  const { activityText, city, latitude, longitude } = params;
+
   const response = await apiClient.post("/analyze", {
     activity_text: activityText,
     city,
+    latitude,
+    longitude,
     use_openai: false,
     weather_api_key: null,
     openai_api_key: null,
-    use_demo_weather: true,
+    use_demo_weather: useDemoWeather,
   });
   return response.data;
 };
