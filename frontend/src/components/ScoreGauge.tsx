@@ -31,24 +31,31 @@ export default function ScoreGauge({ score }: ScoreGaugeProps) {
   }, [normalizedScore]);
 
   const activeSegments = Math.round(displayScore / 5);
-  const segments = useMemo(() => Array.from({ length: segmentCount }, (_, index) => index), [segmentCount]);
+  const segments = useMemo(
+    () => Array.from({ length: segmentCount }, (_, index) => index),
+    [segmentCount],
+  );
 
   return (
-    <div className="relative w-44 h-44 mx-auto gauge-shell">
-      <div className="gauge-ring">
-        {segments.map((index) => (
-          <span
-            key={index}
-            className={`gauge-segment gauge-segment-${index} ${index < activeSegments ? "is-active" : ""}`}
-          />
-        ))}
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mx-auto w-fit">
+      <div className="relative w-44 h-44 gauge-shell">
+        <div className="gauge-ring">
+          {segments.map((index) => (
+            <span
+              key={index}
+              className={`gauge-segment gauge-segment-${index} ${index < activeSegments ? "is-active" : ""}`}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center text-center">
-        <div>
-          <p className="text-4xl font-bold text-cyan-300 leading-none">{displayScore}</p>
-          <p className="text-xs text-slate-400 mt-1 tracking-wide uppercase">SkyScore</p>
-        </div>
+      <div className="text-center sm:text-left sm:pt-2">
+        <p className="text-4xl font-bold text-cyan-300 leading-none">
+          {displayScore}
+        </p>
+        <p className="text-xs text-slate-400 mt-1 tracking-wide uppercase">
+          SkyScore
+        </p>
       </div>
     </div>
   );
