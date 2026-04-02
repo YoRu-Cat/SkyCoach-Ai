@@ -50,8 +50,6 @@ export default function ScoreGauge({ score }: ScoreGaugeProps) {
           <p className="text-xs text-slate-400 mt-1 tracking-wide uppercase">SkyScore</p>
         </div>
       </div>
-
-      <div className="gauge-core" />
     </div>
   );
 }

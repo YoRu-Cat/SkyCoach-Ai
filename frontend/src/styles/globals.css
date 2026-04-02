@@ -297,13 +297,11 @@ button {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 12px;
-  height: 28px;
-  margin-left: -6px;
-  margin-top: -94px;
+  width: 10px;
+  height: 24px;
   border-radius: 9999px;
   background: rgba(71, 85, 105, 0.72);
-  transform-origin: 50% 94px;
+  transform-origin: 50% 72px;
   transition:
     background-color 0.25s ease,
     box-shadow 0.25s ease,
@@ -315,38 +313,26 @@ button {
   box-shadow: 0 0 14px rgba(34, 211, 238, 0.5);
 }
 
-.gauge-segment-0 { transform: rotate(0deg) translateY(-86px); }
-.gauge-segment-1 { transform: rotate(18deg) translateY(-86px); }
-.gauge-segment-2 { transform: rotate(36deg) translateY(-86px); }
-.gauge-segment-3 { transform: rotate(54deg) translateY(-86px); }
-.gauge-segment-4 { transform: rotate(72deg) translateY(-86px); }
-.gauge-segment-5 { transform: rotate(90deg) translateY(-86px); }
-.gauge-segment-6 { transform: rotate(108deg) translateY(-86px); }
-.gauge-segment-7 { transform: rotate(126deg) translateY(-86px); }
-.gauge-segment-8 { transform: rotate(144deg) translateY(-86px); }
-.gauge-segment-9 { transform: rotate(162deg) translateY(-86px); }
-.gauge-segment-10 { transform: rotate(180deg) translateY(-86px); }
-.gauge-segment-11 { transform: rotate(198deg) translateY(-86px); }
-.gauge-segment-12 { transform: rotate(216deg) translateY(-86px); }
-.gauge-segment-13 { transform: rotate(234deg) translateY(-86px); }
-.gauge-segment-14 { transform: rotate(252deg) translateY(-86px); }
-.gauge-segment-15 { transform: rotate(270deg) translateY(-86px); }
-.gauge-segment-16 { transform: rotate(288deg) translateY(-86px); }
-.gauge-segment-17 { transform: rotate(306deg) translateY(-86px); }
-.gauge-segment-18 { transform: rotate(324deg) translateY(-86px); }
-.gauge-segment-19 { transform: rotate(342deg) translateY(-86px); }
-
-.gauge-core {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 16px;
-  height: 16px;
-  margin-left: -8px;
-  margin-top: -8px;
-  border-radius: 9999px;
-  background: #67e8f9;
-  box-shadow: 0 0 16px rgba(103, 232, 249, 0.65);
-}
+.gauge-segment-0 { transform: translate(-50%, -50%) rotate(0deg); }
+.gauge-segment-1 { transform: translate(-50%, -50%) rotate(18deg); }
+.gauge-segment-2 { transform: translate(-50%, -50%) rotate(36deg); }
+.gauge-segment-3 { transform: translate(-50%, -50%) rotate(54deg); }
+.gauge-segment-4 { transform: translate(-50%, -50%) rotate(72deg); }
+.gauge-segment-5 { transform: translate(-50%, -50%) rotate(90deg); }
+.gauge-segment-6 { transform: translate(-50%, -50%) rotate(108deg); }
+.gauge-segment-7 { transform: translate(-50%, -50%) rotate(126deg); }
+.gauge-segment-8 { transform: translate(-50%, -50%) rotate(144deg); }
+.gauge-segment-9 { transform: translate(-50%, -50%) rotate(162deg); }
+.gauge-segment-10 { transform: translate(-50%, -50%) rotate(180deg); }
+.gauge-segment-11 { transform: translate(-50%, -50%) rotate(198deg); }
+.gauge-segment-12 { transform: translate(-50%, -50%) rotate(216deg); }
+.gauge-segment-13 { transform: translate(-50%, -50%) rotate(234deg); }
+.gauge-segment-14 { transform: translate(-50%, -50%) rotate(252deg); }
+.gauge-segment-15 { transform: translate(-50%, -50%) rotate(270deg); }
+.gauge-segment-16 { transform: translate(-50%, -50%) rotate(288deg); }
+.gauge-segment-17 { transform: translate(-50%, -50%) rotate(306deg); }
+.gauge-segment-18 { transform: translate(-50%, -50%) rotate(324deg); }
+.gauge-segment-19 { transform: translate(-50%, -50%) rotate(342deg); }
 
 @keyframes cardBorderSweep {
   0% {

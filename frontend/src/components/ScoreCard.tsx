@@ -28,10 +28,10 @@ export default function ScoreCard({ score }: ScoreCardProps) {
       <div className="text-center">
         <h3 className="text-lg font-bold text-slate-100 mb-4">📊 SkyScore</h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center mb-6">
           <ScoreGauge score={score.score} />
 
-          <div className="text-left sm:pl-2">
+          <div className="text-center lg:text-left lg:pl-2 rounded-xl border border-cyan-900/40 bg-slate-900/35 p-4">
             <p className={`text-3xl font-bold ${getScoreColor(score.score)}`}>
               {getScoreLabel(score.score)}
             </p>
@@ -39,7 +39,7 @@ export default function ScoreCard({ score }: ScoreCardProps) {
               {score.classification} activity conditions
             </p>
             <p className="text-xs text-slate-500 mt-2">
-              Needle and segments animate based on real weather score.
+              Score ring and bar animate from live weather factors.
             </p>
           </div>
         </div>
