@@ -79,3 +79,28 @@ def test_analyze_uses_coordinates_when_provided(monkeypatch):
     assert payload["weather"]["city"] == "Coordinate City"
     assert called["coords"] is True
     assert called["city"] is False
+
+
+def test_analyze_preserves_coordinates_in_demo_weather(monkeypatch):
+    def fake_analyze_task_smart(*args, **kwargs):
+        return _sample_task()
+
+    monkeypatch.setattr(routes, "analyze_task_smart", fake_analyze_task_smart)
+
+    response = client.post(
+        "/api/analyze",
+        json={
+            "activity_text": "playing soccer",
+            "city": "New York",
+            "latitude": 51.5074,
+            "longitude": -0.1278,
+            "use_openai": False,
+            "weather_api_key": None,
+            "use_demo_weather": True,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["weather"]["latitude"] == 51.5074
+    assert payload["weather"]["longitude"] == -0.1278

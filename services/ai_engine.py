@@ -376,7 +376,11 @@ def get_weather_by_city(city: str, api_key: str, units: str = "metric") -> Weath
     )
 
 
-def get_demo_weather(city: str = "New York") -> WeatherData:
+def get_demo_weather(
+    city: str = "New York",
+    latitude: Optional[float] = None,
+    longitude: Optional[float] = None,
+) -> WeatherData:
     city_hash = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
     
     scenarios = [
@@ -411,7 +415,10 @@ def get_demo_weather(city: str = "New York") -> WeatherData:
         "berlin": (52.5200, 13.4050),
     }
 
-    lat, lon = _resolve_demo_city_coords(city, city_coords)
+    if latitude is not None and longitude is not None:
+        lat, lon = latitude, longitude
+    else:
+        lat, lon = _resolve_demo_city_coords(city, city_coords)
     
     temp = base_temp + temp_var
     wind_mph = wind_base * 2.237

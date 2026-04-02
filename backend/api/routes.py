@@ -198,10 +198,16 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
         
         weather_api_key = request.weather_api_key or os.getenv("OPENWEATHER_API_KEY")
 
+        has_coordinates = request.latitude is not None and request.longitude is not None
+
         if request.use_demo_weather or not weather_api_key:
-            weather = get_demo_weather(request.city)
+            weather = get_demo_weather(
+                request.city,
+                latitude=request.latitude if has_coordinates else None,
+                longitude=request.longitude if has_coordinates else None,
+            )
         else:
-            if request.latitude is not None and request.longitude is not None:
+            if has_coordinates:
                 weather = get_weather(request.latitude, request.longitude, weather_api_key)
             else:
                 weather = get_weather_by_city(request.city, weather_api_key)
