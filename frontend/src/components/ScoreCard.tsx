@@ -27,31 +27,31 @@ export default function ScoreCard({ score }: ScoreCardProps) {
     <div className="card space-y-6 glow-cyan">
       <div className="text-center">
         <h3 className="text-lg font-bold text-slate-100 mb-4">📊 SkyScore</h3>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center mb-6">
-          <ScoreGauge score={score.score} />
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)] gap-6 items-center">
+        <ScoreGauge score={score.score} />
 
-          <div className="text-center lg:text-left lg:pl-2 rounded-xl border border-cyan-900/40 bg-slate-900/35 p-4">
-            <p className={`text-3xl font-bold ${getScoreColor(score.score)}`}>
-              {getScoreLabel(score.score)}
-            </p>
-            <p className="text-sm text-slate-400 mt-2">
-              {score.classification} activity conditions
-            </p>
-            <p className="text-xs text-slate-500 mt-2">
-              Score ring and bar animate from live weather factors.
-            </p>
-          </div>
+        <div className="text-center lg:text-left lg:pl-2 rounded-xl border border-cyan-900/40 bg-slate-900/35 p-4">
+          <p className={`text-3xl font-bold ${getScoreColor(score.score)}`}>
+            {getScoreLabel(score.score)}
+          </p>
+          <p className="text-sm text-slate-400 mt-2">
+            {score.classification} activity conditions
+          </p>
+          <p className="text-xs text-slate-500 mt-2">
+            Score ring and bar animate from live weather factors.
+          </p>
         </div>
+      </div>
 
-        <div className="score-meter score-meter--wide">
-          {Array.from({ length: scoreSegments }, (_, index) => (
-            <span
-              key={index}
-              className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
-            />
-          ))}
-        </div>
+      <div className="score-meter score-meter--wide w-full">
+        {Array.from({ length: scoreSegments }, (_, index) => (
+          <span
+            key={index}
+            className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
+          />
+        ))}
       </div>
 
       <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
@@ -73,7 +73,9 @@ export default function ScoreCard({ score }: ScoreCardProps) {
                     <p className="text-sm font-semibold text-green-300">
                       {bonus.name}
                     </p>
-                    <p className="text-xs text-slate-400">{bonus.description}</p>
+                    <p className="text-xs text-slate-400">
+                      {bonus.description}
+                    </p>
                   </div>
                   <span className="text-sm font-bold text-green-400">
                     +{bonus.value}%
@@ -98,7 +100,9 @@ export default function ScoreCard({ score }: ScoreCardProps) {
                     <p className="text-sm font-semibold text-red-300">
                       {penalty.name}
                     </p>
-                    <p className="text-xs text-slate-400">{penalty.description}</p>
+                    <p className="text-xs text-slate-400">
+                      {penalty.description}
+                    </p>
                   </div>
                   <span className="text-sm font-bold text-red-400">
                     {penalty.value}%
