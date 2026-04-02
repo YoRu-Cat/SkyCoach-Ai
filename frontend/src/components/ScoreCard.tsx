@@ -25,33 +25,38 @@ export default function ScoreCard({ score }: ScoreCardProps) {
 
   return (
     <div className="card space-y-6 glow-cyan">
-      <div className="text-center">
-        <h3 className="text-lg font-bold text-slate-100 mb-4">📊 SkyScore</h3>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)] gap-6 items-center">
-        <ScoreGauge score={score.score} />
-
-        <div className="text-center lg:text-left lg:pl-2 rounded-xl border border-cyan-900/40 bg-slate-900/35 p-4">
-          <p className={`text-3xl font-bold ${getScoreColor(score.score)}`}>
-            {getScoreLabel(score.score)}
-          </p>
-          <p className="text-sm text-slate-400 mt-2">
-            {score.classification} activity conditions
-          </p>
-          <p className="text-xs text-slate-500 mt-2">
-            Score ring and bar animate from live weather factors.
-          </p>
+      <div className="score-top-shell rounded-2xl border border-cyan-900/30 bg-slate-950/25 p-5 sm:p-6">
+        <div className="flex items-center justify-center mb-5">
+          <h3 className="text-lg font-bold text-slate-100">📊 SkyScore</h3>
         </div>
-      </div>
 
-      <div className="score-meter score-meter--wide w-full">
-        {Array.from({ length: scoreSegments }, (_, index) => (
-          <span
-            key={index}
-            className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
-          />
-        ))}
+        <div className="grid grid-cols-[auto,minmax(0,1fr)] gap-4 sm:gap-5 items-center">
+          <div className="justify-self-start self-center">
+            <ScoreGauge score={score.score} />
+          </div>
+
+          <div className="min-w-0 rounded-xl border border-cyan-900/40 bg-slate-900/35 px-4 py-3 text-center lg:text-center">
+            <p
+              className={`text-3xl sm:text-4xl font-bold ${getScoreColor(score.score)} leading-none`}>
+              {getScoreLabel(score.score)}
+            </p>
+            <p className="text-sm text-slate-400 mt-2">
+              {score.classification} activity conditions
+            </p>
+            <p className="text-xs text-slate-500 mt-2">
+              Score ring and bar animate from live weather factors.
+            </p>
+          </div>
+        </div>
+
+        <div className="score-meter score-meter--wide w-full mt-5">
+          {Array.from({ length: scoreSegments }, (_, index) => (
+            <span
+              key={index}
+              className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">

@@ -12,7 +12,7 @@ const clampScore = (score: number): number => {
 export default function ScoreGauge({ score }: ScoreGaugeProps) {
   const [displayScore, setDisplayScore] = useState(0);
   const normalizedScore = clampScore(score);
-  const segmentCount = 20;
+  const segmentCount = 12;
 
   useEffect(() => {
     const tweenState = { value: 0 };
@@ -37,8 +37,8 @@ export default function ScoreGauge({ score }: ScoreGaugeProps) {
   );
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mx-auto w-fit">
-      <div className="relative w-44 h-44 gauge-shell">
+    <div className="flex items-center justify-center w-fit">
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 gauge-shell gauge-shell--compact">
         <div className="gauge-ring">
           {segments.map((index) => (
             <span
@@ -47,15 +47,6 @@ export default function ScoreGauge({ score }: ScoreGaugeProps) {
             />
           ))}
         </div>
-      </div>
-
-      <div className="text-center sm:text-left sm:pt-2">
-        <p className="text-4xl font-bold text-cyan-300 leading-none">
-          {displayScore}
-        </p>
-        <p className="text-xs text-slate-400 mt-1 tracking-wide uppercase">
-          SkyScore
-        </p>
       </div>
     </div>
   );
