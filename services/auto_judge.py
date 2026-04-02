@@ -39,6 +39,9 @@ ACTIVITY_CORPUS = {
         "car wash",
     ],
     "Indoor": [
+        "wedding ceremony", "wedding", "attending wedding",
+        "birthday party", "anniversary celebration", "family gathering",
+        "office meeting", "business meeting", "conference", "seminar", "classroom session",
         "doing homework", "homework",
         "studying", "study", "studying for exam",
         "working", "work", "office work",

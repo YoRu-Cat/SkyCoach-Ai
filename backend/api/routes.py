@@ -6,8 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from services.ai_engine import (
-    analyze_task_openai,
-    analyze_task_fallback,
+    analyze_task_smart,
     get_demo_weather,
     get_weather_by_city,
 )
@@ -70,10 +69,11 @@ def convert_weather_to_response(weather: WeatherData) -> WeatherResponse:
 @router.post("/analyze-task", response_model=TaskAnalysisResponse)
 async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
     try:
-        if request.use_openai and request.openai_api_key:
-            task = analyze_task_openai(request.text, request.openai_api_key)
-        else:
-            task = analyze_task_fallback(request.text)
+        task = analyze_task_smart(
+            text=request.text,
+            use_openai=request.use_openai,
+            openai_api_key=request.openai_api_key,
+        )
         
         return convert_task_to_response(task)
     except Exception as e:
@@ -189,7 +189,11 @@ async def get_alternatives(
 async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
     """Complete end-to-end analysis: task → weather → score → alternatives."""
     try:
-        task = analyze_task_openai(request.activity_text, request.openai_api_key) if (request.use_openai and request.openai_api_key) else analyze_task_fallback(request.activity_text)
+        task = analyze_task_smart(
+            text=request.activity_text,
+            use_openai=request.use_openai,
+            openai_api_key=request.openai_api_key,
+        )
         
         if request.use_demo_weather or not request.weather_api_key:
             weather = get_demo_weather(request.city)

@@ -1,4 +1,5 @@
 import hashlib
+import os
 import re
 import requests
 import json
@@ -46,16 +47,29 @@ def _count_keyword_matches(text: str, keywords: list[str]) -> int:
 def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tuple[bool, Optional[str]]:
     compact = re.sub(r"\s+", " ", text).strip()
     words = re.findall(r"[a-zA-Z']+", compact.lower())
+    filler_words = {
+        "doing", "go", "going", "make", "want", "need", "plan", "try",
+        "do", "to", "a", "an", "the", "some", "something", "thing",
+    }
 
     if len(compact) < 8 or len(words) < 2:
         return True, "Input is too short or incomplete"
 
     if outdoor_score == 0 and indoor_score == 0:
-        if any(word in {"doing", "go", "going", "make", "want", "need", "plan", "try"} for word in words):
+        content_words = [w for w in words if w not in filler_words and len(w) >= 3]
+        if len(content_words) >= 2:
+            return False, None
+        if any(word in filler_words for word in words):
             return True, "Input looks unfinished or misspelled"
         return True, "Could not identify a clear activity"
 
     return False, None
+
+
+def _has_word_overlap(input_text: str, suggestion_text: str) -> bool:
+    input_words = set(re.findall(r"[a-zA-Z']+", input_text.lower()))
+    suggestion_words = set(re.findall(r"[a-zA-Z']+", suggestion_text.lower()))
+    return len(input_words & suggestion_words) > 0
 
 
 def _apply_auto_judge_resolution(
@@ -90,7 +104,7 @@ def _apply_auto_judge_resolution(
         suggested_classification = judge_result["classification"]
         suggestion_confidence = judge_result["confidence"]
 
-        if suggestion_confidence >= 0.72:
+        if suggestion_confidence >= 0.78 and _has_word_overlap(original_text, suggested_activity):
             activity = suggested_activity
             classification = suggested_classification or classification
             confidence = max(confidence, min(0.94, suggestion_confidence))
@@ -147,7 +161,7 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     needs_clarification = bool(result.get("needs_clarification", False))
 
     outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "sport", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
-    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
+    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
     outdoor_score = _count_keyword_matches(original_text.lower(), outdoor_keywords)
     indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
     detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
@@ -203,7 +217,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
                        "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn",
                        "paint outside", "sport", "sports", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
     indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying",
-                      "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home"]
+                      "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
     
     outdoor_score = _count_keyword_matches(text_lower, outdoor_keywords)
     indoor_score = _count_keyword_matches(text_lower, indoor_keywords)
@@ -258,6 +272,42 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         suggested_classification=suggested_classification,
         suggestion_confidence=suggestion_confidence,
     )
+
+
+def analyze_task_smart(
+    text: str,
+    use_openai: bool = False,
+    openai_api_key: Optional[str] = None,
+    model: str = "gpt-4o-mini",
+    min_confidence_for_openai: float = 0.70,
+) -> TaskAnalysis:
+    """Use fallback first, then escalate to OpenAI only for low-confidence or unclear input."""
+    fallback_result = analyze_task_fallback(text)
+
+    should_escalate = (
+        use_openai
+        and (
+            fallback_result.needs_clarification
+            or fallback_result.confidence < min_confidence_for_openai
+        )
+    )
+    if not should_escalate:
+        return fallback_result
+
+    api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return fallback_result
+
+    try:
+        openai_result = analyze_task_openai(text, api_key=api_key, model=model)
+    except Exception:
+        return fallback_result
+
+    if openai_result.needs_clarification and not fallback_result.needs_clarification:
+        return fallback_result
+    if openai_result.confidence >= fallback_result.confidence:
+        return openai_result
+    return fallback_result
 
 
 def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> WeatherData:
