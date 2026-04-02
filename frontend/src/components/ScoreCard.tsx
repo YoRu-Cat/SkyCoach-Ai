@@ -20,42 +20,69 @@ const getScoreLabel = (score: number): string => {
 };
 
 export default function ScoreCard({ score }: ScoreCardProps) {
-  const scoreSegments = 20;
-  const filledScoreSegments = Math.round(score.score / 5);
+  const scorePercent = Math.max(0, Math.min(100, score.score));
+  const scoreSegments = 10;
+  const filledScoreSegments = Math.round(scorePercent / 10);
 
   return (
     <div className="card space-y-6 glow-cyan">
-      <div className="score-top-shell rounded-2xl border border-cyan-900/30 bg-slate-950/25 p-5 sm:p-6">
-        <div className="flex items-center justify-center mb-5">
-          <h3 className="text-lg font-bold text-slate-100">📊 SkyScore</h3>
-        </div>
+      <div className="relative overflow-hidden rounded-[28px] border border-cyan-900/25 bg-gradient-to-br from-slate-950/80 via-slate-900/55 to-slate-950/25 p-5 sm:p-6">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent" />
+        <div className="absolute -right-10 top-2 h-28 w-28 rounded-full bg-cyan-500/10 blur-3xl" />
 
-        <div className="grid grid-cols-[auto,minmax(0,1fr)] gap-4 sm:gap-5 items-center">
-          <div className="justify-self-start self-center">
+        <div className="flex items-start gap-4 sm:gap-5">
+          <div className="shrink-0 pt-1">
             <ScoreGauge score={score.score} />
           </div>
 
-          <div className="min-w-0 rounded-xl border border-cyan-900/40 bg-slate-900/35 px-4 py-3 text-center lg:text-center">
-            <p
-              className={`text-3xl sm:text-4xl font-bold ${getScoreColor(score.score)} leading-none`}>
-              {getScoreLabel(score.score)}
-            </p>
-            <p className="text-sm text-slate-400 mt-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-[0.68rem] uppercase tracking-[0.35em] text-slate-500">
+                  SkyScore
+                </p>
+                <p
+                  className={`mt-1 text-3xl sm:text-4xl font-semibold ${getScoreColor(score.score)} leading-tight`}>
+                  {getScoreLabel(score.score)}
+                </p>
+              </div>
+
+              <div className="rounded-full border border-cyan-900/35 bg-slate-950/40 px-3 py-2 text-right">
+                <p className="text-2xl font-semibold text-cyan-300 leading-none">
+                  {score.score}
+                </p>
+                <p className="mt-1 text-[0.62rem] uppercase tracking-[0.32em] text-slate-500">
+                  out of 100
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-3 text-sm text-slate-400">
               {score.classification} activity conditions
             </p>
-            <p className="text-xs text-slate-500 mt-2">
-              Score ring and bar animate from live weather factors.
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+              A compact read on the weather balance for this activity.
             </p>
-          </div>
-        </div>
 
-        <div className="score-meter score-meter--wide w-full mt-5">
-          {Array.from({ length: scoreSegments }, (_, index) => (
-            <span
-              key={index}
-              className={`score-meter__segment ${index < filledScoreSegments ? "is-active" : ""}`}
-            />
-          ))}
+            <div className="mt-5">
+              <div className="grid grid-cols-10 gap-1 rounded-full bg-slate-900/80 p-1 ring-1 ring-white/5">
+                {Array.from({ length: scoreSegments }, (_, index) => (
+                  <span
+                    key={index}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index < filledScoreSegments
+                        ? "bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 shadow-[0_0_10px_rgba(34,211,238,0.35)]"
+                        : "bg-slate-700/80"
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[0.7rem] uppercase tracking-[0.28em] text-slate-500">
+                <span>risk</span>
+                <span>readiness</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
