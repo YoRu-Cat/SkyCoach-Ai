@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { API_BASE_URL, healthCheck } from "@services/api";
-import Dashboard from "@pages/Dashboard";
+import AppShell from "@components/AppShell";
 import "@styles/globals.css";
 
 const queryClient = new QueryClient({
@@ -72,9 +72,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Dashboard />
-      </div>
+      <AppShell />
     </QueryClientProvider>
   );
 }
