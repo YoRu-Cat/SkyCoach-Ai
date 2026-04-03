@@ -122,6 +122,8 @@ export default function TodoPage({
               <button
                 type="button"
                 onClick={() => removeTask(task.id)}
+                aria-label={`Delete task ${task.title}`}
+                title={`Delete task ${task.title}`}
                 className="p-2 rounded-lg border border-slate-700 hover:border-rose-400/70 text-rose-300">
                 <Trash2 className="w-4 h-4" />
               </button>

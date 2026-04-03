@@ -1,9 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { CalendarDays, ClipboardList, Menu, Sparkles, X } from "lucide-react";
-import Dashboard from "@pages/Dashboard";
-import TodoPage from "@pages/TodoPage";
-import TimetablePage from "@pages/TimetablePage";
-import PlannerPage from "@pages/PlannerPage";
+import Dashboard from "../pages/Dashboard";
+import TodoPage from "../pages/TodoPage";
+import TimetablePage from "../pages/TimetablePage";
+import PlannerPage from "../pages/PlannerPage";
 import { useTaskStore } from "@hooks/useTaskStore";
 
 export type AppView = "dashboard" | "todo" | "timetable" | "planner";

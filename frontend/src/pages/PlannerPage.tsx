@@ -129,12 +129,17 @@ export default function PlannerPage({ tasks }: PlannerPageProps) {
           weather outlook and suggests the best sequence.
         </p>
         <div className="max-w-sm">
-          <label className="block text-xs text-slate-400 mb-1">
+          <label
+            htmlFor="forecast-city"
+            className="block text-xs text-slate-400 mb-1">
             Forecast City
           </label>
           <input
+            id="forecast-city"
             value={city}
             onChange={(e) => setCity(e.target.value)}
+            aria-label="Forecast city"
+            title="Forecast city"
             className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
           />
         </div>

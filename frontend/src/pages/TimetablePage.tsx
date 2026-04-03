@@ -62,6 +62,8 @@ export default function TimetablePage({ tasks, updateTask }: TaskStore) {
                     min={minDate}
                     max={maxDate}
                     value={currentDate}
+                    aria-label={`Select date for ${task.title}`}
+                    title={`Select date for ${task.title}`}
                     onChange={(e) => {
                       const date = e.target.value;
                       if (!date) {
@@ -78,6 +80,8 @@ export default function TimetablePage({ tasks, updateTask }: TaskStore) {
                   <input
                     type="time"
                     value={currentTime}
+                    aria-label={`Select time for ${task.title}`}
+                    title={`Select time for ${task.title}`}
                     onChange={(e) => {
                       const time = e.target.value;
                       if (!currentDate) return;
