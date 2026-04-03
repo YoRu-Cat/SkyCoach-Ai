@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from backend.main import app
 from backend.api import routes
 from models.data_classes import TaskAnalysis, WeatherData
+from services import ai_engine
 
 
 client = TestClient(app)
@@ -104,3 +105,34 @@ def test_analyze_preserves_coordinates_in_demo_weather(monkeypatch):
     payload = response.json()
     assert payload["weather"]["latitude"] == 51.5074
     assert payload["weather"]["longitude"] == -0.1278
+
+
+def test_analyze_task_smart_uses_openai_when_requested(monkeypatch):
+    calls = {"openai": 0, "fallback": 0}
+
+    def fake_openai(text: str, api_key: str, model: str = "gpt-4o-mini"):
+        calls["openai"] += 1
+        return TaskAnalysis(
+            original_text=text,
+            cleaned_text="Going to Gym",
+            activity="going to gym",
+            classification="Outdoor",
+            confidence=0.97,
+            reasoning="OpenAI judged gym as outdoor",
+            needs_clarification=False,
+            suggestion_confidence=0.0,
+        )
+
+    def fake_fallback(text: str):
+        calls["fallback"] += 1
+        return _sample_task()
+
+    monkeypatch.setattr(ai_engine, "analyze_task_openai", fake_openai)
+    monkeypatch.setattr(ai_engine, "analyze_task_fallback", fake_fallback)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
+
+    result = ai_engine.analyze_task_smart("Going to gym", use_openai=True)
+
+    assert result.classification == "Outdoor"
+    assert calls["openai"] == 1
+    assert calls["fallback"] == 1

@@ -139,7 +139,7 @@ def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> 
     "reasoning": "Brief explanation"
 }
 
-OUTDOOR: gardening, car washing, jogging, hiking, cycling, sports, yard work, BBQ, pool
+OUTDOOR: gardening, car washing, jogging, hiking, cycling, sports, yard work, BBQ, pool, gym, workout, exercise, training, fitness
 INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, crafts"""
 
 
@@ -174,6 +174,21 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     if detected_issue:
         needs_clarification = True
         issue_text = detected_issue_text
+
+    fitness_keywords = [
+        "gym",
+        "workout",
+        "exercise",
+        "exercising",
+        "training",
+        "fitness",
+        "lifting",
+        "weight training",
+        "cardio",
+    ]
+    if any(keyword in original_text.lower() for keyword in fitness_keywords):
+        classification = "Outdoor"
+        reasoning = f"{reasoning}. Fitness activity treated as outdoor for sequencing"
 
     (
         needs_clarification,
@@ -281,32 +296,17 @@ def analyze_task_smart(
     model: str = "gpt-4o-mini",
     min_confidence_for_openai: float = 0.70,
 ) -> TaskAnalysis:
-    """Use fallback first, then escalate to OpenAI only for low-confidence or unclear input."""
+    """Use OpenAI directly when requested, otherwise fall back to local keyword analysis."""
     fallback_result = analyze_task_fallback(text)
 
-    should_escalate = (
-        use_openai
-        and (
-            fallback_result.needs_clarification
-            or fallback_result.confidence < min_confidence_for_openai
-        )
-    )
-    if not should_escalate:
-        return fallback_result
+    if use_openai:
+        api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+        if api_key:
+            try:
+                return analyze_task_openai(text, api_key=api_key, model=model)
+            except Exception:
+                return fallback_result
 
-    api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return fallback_result
-
-    try:
-        openai_result = analyze_task_openai(text, api_key=api_key, model=model)
-    except Exception:
-        return fallback_result
-
-    if openai_result.needs_clarification and not fallback_result.needs_clarification:
-        return fallback_result
-    if openai_result.confidence >= fallback_result.confidence:
-        return openai_result
     return fallback_result
 
 
