@@ -171,3 +171,21 @@ def test_detect_input_issue_allows_going_to_work_phrase():
     )
     assert needs_clarification is False
     assert issue is None
+
+
+def test_rulejudge_prefers_outdoor_for_work_then_gym():
+    result = ai_engine.analyze_task_smart("going to work then gym", use_openai=False)
+    assert result.classification == "Outdoor"
+    assert "SkyCoach RuleJudge v1" in result.reasoning
+
+
+def test_rulejudge_keeps_going_to_work_indoor():
+    result = ai_engine.analyze_task_smart("going to work", use_openai=False)
+    assert result.classification == "Indoor"
+    assert "SkyCoach RuleJudge v1" in result.reasoning
+
+
+def test_rulejudge_treats_going_to_work_outside_as_outdoor():
+    result = ai_engine.analyze_task_smart("going to work outside", use_openai=False)
+    assert result.classification == "Outdoor"
+    assert "SkyCoach RuleJudge v1" in result.reasoning

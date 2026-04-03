@@ -122,7 +122,6 @@ const scoreTaskForDay = (
 
 export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
   const { city, setCity, defaultCity } = usePreferredCity();
-  const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
   const requestedCity = city.trim();
   const { data: weather, isFetching } = useGetWeather(requestedCity);
 
@@ -203,7 +202,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
       const entries = await Promise.all(
         activeTasks.map(async (task) => {
           try {
-            const result = await analyzeTask(task.title, true);
+            const result = await analyzeTask(task.title, false);
             const normalized = result.classification.toLowerCase();
             const category: TaskCategory =
               normalized === "outdoor"
@@ -217,7 +216,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               category,
               reasoning: result.reasoning,
               confidence: Math.round(result.confidence * 100),
-              source: `OpenAI:${openAIModel}`,
+              source: "SkyCoach RuleJudge v1",
             };
           } catch {
             return {
@@ -301,8 +300,8 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         <p className="text-xs text-emerald-300">
           Task judging:{" "}
           {isJudgingTasks
-            ? "OpenAI judging in progress..."
-            : "OpenAI when available, local fallback otherwise"}
+            ? "RuleJudge running..."
+            : "SkyCoach RuleJudge v1 (local dictionary model)"}
         </p>
         <div className="max-w-sm">
           <label

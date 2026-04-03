@@ -11,13 +11,20 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   };
 
   const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
+  const isRuleJudgeSource = /skycoach rulejudge v1/i.test(task.reasoning || "");
   const isFallbackSource = /demo mode|openai unavailable|fallback/i.test(
     task.reasoning || "",
   );
-  const sourceLabel = isFallbackSource ? "Fallback" : `OpenAI:${openAIModel}`;
-  const sourceBadgeClass = isFallbackSource
-    ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-    : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300";
+  const sourceLabel = isRuleJudgeSource
+    ? "SkyCoach RuleJudge v1"
+    : isFallbackSource
+      ? "Fallback"
+      : `OpenAI:${openAIModel}`;
+  const sourceBadgeClass = isRuleJudgeSource
+    ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300"
+    : isFallbackSource
+      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+      : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300";
 
   const confidenceSegments = 20;
   const filledConfidenceSegments = Math.round(

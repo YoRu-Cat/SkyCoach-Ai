@@ -8,6 +8,9 @@ from models.data_classes import WeatherData, TaskAnalysis, Config
 from services.auto_judge import auto_judge_input
 
 
+RULE_JUDGE_MODEL_NAME = "SkyCoach RuleJudge v1"
+
+
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
     digest = hashlib.md5(city.lower().encode()).hexdigest()
     lat_bucket = int(digest[:6], 16) / 0xFFFFFF
@@ -42,6 +45,17 @@ def _count_keyword_matches(text: str, keywords: list[str]) -> int:
         if re.search(pattern, text):
             count += 1
     return count
+
+
+def _score_keyword_matches(text: str, weighted_keywords: list[tuple[str, float]]) -> tuple[float, list[str]]:
+    score = 0.0
+    matches: list[str] = []
+    for keyword, weight in weighted_keywords:
+        pattern = r"\b" + re.escape(keyword) + r"\b"
+        if re.search(pattern, text):
+            score += weight
+            matches.append(keyword)
+    return score, matches
 
 
 def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tuple[bool, Optional[str]]:
@@ -225,34 +239,51 @@ Examples:
 
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
-    text_lower = text.lower().strip()
-    
-    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", 
-                       "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn",
-                       "paint outside", "sport", "sports", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside",
-                       "gym", "workout", "exercise", "training", "fitness", "cardio", "lifting", "weight training"]
-    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying",
-                      "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
-    
-    outdoor_score = _count_keyword_matches(text_lower, outdoor_keywords)
-    indoor_score = _count_keyword_matches(text_lower, indoor_keywords)
+    text_lower = re.sub(r"\s+", " ", text.lower().strip())
+
+    outdoor_weighted = [
+        ("going to work outside", 5.0), ("work outside", 4.5), ("outside work", 4.2),
+        ("going to gym", 4.5), ("gym", 4.0), ("workout", 4.0), ("exercise", 3.8),
+        ("training", 3.6), ("fitness", 3.4), ("cardio", 3.2), ("lifting", 3.2),
+        ("weight training", 3.6), ("run", 3.0), ("running", 3.0), ("jog", 3.0),
+        ("jogging", 3.0), ("walk", 2.4), ("walking", 2.4), ("cycling", 3.0),
+        ("cycle", 3.0), ("hiking", 3.0), ("hike", 3.0), ("soccer", 3.2),
+        ("cricket", 3.2), ("football", 3.2), ("tennis", 2.8), ("basketball", 3.0),
+        ("swimming", 2.8), ("garden", 2.7), ("gardening", 2.7), ("wash car", 2.8),
+        ("car wash", 2.8), ("outside", 2.2), ("park", 2.0),
+    ]
+    indoor_weighted = [
+        ("going to work", 2.8), ("work", 1.0), ("office", 2.8), ("desk", 2.2),
+        ("study", 2.8), ("studying", 2.8), ("homework", 3.0), ("read", 2.4),
+        ("reading", 2.4), ("coding", 2.6), ("meeting", 2.6), ("conference", 2.6),
+        ("class", 2.4), ("cook", 2.5), ("cooking", 2.5), ("clean", 2.3),
+        ("cleaning", 2.3), ("dishes", 2.5), ("laundry", 2.4), ("gaming", 2.3),
+        ("movie", 2.0), ("inside", 2.2), ("at home", 2.0),
+    ]
+
+    outdoor_score, outdoor_matches = _score_keyword_matches(text_lower, outdoor_weighted)
+    indoor_score, indoor_matches = _score_keyword_matches(text_lower, indoor_weighted)
     needs_clarification, issue = _detect_input_issue(text, outdoor_score, indoor_score)
-    
+
     if needs_clarification:
         classification = "Indoor"
-        confidence = 0.15
+        confidence = 0.20
         activity = "Needs clarification"
-        reasoning = issue or "Input is incomplete or unclear"
+        reasoning = issue or f"{RULE_JUDGE_MODEL_NAME}: Input is incomplete or unclear"
     elif outdoor_score > indoor_score:
         classification = "Outdoor"
-        confidence = min(0.88, 0.55 + outdoor_score * 0.12)
+        margin = outdoor_score - indoor_score
+        total = max(outdoor_score + indoor_score, 1.0)
+        confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(outdoor_score, 8.0) * 0.02)
         activity = text[:30]
-        reasoning = "Classified using keyword matching (Demo Mode)"
+        reasoning = f"{RULE_JUDGE_MODEL_NAME}: outdoor score {outdoor_score:.1f} > indoor {indoor_score:.1f}; matched {', '.join(outdoor_matches[:3]) or 'context cues'}"
     else:
         classification = "Indoor"
-        confidence = min(0.88, 0.55 + indoor_score * 0.12)
+        margin = indoor_score - outdoor_score
+        total = max(outdoor_score + indoor_score, 1.0)
+        confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(indoor_score, 8.0) * 0.02)
         activity = text[:30]
-        reasoning = "Classified using keyword matching (Demo Mode)"
+        reasoning = f"{RULE_JUDGE_MODEL_NAME}: indoor score {indoor_score:.1f} >= outdoor {outdoor_score:.1f}; matched {', '.join(indoor_matches[:3]) or 'context cues'}"
 
     (
         needs_clarification,
