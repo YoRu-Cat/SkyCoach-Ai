@@ -202,7 +202,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
       const entries = await Promise.all(
         activeTasks.map(async (task) => {
           try {
-            const result = await analyzeTask(task.title, false);
+            const result = await analyzeTask(task.title, true);
             const normalized = result.classification.toLowerCase();
             const category: TaskCategory =
               normalized === "outdoor"
@@ -216,7 +216,6 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               category,
               reasoning: result.reasoning,
               confidence: Math.round(result.confidence * 100),
-              source: "SkyCoach RuleJudge v1",
             };
           } catch {
             return {
@@ -224,7 +223,6 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               category: classifyTask(task.title),
               reasoning: "OpenAI unavailable - local fallback used",
               confidence: 60,
-              source: "Fallback",
             };
           }
         }),
@@ -238,7 +236,6 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
           category: TaskCategory;
           reasoning: string;
           confidence: number;
-          source: string;
         }
       >;
     },
@@ -270,7 +267,6 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             best.score * 0.75 + (judged?.confidence ?? 60) * 0.25,
           ),
           reason: `${best.reason} • ${judged?.reasoning ?? "Fallback local classifier"}`,
-          source: judged?.source ?? "Fallback",
         };
       })
       .sort((a, b) => b.confidence - a.confidence);
@@ -300,8 +296,8 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         <p className="text-xs text-emerald-300">
           Task judging:{" "}
           {isJudgingTasks
-            ? "RuleJudge running..."
-            : "SkyCoach RuleJudge v1 (local dictionary model)"}
+            ? "OpenAI judging in progress..."
+            : "OpenAI rephrase + indoor/outdoor suitability"}
         </p>
         <div className="max-w-sm">
           <label
@@ -365,12 +361,6 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               <p className="font-medium">{item.title}</p>
               <p className="text-xs text-slate-400 mt-1">
                 Category: {item.category}
-              </p>
-              <p className="text-xs mt-1">
-                <span
-                  className={`px-2 py-0.5 rounded-full border ${item.source === "Fallback" ? "bg-amber-500/15 border-amber-500/40 text-amber-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>
-                  {item.source}
-                </span>
               </p>
               <p className="text-sm text-cyan-300 mt-1">
                 Best day: {item.recommendedDate}

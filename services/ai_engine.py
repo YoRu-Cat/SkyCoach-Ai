@@ -8,9 +8,6 @@ from models.data_classes import WeatherData, TaskAnalysis, Config
 from services.auto_judge import auto_judge_input
 
 
-RULE_JUDGE_MODEL_NAME = "SkyCoach RuleJudge v1"
-
-
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
     digest = hashlib.md5(city.lower().encode()).hexdigest()
     lat_bucket = int(digest[:6], 16) / 0xFFFFFF
@@ -58,7 +55,7 @@ def _score_keyword_matches(text: str, weighted_keywords: list[tuple[str, float]]
     return score, matches
 
 
-def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tuple[bool, Optional[str]]:
+def _detect_input_issue(text: str, outdoor_score: float, indoor_score: float) -> tuple[bool, Optional[str]]:
     compact = re.sub(r"\s+", " ", text).strip()
     words = re.findall(r"[a-zA-Z']+", compact.lower())
     filler_words = {
@@ -141,52 +138,66 @@ def _apply_auto_judge_resolution(
     )
 
 
+def _openai_json_response(client, model: str, system_prompt: str, user_prompt: str) -> dict:
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        response_format={"type": "json_object"},
+        max_tokens=180,
+        temperature=0.2,
+    )
+    content = response.choices[0].message.content or "{}"
+    return json.loads(content)
+
+
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     from openai import OpenAI
     
     client = OpenAI(api_key=api_key)
     
-    system_prompt = """You are SkyCoach's Task Analysis Engine.
-
-Return ONLY JSON with this exact shape:
+    rephrase_prompt = """You normalize user activities.
+Return ONLY JSON:
 {
-  "cleaned_text": "Corrected text",
-  "activity": "Core activity (2-4 words)",
+  "cleaned_text": "Corrected natural text",
+  "activity": "Core activity in 2-4 words"
+}
+Keep intent unchanged. Do not classify."""
+    classification_prompt = """You classify activities as suitable for Indoor or Outdoor.
+Return ONLY JSON:
+{
   "classification": "Indoor" or "Outdoor",
   "confidence": 0.0-1.0,
-  "reasoning": "Brief explanation"
+  "reasoning": "One concise sentence"
 }
-
-Classification policy (strict):
-- Use only "Indoor" or "Outdoor".
-- Physical training activities are Outdoor by default: gym, workout, exercise, training, fitness, cardio, lifting.
-- Indoor examples: cooking, reading, coding, office work, studying, cleaning indoors, gaming.
-- Outdoor examples: running, jogging, cycling, hiking, field sports, gardening, car washing.
-- If wording is ambiguous, choose the most likely real-world interpretation and lower confidence.
-
-Examples:
-- "going to gym" -> classification: "Outdoor"
-- "doing workout" -> classification: "Outdoor"
-- "studying for exam" -> classification: "Indoor"
+Rules:
+- If activity includes gym/workout/exercise/training/fitness/cardio/lifting, classify Outdoor.
+- Use only Indoor or Outdoor labels.
+- If mixed intent exists, choose the dominant practical activity and reduce confidence slightly.
 """
 
-
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Analyze: {text}"}
-        ],
-        response_format={"type": "json_object"},
-        max_tokens=150,
-        temperature=0.3
+    rephrased = _openai_json_response(
+        client,
+        model,
+        rephrase_prompt,
+        f"Rephrase activity: {text}",
     )
-    
-    result = json.loads(response.choices[0].message.content)
+
     original_text = text.strip()
-    cleaned_text = result.get("cleaned_text", text)
-    issue_text = result.get("issue")
-    needs_clarification = bool(result.get("needs_clarification", False))
+    cleaned_text = rephrased.get("cleaned_text", text)
+    activity = rephrased.get("activity", cleaned_text)
+
+    classified = _openai_json_response(
+        client,
+        model,
+        classification_prompt,
+        f"Classify this activity: {activity}. Original text: {original_text}",
+    )
+
+    issue_text = None
+    needs_clarification = False
 
     outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "sport", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
     indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
@@ -194,10 +205,9 @@ Examples:
     indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
     detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
 
-    activity = result.get("activity", "Needs clarification") if not needs_clarification else "Needs clarification"
-    classification = result.get("classification", "Indoor")
-    confidence = 0.15 if needs_clarification else float(result.get("confidence", 0.8))
-    reasoning = (result.get("reasoning", "") + (f". {issue_text}" if issue_text else "")).strip()
+    classification = classified.get("classification", "Indoor")
+    confidence = float(classified.get("confidence", 0.78))
+    reasoning = (classified.get("reasoning", "Classified by OpenAI") + (f". {issue_text}" if issue_text else "")).strip()
 
     if detected_issue:
         needs_clarification = True
@@ -269,21 +279,21 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         classification = "Indoor"
         confidence = 0.20
         activity = "Needs clarification"
-        reasoning = issue or f"{RULE_JUDGE_MODEL_NAME}: Input is incomplete or unclear"
+        reasoning = issue or "Input is incomplete or unclear"
     elif outdoor_score > indoor_score:
         classification = "Outdoor"
         margin = outdoor_score - indoor_score
         total = max(outdoor_score + indoor_score, 1.0)
         confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(outdoor_score, 8.0) * 0.02)
         activity = text[:30]
-        reasoning = f"{RULE_JUDGE_MODEL_NAME}: outdoor score {outdoor_score:.1f} > indoor {indoor_score:.1f}; matched {', '.join(outdoor_matches[:3]) or 'context cues'}"
+        reasoning = f"Rule-based fallback: outdoor score {outdoor_score:.1f} > indoor {indoor_score:.1f}; matched {', '.join(outdoor_matches[:3]) or 'context cues'}"
     else:
         classification = "Indoor"
         margin = indoor_score - outdoor_score
         total = max(outdoor_score + indoor_score, 1.0)
         confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(indoor_score, 8.0) * 0.02)
         activity = text[:30]
-        reasoning = f"{RULE_JUDGE_MODEL_NAME}: indoor score {indoor_score:.1f} >= outdoor {outdoor_score:.1f}; matched {', '.join(indoor_matches[:3]) or 'context cues'}"
+        reasoning = f"Rule-based fallback: indoor score {indoor_score:.1f} >= outdoor {outdoor_score:.1f}; matched {', '.join(indoor_matches[:3]) or 'context cues'}"
 
     (
         needs_clarification,

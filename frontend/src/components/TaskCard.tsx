@@ -10,22 +10,6 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
     return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
 
-  const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
-  const isRuleJudgeSource = /skycoach rulejudge v1/i.test(task.reasoning || "");
-  const isFallbackSource = /demo mode|openai unavailable|fallback/i.test(
-    task.reasoning || "",
-  );
-  const sourceLabel = isRuleJudgeSource
-    ? "SkyCoach RuleJudge v1"
-    : isFallbackSource
-      ? "Fallback"
-      : `OpenAI:${openAIModel}`;
-  const sourceBadgeClass = isRuleJudgeSource
-    ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300"
-    : isFallbackSource
-      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-      : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300";
-
   const confidenceSegments = 20;
   const filledConfidenceSegments = Math.round(
     task.confidence * confidenceSegments,
@@ -37,16 +21,10 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
         <h3 className="text-lg font-bold text-slate-100">
           🧠 Activity Analysis
         </h3>
-        <div className="flex flex-col items-end gap-2">
-          <span
-            className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
-            {task.classification}
-          </span>
-          <span
-            className={`px-2 py-0.5 text-[11px] rounded-full border ${sourceBadgeClass}`}>
-            {sourceLabel}
-          </span>
-        </div>
+        <span
+          className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
+          {task.classification}
+        </span>
       </div>
 
       {task.needs_clarification && (
