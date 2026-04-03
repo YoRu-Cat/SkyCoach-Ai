@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePreferredCity } from "@hooks/usePreferredCity";
 
 interface LocationCoords {
   latitude: number;
@@ -22,9 +23,16 @@ export default function ActivityInput({
   isLoading,
 }: ActivityInputProps) {
   const [activity, setActivity] = useState("");
-  const [city, setCity] = useState("New York");
-  const [locationMode, setLocationMode] = useState<"auto" | "manual">("auto");
-  const [coords, setCoords] = useState<LocationCoords | null>(null);
+  const { city, setCity, defaultCity, location, setLocation, clearLocation } =
+    usePreferredCity();
+  const [locationMode, setLocationMode] = useState<"auto" | "manual">(
+    location.mode,
+  );
+  const [coords, setCoords] = useState<LocationCoords | null>(
+    location.latitude !== undefined && location.longitude !== undefined
+      ? { latitude: location.latitude, longitude: location.longitude }
+      : null,
+  );
   const [locationStatus, setLocationStatus] = useState(
     "Detecting your location...",
   );
@@ -54,12 +62,22 @@ export default function ActivityInput({
           longitude: Number(position.coords.longitude.toFixed(6)),
         };
         setCoords(nextCoords);
+        setLocation({
+          latitude: nextCoords.latitude,
+          longitude: nextCoords.longitude,
+          mode: "auto",
+        });
         setLocationStatus(
           `Using precise location (${nextCoords.latitude.toFixed(3)}, ${nextCoords.longitude.toFixed(3)})`,
         );
       },
       () => {
         setCoords(null);
+        setLocation({
+          latitude: undefined,
+          longitude: undefined,
+          mode: "auto",
+        });
         setLocationStatus(
           "Location permission denied or unavailable. Switch to manual location.",
         );
@@ -78,13 +96,17 @@ export default function ActivityInput({
     }
   }, [locationMode]);
 
+  useEffect(() => {
+    setLocation({ mode: locationMode });
+  }, [locationMode, setLocation]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (activity.trim()) {
       if (locationMode === "auto" && coords) {
         onAnalyze({
           activity: activity.trim(),
-          city: city.trim(),
+          city: city.trim() || defaultCity,
           latitude: coords.latitude,
           longitude: coords.longitude,
         });
@@ -93,9 +115,23 @@ export default function ActivityInput({
 
       onAnalyze({
         activity: activity.trim(),
-        city: city.trim(),
+        city: city.trim() || defaultCity,
       });
     }
+  };
+
+  const handleClearSavedLocation = () => {
+    clearLocation();
+    setCoords(null);
+    setLocationMode("auto");
+    setLocation({
+      city: defaultCity,
+      latitude: undefined,
+      longitude: undefined,
+      mode: "auto",
+    });
+    setLocationStatus("Saved location cleared. Detecting your location...");
+    detectLocation();
   };
 
   return (
@@ -184,12 +220,29 @@ export default function ActivityInput({
             <input
               type="text"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                const nextCity = e.target.value;
+                setCity(nextCity);
+                setLocation({
+                  city: nextCity,
+                  mode: "manual",
+                  latitude: undefined,
+                  longitude: undefined,
+                });
+              }}
               placeholder="Enter city name..."
               className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-20"
               disabled={isLoading}
             />
           )}
+
+          <button
+            type="button"
+            disabled={isLoading}
+            onClick={handleClearSavedLocation}
+            className="mt-3 w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:border-rose-500/60 hover:text-rose-300 transition-colors">
+            Clear Saved Location
+          </button>
         </div>
 
         <button

@@ -10,6 +10,15 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
     return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
 
+  const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
+  const isFallbackSource = /demo mode|openai unavailable|fallback/i.test(
+    task.reasoning || "",
+  );
+  const sourceLabel = isFallbackSource ? "Fallback" : `OpenAI:${openAIModel}`;
+  const sourceBadgeClass = isFallbackSource
+    ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+    : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300";
+
   const confidenceSegments = 20;
   const filledConfidenceSegments = Math.round(
     task.confidence * confidenceSegments,
@@ -17,14 +26,20 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
 
   return (
     <div className="card space-y-4 glow-cyan">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-start justify-between mb-4 gap-3">
         <h3 className="text-lg font-bold text-slate-100">
           🧠 Activity Analysis
         </h3>
-        <span
-          className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
-          {task.classification}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={`text-sm font-semibold ${getClassificationColor(task.classification)}`}>
+            {task.classification}
+          </span>
+          <span
+            className={`px-2 py-0.5 text-[11px] rounded-full border ${sourceBadgeClass}`}>
+            {sourceLabel}
+          </span>
+        </div>
       </div>
 
       {task.needs_clarification && (

@@ -57,7 +57,9 @@ def _detect_input_issue(text: str, outdoor_score: int, indoor_score: int) -> tup
 
     if outdoor_score == 0 and indoor_score == 0:
         content_words = [w for w in words if w not in filler_words and len(w) >= 3]
-        if len(content_words) >= 2:
+        # A single concrete content word can still be a valid intent phrase,
+        # e.g. "going to gym" or "going to work".
+        if len(content_words) >= 1:
             return False, None
         if any(word in filler_words for word in words):
             return True, "Input looks unfinished or misspelled"
@@ -130,17 +132,29 @@ def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> 
     
     client = OpenAI(api_key=api_key)
     
-    system_prompt = """You are SkyCoach's Task Analysis Engine. Analyze the user's activity and respond in JSON:
+    system_prompt = """You are SkyCoach's Task Analysis Engine.
+
+Return ONLY JSON with this exact shape:
 {
-    "cleaned_text": "Corrected text",
-    "activity": "Core activity (2-4 words)",
-    "classification": "Indoor" or "Outdoor",
-    "confidence": 0.0-1.0,
-    "reasoning": "Brief explanation"
+  "cleaned_text": "Corrected text",
+  "activity": "Core activity (2-4 words)",
+  "classification": "Indoor" or "Outdoor",
+  "confidence": 0.0-1.0,
+  "reasoning": "Brief explanation"
 }
 
-OUTDOOR: gardening, car washing, jogging, hiking, cycling, sports, yard work, BBQ, pool, gym, workout, exercise, training, fitness
-INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, crafts"""
+Classification policy (strict):
+- Use only "Indoor" or "Outdoor".
+- Physical training activities are Outdoor by default: gym, workout, exercise, training, fitness, cardio, lifting.
+- Indoor examples: cooking, reading, coding, office work, studying, cleaning indoors, gaming.
+- Outdoor examples: running, jogging, cycling, hiking, field sports, gardening, car washing.
+- If wording is ambiguous, choose the most likely real-world interpretation and lower confidence.
+
+Examples:
+- "going to gym" -> classification: "Outdoor"
+- "doing workout" -> classification: "Outdoor"
+- "studying for exam" -> classification: "Indoor"
+"""
 
 
     response = client.chat.completions.create(
@@ -174,21 +188,6 @@ INDOOR: cooking, reading, gaming, cleaning, working, studying, yoga indoors, cra
     if detected_issue:
         needs_clarification = True
         issue_text = detected_issue_text
-
-    fitness_keywords = [
-        "gym",
-        "workout",
-        "exercise",
-        "exercising",
-        "training",
-        "fitness",
-        "lifting",
-        "weight training",
-        "cardio",
-    ]
-    if any(keyword in original_text.lower() for keyword in fitness_keywords):
-        classification = "Outdoor"
-        reasoning = f"{reasoning}. Fitness activity treated as outdoor for sequencing"
 
     (
         needs_clarification,
@@ -230,7 +229,8 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     
     outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", 
                        "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn",
-                       "paint outside", "sport", "sports", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
+                       "paint outside", "sport", "sports", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside",
+                       "gym", "workout", "exercise", "training", "fitness", "cardio", "lifting", "weight training"]
     indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying",
                       "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
     
@@ -296,18 +296,15 @@ def analyze_task_smart(
     model: str = "gpt-4o-mini",
     min_confidence_for_openai: float = 0.70,
 ) -> TaskAnalysis:
-    """Use OpenAI directly when requested, otherwise fall back to local keyword analysis."""
-    fallback_result = analyze_task_fallback(text)
-
+    """Use OpenAI directly when requested, otherwise use local keyword analysis."""
     if use_openai:
         api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
-        if api_key:
-            try:
-                return analyze_task_openai(text, api_key=api_key, model=model)
-            except Exception:
-                return fallback_result
+        if not api_key:
+            raise RuntimeError("OpenAI API key is required when use_openai=True")
 
-    return fallback_result
+        return analyze_task_openai(text, api_key=api_key, model=model)
+
+    return analyze_task_fallback(text)
 
 
 def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> WeatherData:

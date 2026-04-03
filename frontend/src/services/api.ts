@@ -31,15 +31,18 @@ const apiClient = axios.create({
 });
 
 const useDemoWeather = import.meta.env.VITE_USE_DEMO_WEATHER === "true";
+const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
 
 export const analyzeTask = async (
   text: string,
   useOpenAI = false,
+  model = openAIModel,
 ): Promise<TaskAnalysis> => {
   const response = await apiClient.post("/analyze-task", {
     text,
     use_openai: useOpenAI,
     openai_api_key: null,
+    openai_model: model,
   });
   return response.data;
 };
@@ -66,6 +69,7 @@ export const fullAnalysis = async (
     use_openai: false,
     weather_api_key: null,
     openai_api_key: null,
+    openai_model: openAIModel,
     use_demo_weather: useDemoWeather,
   });
   return response.data;

@@ -135,4 +135,39 @@ def test_analyze_task_smart_uses_openai_when_requested(monkeypatch):
 
     assert result.classification == "Outdoor"
     assert calls["openai"] == 1
-    assert calls["fallback"] == 1
+    assert calls["fallback"] == 0
+
+
+def test_analyze_task_smart_requires_key_in_openai_mode(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    try:
+        ai_engine.analyze_task_smart("Going to gym", use_openai=True)
+        raise AssertionError("Expected RuntimeError when OpenAI key is missing")
+    except RuntimeError as exc:
+        assert "OpenAI API key is required" in str(exc)
+
+
+def test_analyze_task_fallback_classifies_gym_as_outdoor():
+    result = ai_engine.analyze_task_smart("Going to gym", use_openai=False)
+    assert result.classification == "Outdoor"
+
+
+def test_detect_input_issue_allows_going_to_gym_phrase():
+    needs_clarification, issue = ai_engine._detect_input_issue(
+        "going to gym",
+        outdoor_score=0,
+        indoor_score=0,
+    )
+    assert needs_clarification is False
+    assert issue is None
+
+
+def test_detect_input_issue_allows_going_to_work_phrase():
+    needs_clarification, issue = ai_engine._detect_input_issue(
+        "going to work",
+        outdoor_score=0,
+        indoor_score=0,
+    )
+    assert needs_clarification is False
+    assert issue is None

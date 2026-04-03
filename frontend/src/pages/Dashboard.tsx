@@ -5,6 +5,7 @@ import ActivityInput from "@components/ActivityInput";
 import AnalysisResult from "@components/AnalysisResult";
 import Header from "@components/Header";
 import WeatherBackground from "@components/WeatherBackground";
+import { usePreferredCity } from "@hooks/usePreferredCity";
 import type { AnalysisResponse } from "@app-types/api";
 
 interface AnalyzeInput {
@@ -17,6 +18,7 @@ interface AnalyzeInput {
 export default function Dashboard() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const { mutate: runAnalysis, isLoading } = useFullAnalysis();
+  const { setCity } = usePreferredCity();
   const layoutRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,6 +55,9 @@ export default function Dashboard() {
       {
         onSuccess: (data) => {
           setAnalysis(data);
+          if (data.weather?.city) {
+            setCity(data.weather.city);
+          }
         },
         onError: (error) => {
           console.error("Analysis failed:", error);
@@ -71,6 +76,9 @@ export default function Dashboard() {
       {
         onSuccess: (data) => {
           setAnalysis(data);
+          if (data.weather?.city) {
+            setCity(data.weather.city);
+          }
         },
         onError: (error) => {
           console.error("Suggestion re-analysis failed:", error);

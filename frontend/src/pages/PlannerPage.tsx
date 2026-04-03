@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "react-query";
 import type { WeatherData } from "@app-types/api";
 import type { TaskCategory, UserTask, WeekForecastDay } from "@app-types/tasks";
 import { useGetWeather } from "@hooks/useApi";
+import { usePreferredCity } from "@hooks/usePreferredCity";
 import { analyzeTask } from "@services/api";
 
 interface PlannerPageProps {
@@ -120,9 +121,73 @@ const scoreTaskForDay = (
 };
 
 export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
-  const [city, setCity] = useState("New York");
+  const { city, setCity, defaultCity } = usePreferredCity();
+  const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
   const requestedCity = city.trim();
   const { data: weather, isFetching } = useGetWeather(requestedCity);
+
+  useEffect(() => {
+    const shouldAutoDetect = !requestedCity || requestedCity === defaultCity;
+    if (!shouldAutoDetect) {
+      return;
+    }
+
+    if (!("geolocation" in navigator)) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`,
+          );
+          if (!response.ok) {
+            return;
+          }
+
+          const data = (await response.json()) as {
+            address?: {
+              city?: string;
+              town?: string;
+              village?: string;
+              municipality?: string;
+              county?: string;
+            };
+          };
+
+          const resolvedCity =
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.village ||
+            data.address?.municipality ||
+            data.address?.county;
+
+          if (resolvedCity) {
+            setCity(resolvedCity);
+          }
+        } catch {
+          // Keep existing city if reverse geocoding fails.
+        }
+      },
+      () => {
+        // Keep existing city if geolocation is denied.
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 },
+    );
+  }, [defaultCity, requestedCity, setCity]);
+
+  useEffect(() => {
+    if (!weather?.city) {
+      return;
+    }
+
+    if (weather.city !== city) {
+      setCity(weather.city);
+    }
+  }, [weather?.city, city, setCity]);
   const forecast = useMemo(() => buildWeekForecast(weather), [weather]);
   const activeTasks = useMemo(
     () => tasks.filter((task) => !task.completed),
@@ -152,13 +217,15 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               category,
               reasoning: result.reasoning,
               confidence: Math.round(result.confidence * 100),
+              source: `OpenAI:${openAIModel}`,
             };
           } catch {
             return {
               taskId: task.id,
               category: classifyTask(task.title),
-              reasoning: "Fallback local classifier",
+              reasoning: "OpenAI unavailable - local fallback used",
               confidence: 60,
+              source: "Fallback",
             };
           }
         }),
@@ -168,7 +235,12 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         entries.map((entry) => [entry.taskId, entry]),
       ) as Record<
         string,
-        { category: TaskCategory; reasoning: string; confidence: number }
+        {
+          category: TaskCategory;
+          reasoning: string;
+          confidence: number;
+          source: string;
+        }
       >;
     },
     {
@@ -199,6 +271,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             best.score * 0.75 + (judged?.confidence ?? 60) * 0.25,
           ),
           reason: `${best.reason} • ${judged?.reasoning ?? "Fallback local classifier"}`,
+          source: judged?.source ?? "Fallback",
         };
       })
       .sort((a, b) => b.confidence - a.confidence);
@@ -222,12 +295,14 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         </p>
         <p className="text-xs text-cyan-300">
           Recommendations are currently based on:{" "}
-          {weather?.city || requestedCity || "New York"}
+          {weather?.city || requestedCity || defaultCity}
           {isFetching ? " (updating...)" : ""}
         </p>
         <p className="text-xs text-emerald-300">
           Task judging:{" "}
-          {isJudgingTasks ? "OpenAI judging in progress..." : "OpenAI-backed"}
+          {isJudgingTasks
+            ? "OpenAI judging in progress..."
+            : "OpenAI when available, local fallback otherwise"}
         </p>
         <div className="max-w-sm">
           <label
@@ -291,6 +366,12 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
               <p className="font-medium">{item.title}</p>
               <p className="text-xs text-slate-400 mt-1">
                 Category: {item.category}
+              </p>
+              <p className="text-xs mt-1">
+                <span
+                  className={`px-2 py-0.5 rounded-full border ${item.source === "Fallback" ? "bg-amber-500/15 border-amber-500/40 text-amber-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>
+                  {item.source}
+                </span>
               </p>
               <p className="text-sm text-cyan-300 mt-1">
                 Best day: {item.recommendedDate}

@@ -70,10 +70,12 @@ def convert_weather_to_response(weather: WeatherData) -> WeatherResponse:
 @router.post("/analyze-task", response_model=TaskAnalysisResponse)
 async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
     try:
+        model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.text,
             use_openai=request.use_openai,
             openai_api_key=request.openai_api_key,
+            model=model_name,
         )
         
         return convert_task_to_response(task)
@@ -190,10 +192,12 @@ async def get_alternatives(
 async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
     """Complete end-to-end analysis: task → weather → score → alternatives."""
     try:
+        model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.activity_text,
             use_openai=request.use_openai,
             openai_api_key=request.openai_api_key,
+            model=model_name,
         )
         
         weather_api_key = request.weather_api_key or os.getenv("OPENWEATHER_API_KEY")

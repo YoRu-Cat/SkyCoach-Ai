@@ -9,6 +9,7 @@ class TaskAnalysisRequest(BaseModel):
     text: str = Field(..., description="Activity description in plain language", min_length=1)
     use_openai: bool = Field(False, description="Use OpenAI API instead of fallback")
     openai_api_key: Optional[str] = Field(None, description="OpenAI API key if using OpenAI")
+    openai_model: Optional[str] = Field(None, description="OpenAI model override, e.g. gpt-4.1-mini")
 
 
 class TaskAnalysisResponse(BaseModel):
@@ -95,6 +96,7 @@ class AnalysisRequest(BaseModel):
     longitude: Optional[float] = None
     use_openai: bool = False
     openai_api_key: Optional[str] = None
+    openai_model: Optional[str] = None
     weather_api_key: Optional[str] = None
     use_demo_weather: bool = True
 
