@@ -52,7 +52,12 @@ export default function AppShell() {
       case "timetable":
         return <TimetablePage {...taskStore} />;
       case "planner":
-        return <PlannerPage tasks={taskStore.tasks} />;
+        return (
+          <PlannerPage
+            tasks={taskStore.tasks}
+            updateTask={taskStore.updateTask}
+          />
+        );
       case "dashboard":
       default:
         return <Dashboard />;

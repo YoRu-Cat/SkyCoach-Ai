@@ -419,6 +419,18 @@ button {
   overflow: hidden;
 }
 
+/* Ensure native date/time picker icons are visible on dark inputs */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.2);
+  opacity: 0.9;
+}
+
 .btn-shimmer::after {
   content: "";
   position: absolute;
