@@ -427,8 +427,10 @@ input[type="time"] {
 
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(1.2);
-  opacity: 0.9;
+  -webkit-filter: invert(1) brightness(1.85) contrast(1.1) !important;
+  filter: invert(1) brightness(1.85) contrast(1.1) !important;
+  opacity: 1 !important;
+  cursor: pointer;
 }
 
 .btn-shimmer::after {

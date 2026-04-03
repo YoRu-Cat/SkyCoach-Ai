@@ -32,10 +32,13 @@ const apiClient = axios.create({
 
 const useDemoWeather = import.meta.env.VITE_USE_DEMO_WEATHER === "true";
 
-export const analyzeTask = async (text: string): Promise<TaskAnalysis> => {
+export const analyzeTask = async (
+  text: string,
+  useOpenAI = false,
+): Promise<TaskAnalysis> => {
   const response = await apiClient.post("/analyze-task", {
     text,
-    use_openai: false,
+    use_openai: useOpenAI,
     openai_api_key: null,
   });
   return response.data;

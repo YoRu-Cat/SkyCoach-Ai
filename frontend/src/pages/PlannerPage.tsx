@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
 import type { WeatherData } from "@app-types/api";
 import type { TaskCategory, UserTask, WeekForecastDay } from "@app-types/tasks";
 import { useGetWeather } from "@hooks/useApi";
+import { analyzeTask } from "@services/api";
 
 interface PlannerPageProps {
   tasks: UserTask[];
@@ -9,7 +11,8 @@ interface PlannerPageProps {
 }
 
 const classifyTask = (title: string): TaskCategory => {
-  const text = title.toLowerCase();
+  const text = title.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+
   const outdoor = [
     "run",
     "jog",
@@ -18,9 +21,16 @@ const classifyTask = (title: string): TaskCategory => {
     "cricket",
     "hike",
     "cycle",
+    "cycling",
+    "workout",
+    "gym",
+    "exercise",
     "wash car",
     "garden",
+    "yard",
+    "outdoor",
   ];
+
   const indoor = [
     "homework",
     "study",
@@ -30,10 +40,26 @@ const classifyTask = (title: string): TaskCategory => {
     "movie",
     "clean",
     "cook",
+    "dishes",
+    "dish",
+    "laundry",
+    "wash clothes",
+    "gooning",
+    "goon",
+    "indoor",
   ];
 
-  if (outdoor.some((word) => text.includes(word))) return "outdoor";
-  if (indoor.some((word) => text.includes(word))) return "indoor";
+  const outdoorScore = outdoor.reduce(
+    (count, keyword) => count + (text.includes(keyword) ? 1 : 0),
+    0,
+  );
+  const indoorScore = indoor.reduce(
+    (count, keyword) => count + (text.includes(keyword) ? 1 : 0),
+    0,
+  );
+
+  if (outdoorScore > indoorScore) return "outdoor";
+  if (indoorScore > outdoorScore) return "indoor";
   return "general";
 };
 
@@ -98,13 +124,67 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
   const requestedCity = city.trim();
   const { data: weather, isFetching } = useGetWeather(requestedCity);
   const forecast = useMemo(() => buildWeekForecast(weather), [weather]);
+  const activeTasks = useMemo(
+    () => tasks.filter((task) => !task.completed),
+    [tasks],
+  );
+
+  const { data: aiJudgedTasks, isFetching: isJudgingTasks } = useQuery(
+    [
+      "ai-task-judgements",
+      activeTasks.map((task) => `${task.id}:${task.title}`),
+    ],
+    async () => {
+      const entries = await Promise.all(
+        activeTasks.map(async (task) => {
+          try {
+            const result = await analyzeTask(task.title, true);
+            const normalized = result.classification.toLowerCase();
+            const category: TaskCategory =
+              normalized === "outdoor"
+                ? "outdoor"
+                : normalized === "indoor"
+                  ? "indoor"
+                  : "general";
+
+            return {
+              taskId: task.id,
+              category,
+              reasoning: result.reasoning,
+              confidence: Math.round(result.confidence * 100),
+            };
+          } catch {
+            return {
+              taskId: task.id,
+              category: classifyTask(task.title),
+              reasoning: "Fallback local classifier",
+              confidence: 60,
+            };
+          }
+        }),
+      );
+
+      return Object.fromEntries(
+        entries.map((entry) => [entry.taskId, entry]),
+      ) as Record<
+        string,
+        { category: TaskCategory; reasoning: string; confidence: number }
+      >;
+    },
+    {
+      enabled: activeTasks.length > 0,
+      staleTime: 2 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const sequenced = useMemo(() => {
-    const candidates = tasks.filter((task) => !task.completed);
+    const candidates = activeTasks;
 
     return candidates
       .map((task) => {
-        const category = classifyTask(task.title);
+        const judged = aiJudgedTasks?.[task.id];
+        const category = judged?.category ?? classifyTask(task.title);
         const ranked = forecast
           .map((day) => ({ day, ...scoreTaskForDay(category, day) }))
           .sort((a, b) => b.score - a.score);
@@ -115,12 +195,14 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
           title: task.title,
           category,
           recommendedDate: best.day.date,
-          confidence: best.score,
-          reason: best.reason,
+          confidence: Math.round(
+            best.score * 0.75 + (judged?.confidence ?? 60) * 0.25,
+          ),
+          reason: `${best.reason} • ${judged?.reasoning ?? "Fallback local classifier"}`,
         };
       })
       .sort((a, b) => b.confidence - a.confidence);
-  }, [tasks, forecast]);
+  }, [activeTasks, aiJudgedTasks, forecast]);
 
   const applyRecommendations = () => {
     sequenced.forEach((item, index) => {
@@ -142,6 +224,10 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
           Recommendations are currently based on:{" "}
           {weather?.city || requestedCity || "New York"}
           {isFetching ? " (updating...)" : ""}
+        </p>
+        <p className="text-xs text-emerald-300">
+          Task judging:{" "}
+          {isJudgingTasks ? "OpenAI judging in progress..." : "OpenAI-backed"}
         </p>
         <div className="max-w-sm">
           <label
