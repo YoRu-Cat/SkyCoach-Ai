@@ -91,60 +91,60 @@ Complete documentation is available in the `/docs` folder:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        Frontend (React + TypeScript)                     │
-│  ┌─────────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │ Activity Input  │  │  Dashboard   │  │ Planner (7-Day Calendar) │   │
-│  │ (GPS + Manual)  │  │  (Overview)  │  │ (Weather + Tasks)        │   │
-│  └────────┬────────┘  └──────────────┘  └──────────────────────────┘   │
+│                        Frontend (React + TypeScript)                    │
+│  ┌─────────────────┐  ┌──────────────┐  ┌──────────────────────────┐    │
+│  │ Activity Input  │  │  Dashboard   │  │ Planner (7-Day Calendar) │    │
+│  │ (GPS + Manual)  │  │  (Overview)  │  │ (Weather + Tasks)        │    │
+│  └────────┬────────┘  └──────────────┘  └──────────────────────────┘    │
 │           │                              │                              │
-│  ┌────────▼──────────────────────────────▼──────┐                      │
-│  │     React Hooks & State Management           │                      │
-│  │  • usePreferredCity (Location persistence)   │                      │
-│  │  • useTaskStore (Task management)            │                      │
-│  │  • useApi (API client wrapper)               │                      │
-│  └────────┬─────────────────────────────────────┘                      │
+│  ┌────────▼──────────────────────────────▼──────┐                       │
+│  │     React Hooks & State Management           │                       │
+│  │  • usePreferredCity (Location persistence)   │                       │
+│  │  • useTaskStore (Task management)            │                       │
+│  │  • useApi (API client wrapper)               │                       │
+│  └────────┬─────────────────────────────────────┘                       │
 │           │ HTTP/REST                                                   │
-└───────────┼──────────────────────────────────────────────────────────────┘
+└───────────┼─────────────────────────────────────────────────────────────┘
             │
             ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                  Backend (FastAPI + Python)                             │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │                    API Routes Layer                            │    │
-│  │  POST /api/analyze-task    (Task classification)              │    │
-│  │  POST /api/weather         (Get weather for city)             │    │
-│  │  POST /api/geocode         (Reverse geocoding)                │    │
-│  └────────┬───────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │                    API Routes Layer                             │    │
+│  │  POST /api/analyze-task    (Task classification)                │    │
+│  │  POST /api/weather         (Get weather for city)               │    │
+│  │  POST /api/geocode         (Reverse geocoding)                  │    │
+│  └────────┬────────────────────────────────────────────────────────┘    │
 │           │                                                             │
-│  ┌────────▼────────────────────────────────────────────────────────┐   │
-│  │           AI Engine (Two-Step Classification)                   │   │
-│  │                                                                 │   │
-│  │  Step 1: Rephrase (OpenAI)                                     │   │
-│  │  "washin my car" → "Washing my car"                            │   │
-│  │                                                                 │   │
-│  │  Step 2: Classify (OpenAI)                                     │   │
-│  │  Input: "Washing my car" + Location: "New York"               │   │
-│  │  Output: { classification: "Outdoor", confidence: 0.95 }      │   │
-│  │                                                                 │   │
-│  │  Fallback: Rule-based classifier (weighted keywords)          │   │
-│  │  When: OpenAI key unavailable or API rate limits              │   │
-│  │  Accuracy: ~85% on common activities (gym, work, etc.)        │   │
-│  └────────┬────────────────────────────────────────────────────────┘   │
+│  ┌────────▼─────────────────────────────────────────────────────────┐   │
+│  │           AI Engine (Two-Step Classification)                    │   │
+│  │                                                                  │   │
+│  │  Step 1: Rephrase (OpenAI)                                       │   │
+│  │  "washin my car" → "Washing my car"                              │   │
+│  │                                                                  │   │
+│  │  Step 2: Classify (OpenAI)                                       │   │
+│  │  Input: "Washing my car" + Location: "New York"                  │   │
+│  │  Output: { classification: "Outdoor", confidence: 0.95 }         │   │
+│  │                                                                  │   │
+│  │  Fallback: Rule-based classifier (weighted keywords)             │   │
+│  │  When: OpenAI key unavailable or API rate limits                 │   │
+│  │  Accuracy: ~85% on common activities (gym, work, etc.)           │   │
+│  └────────┬─────────────────────────────────────────────────────────┘   │
 │           │                                                             │
-│  ┌────────▼────────────────────────────────────────────────────────┐   │
-│  │       External Services Integration                             │   │
-│  │  • OpenAI GPT-4o-mini (Task classification)                    │   │
-│  │  • OpenWeatherMap (Weather data & forecasts)                   │   │
-│  │  • Nominatim (Reverse geocoding: coords → city name)          │   │
-│  └────────────────────────────────────────────────────────────────┘   │
+│  ┌────────▼─────────────────────────────────────────────────────────┐   │
+│  │       External Services Integration                              │   │
+│  │  • OpenAI GPT-4o-mini (Task classification)                      │   │
+│  │  • OpenWeatherMap (Weather data & forecasts)                     │   │
+│  │  • Nominatim (Reverse geocoding: coords → city name)             │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
             │
             ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │              Data Storage & Persistence                                 │
-│  • Browser localStorage (user location, task preferences)              │
-│  • Session State (current tasks, UI state)                             │
-│  • OpenWeatherMap Cache (temporary weather data)                       │
+│  • Browser localStorage (user location, task preferences)               │
+│  • Session State (current tasks, UI state)                              │
+│  • OpenWeatherMap Cache (temporary weather data)                        │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
