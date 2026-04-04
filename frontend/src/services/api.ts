@@ -3,6 +3,9 @@ import type {
   TaskAnalysis,
   WeatherData,
   AnalysisResponse,
+  ChatMessage,
+  ChatDraft,
+  ChatAssistantResponse,
 } from "@app-types/api";
 
 export interface AnalysisParams {
@@ -95,4 +98,19 @@ export const healthCheck = async (): Promise<boolean> => {
   } catch {
     return false;
   }
+};
+
+export const chatAssistant = async (
+  messages: ChatMessage[],
+  draft: ChatDraft,
+): Promise<ChatAssistantResponse> => {
+  const response = await apiClient.post("/chat-assistant", {
+    messages,
+    draft,
+    today_iso: new Date().toISOString().slice(0, 10),
+    use_openai: true,
+    openai_api_key: null,
+    openai_model: openAIModel,
+  });
+  return response.data;
 };

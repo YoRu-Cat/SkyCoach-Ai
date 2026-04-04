@@ -52,3 +52,34 @@ export interface AnalysisResponse {
   score_result: SkyScoreResult;
   alternatives: Array<[string, string]>;
 }
+
+export type ChatRole = "user" | "assistant" | "system";
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+}
+
+export interface ChatDraft {
+  task_title?: string | null;
+  date?: string | null;
+  time?: string | null;
+  notes?: string | null;
+}
+
+export type ChatNavigateTo =
+  | "dashboard"
+  | "todo"
+  | "timetable"
+  | "planner"
+  | "chat";
+
+export interface ChatAssistantResponse {
+  assistant_message: string;
+  draft: ChatDraft;
+  missing_fields: Array<"task_title" | "date" | "time">;
+  requires_confirmation: boolean;
+  create_task: boolean;
+  navigate_to: ChatNavigateTo;
+  reset_draft: boolean;
+}

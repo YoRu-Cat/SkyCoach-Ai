@@ -33,9 +33,9 @@ export const useTaskStore = () => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string, notes?: string) => {
+  const addTask = (title: string, notes?: string): string | null => {
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed) return null;
 
     const next: UserTask = {
       id: crypto.randomUUID(),
@@ -46,6 +46,7 @@ export const useTaskStore = () => {
     };
 
     setTasks((prev) => [next, ...prev].sort(byCreatedDesc));
+    return next.id;
   };
 
   const updateTask = (id: string, patch: Partial<UserTask>) => {

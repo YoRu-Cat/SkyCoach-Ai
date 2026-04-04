@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List, Tuple
+from datetime import datetime
 import sys
 import os
 
@@ -12,6 +13,7 @@ from services.ai_engine import (
     get_weather_by_city,
 )
 from services.maps import render_map
+from services.chat_assistant import chat_assistant_reply
 from core.scoring_engine import calculate_sky_score, get_alternative_activities
 from models.data_classes import Config, TaskAnalysis, WeatherData
 from backend.schemas.models import (
@@ -25,6 +27,8 @@ from backend.schemas.models import (
     FactorDetail,
     AnalysisRequest,
     AnalysisResponse,
+    ChatAssistantRequest,
+    ChatAssistantResponse,
 )
 
 router = APIRouter(prefix="/api", tags=["analysis"])
@@ -245,3 +249,35 @@ async def health_check():
         "service": "SkyCoach API",
         "version": "1.0.0"
     }
+
+
+@router.post("/chat-assistant", response_model=ChatAssistantResponse)
+async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse:
+    try:
+        model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
+        today_iso = request.today_iso or datetime.now().date().isoformat()
+        reply = chat_assistant_reply(
+            messages=[{"role": message.role, "content": message.content} for message in request.messages],
+            draft={
+                "task_title": request.draft.task_title,
+                "date": request.draft.date,
+                "time": request.draft.time,
+                "notes": request.draft.notes,
+            },
+            today_iso=today_iso,
+            use_openai=request.use_openai,
+            openai_api_key=request.openai_api_key,
+            openai_model=model_name,
+        )
+
+        return ChatAssistantResponse(
+            assistant_message=reply["assistant_message"],
+            draft=reply["draft"],
+            missing_fields=reply["missing_fields"],
+            requires_confirmation=reply["requires_confirmation"],
+            create_task=reply["create_task"],
+            navigate_to=reply["navigate_to"],
+            reset_draft=reply["reset_draft"],
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Chat assistant failed: {str(e)}")

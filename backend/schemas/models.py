@@ -107,3 +107,34 @@ class AnalysisResponse(BaseModel):
     weather: WeatherResponse
     score_result: SkyScoreResponse
     alternatives: List[Tuple[str, str]]
+
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "system"]
+    content: str
+
+
+class ChatDraft(BaseModel):
+    task_title: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class ChatAssistantRequest(BaseModel):
+    messages: List[ChatMessage]
+    draft: ChatDraft = Field(default_factory=ChatDraft)
+    today_iso: Optional[str] = None
+    use_openai: bool = True
+    openai_api_key: Optional[str] = None
+    openai_model: Optional[str] = None
+
+
+class ChatAssistantResponse(BaseModel):
+    assistant_message: str
+    draft: ChatDraft
+    missing_fields: List[Literal["task_title", "date", "time"]]
+    requires_confirmation: bool
+    create_task: bool
+    navigate_to: Literal["dashboard", "todo", "timetable", "planner", "chat"]
+    reset_draft: bool

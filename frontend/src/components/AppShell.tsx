@@ -1,12 +1,20 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { CalendarDays, ClipboardList, Menu, Sparkles, X } from "lucide-react";
+import {
+  CalendarDays,
+  ClipboardList,
+  MessageSquare,
+  Menu,
+  Sparkles,
+  X,
+} from "lucide-react";
 import Dashboard from "../pages/Dashboard";
 import TodoPage from "../pages/TodoPage";
 import TimetablePage from "../pages/TimetablePage";
 import PlannerPage from "../pages/PlannerPage";
+import ChatPage from "../pages/ChatPage";
 import { useTaskStore } from "@hooks/useTaskStore";
 
-export type AppView = "dashboard" | "todo" | "timetable" | "planner";
+export type AppView = "dashboard" | "todo" | "timetable" | "planner" | "chat";
 
 interface NavItem {
   id: AppView;
@@ -41,6 +49,11 @@ export default function AppShell() {
         label: "Weather Planner",
         icon: <Sparkles className="w-4 h-4" />,
       },
+      {
+        id: "chat",
+        label: "Chat Control",
+        icon: <MessageSquare className="w-4 h-4" />,
+      },
     ],
     [],
   );
@@ -56,6 +69,13 @@ export default function AppShell() {
           <PlannerPage
             tasks={taskStore.tasks}
             updateTask={taskStore.updateTask}
+          />
+        );
+      case "chat":
+        return (
+          <ChatPage
+            taskStore={taskStore}
+            onNavigate={(target) => setActiveView(target)}
           />
         );
       case "dashboard":
