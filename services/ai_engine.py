@@ -6,6 +6,7 @@ import json
 from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
 from services.auto_judge import auto_judge_input
+from services.task_classifier_ml import model_summary, predict_task_label
 
 
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
@@ -138,6 +139,48 @@ def _apply_auto_judge_resolution(
     )
 
 
+def _apply_domain_overrides(
+    original_text: str,
+    classification: str,
+    confidence: float,
+    reasoning: str,
+) -> tuple[str, float, str]:
+    text_lower = re.sub(r"\s+", " ", original_text.lower()).strip()
+    outdoor_keywords = [
+        "going to gym",
+        "gym",
+        "workout",
+        "exercise",
+        "training",
+        "fitness",
+        "cardio",
+        "lifting",
+        "running",
+        "jogging",
+        "cycling",
+        "hiking",
+        "wash car",
+        "car wash",
+        "gardening",
+        "garden",
+        "soccer",
+        "football",
+        "basketball",
+        "tennis",
+        "swimming",
+        "picnic",
+        "outside",
+    ]
+
+    if any(re.search(rf"\b{re.escape(keyword)}\b", text_lower) for keyword in outdoor_keywords):
+        if classification != "Outdoor":
+            classification = "Outdoor"
+            confidence = max(confidence, 0.88)
+            reasoning = f"{reasoning}; domain override applied for outdoor activity"
+
+    return classification, confidence, reasoning
+
+
 def _openai_json_response(client, model: str, system_prompt: str, user_prompt: str) -> dict:
     response = client.chat.completions.create(
         model=model,
@@ -249,72 +292,41 @@ Rules:
 
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
-    text_lower = re.sub(r"\s+", " ", text.lower().strip())
+    prediction = predict_task_label(text)
+    model_info = model_summary()
+    compact_text = re.sub(r"\s+", " ", text.strip())
+    suggestion = auto_judge_input(text)
 
-    outdoor_weighted = [
-        ("going to work outside", 5.0), ("work outside", 4.5), ("outside work", 4.2),
-        ("going to gym", 4.5), ("gym", 4.0), ("workout", 4.0), ("exercise", 3.8),
-        ("training", 3.6), ("fitness", 3.4), ("cardio", 3.2), ("lifting", 3.2),
-        ("weight training", 3.6), ("run", 3.0), ("running", 3.0), ("jog", 3.0),
-        ("jogging", 3.0), ("walk", 2.4), ("walking", 2.4), ("cycling", 3.0),
-        ("cycle", 3.0), ("hiking", 3.0), ("hike", 3.0), ("soccer", 3.2),
-        ("cricket", 3.2), ("football", 3.2), ("tennis", 2.8), ("basketball", 3.0),
-        ("swimming", 2.8), ("garden", 2.7), ("gardening", 2.7), ("wash car", 2.8),
-        ("car wash", 2.8), ("outside", 2.2), ("park", 2.0),
-    ]
-    indoor_weighted = [
-        ("going to work", 2.8), ("work", 1.0), ("office", 2.8), ("desk", 2.2),
-        ("study", 2.8), ("studying", 2.8), ("homework", 3.0), ("read", 2.4),
-        ("reading", 2.4), ("coding", 2.6), ("meeting", 2.6), ("conference", 2.6),
-        ("class", 2.4), ("cook", 2.5), ("cooking", 2.5), ("clean", 2.3),
-        ("cleaning", 2.3), ("dishes", 2.5), ("laundry", 2.4), ("gaming", 2.3),
-        ("movie", 2.0), ("inside", 2.2), ("at home", 2.0),
-    ]
+    classification = prediction.classification
+    confidence = prediction.confidence
+    activity = compact_text[:30]
+    reasoning = (
+        f"{prediction.model_name} selected via {model_info.cv_accuracy:.2f} cross-validation accuracy; "
+        f"predicted {classification.lower()} with {confidence:.2f} confidence"
+    )
+    needs_clarification = False
+    issue = None
+    suggested_activity = None
+    suggested_classification = None
+    suggestion_confidence = 0.0
 
-    outdoor_score, outdoor_matches = _score_keyword_matches(text_lower, outdoor_weighted)
-    indoor_score, indoor_matches = _score_keyword_matches(text_lower, indoor_weighted)
-    needs_clarification, issue = _detect_input_issue(text, outdoor_score, indoor_score)
+    if suggestion["is_broken"] and suggestion["suggestion"]:
+        suggested_activity = suggestion["suggestion"]
+        suggested_classification = suggestion["classification"]
+        suggestion_confidence = suggestion["confidence"]
+        if suggestion_confidence >= 0.78:
+            activity = suggested_activity
+            classification = suggested_classification or classification
+            confidence = max(confidence, min(0.94, suggestion_confidence))
+            reasoning = "Auto-corrected with high-confidence suggestion"
 
-    if needs_clarification:
-        classification = "Indoor"
-        confidence = 0.20
-        activity = "Needs clarification"
-        reasoning = issue or "Input is incomplete or unclear"
-    elif outdoor_score > indoor_score:
-        classification = "Outdoor"
-        margin = outdoor_score - indoor_score
-        total = max(outdoor_score + indoor_score, 1.0)
-        confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(outdoor_score, 8.0) * 0.02)
-        activity = text[:30]
-        reasoning = f"Rule-based fallback: outdoor score {outdoor_score:.1f} > indoor {indoor_score:.1f}; matched {', '.join(outdoor_matches[:3]) or 'context cues'}"
-    else:
-        classification = "Indoor"
-        margin = indoor_score - outdoor_score
-        total = max(outdoor_score + indoor_score, 1.0)
-        confidence = min(0.96, 0.60 + (margin / total) * 0.25 + min(indoor_score, 8.0) * 0.02)
-        activity = text[:30]
-        reasoning = f"Rule-based fallback: indoor score {indoor_score:.1f} >= outdoor {outdoor_score:.1f}; matched {', '.join(indoor_matches[:3]) or 'context cues'}"
-
-    (
-        needs_clarification,
-        issue,
-        activity,
-        classification,
-        confidence,
-        reasoning,
-        suggested_activity,
-        suggested_classification,
-        suggestion_confidence,
-    ) = _apply_auto_judge_resolution(
+    classification, confidence, reasoning = _apply_domain_overrides(
         original_text=text,
-        needs_clarification=needs_clarification,
-        issue_text=issue,
-        activity=activity,
         classification=classification,
         confidence=confidence,
         reasoning=reasoning,
     )
-    
+
     return TaskAnalysis(
         original_text=text,
         cleaned_text=text.title(),
@@ -337,13 +349,16 @@ def analyze_task_smart(
     model: str = "gpt-4o-mini",
     min_confidence_for_openai: float = 0.70,
 ) -> TaskAnalysis:
-    """Use OpenAI directly when requested, otherwise use local keyword analysis."""
+    """Use OpenAI when available, otherwise fall back to the local ML classifier."""
     if use_openai:
         api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("OpenAI API key is required when use_openai=True")
+        if api_key:
+            try:
+                return analyze_task_openai(text, api_key=api_key, model=model)
+            except Exception:
+                return analyze_task_fallback(text)
 
-        return analyze_task_openai(text, api_key=api_key, model=model)
+        return analyze_task_fallback(text)
 
     return analyze_task_fallback(text)
 

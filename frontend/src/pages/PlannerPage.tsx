@@ -61,7 +61,9 @@ const classifyTask = (title: string): TaskCategory => {
 
   if (outdoorScore > indoorScore) return "outdoor";
   if (indoorScore > outdoorScore) return "indoor";
-  return "general";
+  return text.includes("outside") || text.includes("outdoor")
+    ? "outdoor"
+    : "indoor";
 };
 
 const buildWeekForecast = (weather?: WeatherData): WeekForecastDay[] => {
@@ -115,8 +117,8 @@ const scoreTaskForDay = (
   }
 
   return {
-    score: day.isRaining ? 65 : 80,
-    reason: "General task with moderate flexibility",
+    score: day.isRaining ? 20 : 90,
+    reason: "Outdoor task depends more on weather",
   };
 };
 
@@ -205,11 +207,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             const result = await analyzeTask(task.title, true);
             const normalized = result.classification.toLowerCase();
             const category: TaskCategory =
-              normalized === "outdoor"
-                ? "outdoor"
-                : normalized === "indoor"
-                  ? "indoor"
-                  : "general";
+              normalized === "outdoor" ? "outdoor" : "indoor";
 
             return {
               taskId: task.id,
@@ -221,7 +219,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             return {
               taskId: task.id,
               category: classifyTask(task.title),
-              reasoning: "OpenAI unavailable - local fallback used",
+              reasoning: "Local classifier used",
               confidence: 60,
             };
           }

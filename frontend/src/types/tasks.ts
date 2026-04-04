@@ -7,7 +7,7 @@ export interface UserTask {
   scheduledAt?: string;
 }
 
-export type TaskCategory = "indoor" | "outdoor" | "general";
+export type TaskCategory = "indoor" | "outdoor";
 
 export interface WeekForecastDay {
   date: string;

@@ -138,14 +138,13 @@ def test_analyze_task_smart_uses_openai_when_requested(monkeypatch):
     assert calls["fallback"] == 0
 
 
-def test_analyze_task_smart_requires_key_in_openai_mode(monkeypatch):
+def test_analyze_task_smart_falls_back_when_key_is_missing(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-    try:
-        ai_engine.analyze_task_smart("Going to gym", use_openai=True)
-        raise AssertionError("Expected RuntimeError when OpenAI key is missing")
-    except RuntimeError as exc:
-        assert "OpenAI API key is required" in str(exc)
+    result = ai_engine.analyze_task_smart("Going to gym", use_openai=True)
+
+    assert result.classification == "Outdoor"
+    assert "cross-validation" in result.reasoning
 
 
 def test_analyze_task_fallback_classifies_gym_as_outdoor():

@@ -16,7 +16,7 @@ A sophisticated, AI-powered weather-aware activity planner that helps you schedu
 - **Two-Step OpenAI Pipeline**: Rephrases your task input for clarity, then classifies it as Indoor or Outdoor suitable
 - **Intelligent Understanding**: Handles typos, abbreviations, and natural language variations seamlessly
 - **Context-Aware Judgment**: Distinguishes between "work" (Indoor) and "work outside" (Outdoor)
-- **Fallback Capability**: Local rule-based classifier with weighted keywords when OpenAI unavailable
+- **Fallback Capability**: Local ML classifier trained on the activity corpus when OpenAI unavailable
 
 ### 🌍 Smart Location Detection
 
@@ -126,9 +126,10 @@ Complete documentation is available in the `/docs` folder:
 │  │  Input: "Washing my car" + Location: "New York"                  │   │
 │  │  Output: { classification: "Outdoor", confidence: 0.95 }         │   │
 │  │                                                                  │   │
-│  │  Fallback: Rule-based classifier (weighted keywords)             │   │
+│  │  Fallback: Local ML classifier (Decision Tree / Random Forest /  │   │
+│  │              Gradient Boosting with cross-validation)            │   │
 │  │  When: OpenAI key unavailable or API rate limits                 │   │
-│  │  Accuracy: ~85% on common activities (gym, work, etc.)           │   │
+│  │  Accuracy: selected by 5-fold cross-validation on activity data  │   │
 │  └────────┬─────────────────────────────────────────────────────────┘   │
 │           │                                                             │
 │  ┌────────▼─────────────────────────────────────────────────────────┐   │
@@ -179,12 +180,10 @@ Output:     {
 **Fallback Behavior** (when OpenAI key unavailable):
 
 ```python
-Rule-Based Classifier using weighted keywords:
-- "gym" → Outdoor (4.0)
-- "work" → Indoor (1.0)
-- "work outside" → Outdoor (5.0)
-- "running" → Outdoor (4.5)
-- "going to work" → Indoor (1.0)
+Local ML classifier trained on the activity corpus:
+- Decision Tree, Random Forest, and Gradient Boosting candidates
+- 5-fold cross-validation to pick the best model
+- Domain overrides keep clear fitness/outdoor tasks like gym as Outdoor
 ```
 
 ### Data Flow
@@ -336,7 +335,7 @@ VITE_API_URL=http://localhost:8000
 
 All features work in demo mode when API keys are absent:
 
-- Task classification uses fallback rule-based classifier
+- Task classification uses the local ML fallback classifier
 - Weather shows cached/simulated data
 - Location detection still works via browser geolocation
 
@@ -860,7 +859,7 @@ python -m pytest tests/ --cov=services --cov=core
 
 - ✅ 10 regression tests for classification behavior
 - ✅ Tests validate: gym→Outdoor, work→Indoor, work outside→Outdoor
-- ✅ Tests use fallback rule-based classifier (no API key required)
+- ✅ Tests use the local ML fallback classifier (no API key required)
 - ✅ Tests verify OpenAI pipeline with mock responses
 - 📌 Location detection tested via e2e (Playwright)
 
@@ -964,7 +963,7 @@ mypy backend/ services/
 1. Ensure OpenAI API key is set and working
 2. Check backend logs: `tail -f <backend_log_file>`
 3. Try simpler task names: "gym" instead of "gonna go to the gym later"
-4. Verify fallback rule-based classifier keywords in `services/ai_engine.py`
+4. Verify fallback classifier logic in `services/ai_engine.py`
 5. Test API directly: `curl -X POST http://localhost:8000/api/analyze-task -d '{"text":"gym"}'`
 
 ### "Frontend build fails with TypeScript errors"
@@ -1133,7 +1132,7 @@ We welcome contributions! Here's how to get started:
 - **API Response Time**: < 500ms for classify (with OpenAI)
 - **Weather Fetch**: < 1s (OpenWeatherMap API)
 - **Geocoding**: < 500ms (Nominatim)
-- **Fallback Classifier**: < 10ms (rule-based)
+- **Fallback Classifier**: Fast local ML inference after model training
 
 **Optimization Strategies:**
 
