@@ -322,11 +322,17 @@ button {
 .cursor-orb {
   background: radial-gradient(
     circle at 30% 30%,
-    rgba(180, 220, 255, 0.55),
-    rgba(62, 92, 118, 0.18) 45%,
-    rgba(62, 92, 118, 0) 72%
+    rgba(198, 230, 255, 0.7),
+    rgba(118, 165, 198, 0.38) 34%,
+    rgba(62, 92, 118, 0.16) 58%,
+    rgba(62, 92, 118, 0) 82%
   );
-  filter: blur(6px);
+  filter: blur(14px);
+  box-shadow:
+    0 0 34px rgba(180, 220, 255, 0.45),
+    0 0 68px rgba(98, 146, 182, 0.38),
+    0 0 120px rgba(62, 92, 118, 0.28);
+  will-change: transform, opacity;
 }
 
 .preserve-3d {

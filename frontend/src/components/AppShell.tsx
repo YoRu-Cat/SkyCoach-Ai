@@ -178,11 +178,11 @@ export default function AppShell() {
 
     if (panelWrap && orb) {
       const xTo = gsap.quickTo(orb, "x", {
-        duration: 0.22,
+        duration: 0.42,
         ease: "power3.out",
       });
       const yTo = gsap.quickTo(orb, "y", {
-        duration: 0.22,
+        duration: 0.42,
         ease: "power3.out",
       });
 
@@ -235,11 +235,11 @@ export default function AppShell() {
       ref={shellRef}
       data-scroll-container
       className="relative min-h-screen overflow-hidden bg-[#060b13] text-slate-100">
-      <div className="pointer-events-none fixed inset-0 -z-20 opacity-95">
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
         <ParticlesComponent id="skycoach-tech-particles" />
       </div>
 
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(62,92,118,0.35),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(80,130,165,0.25),transparent_42%)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(62,92,118,0.35),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(80,130,165,0.25),transparent_42%)]" />
 
       <header className="sticky top-0 z-40 border-b border-[#3e5c76]/35 bg-[#081321]/80 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -252,7 +252,7 @@ export default function AppShell() {
         </div>
       </header>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
             data-scroll
