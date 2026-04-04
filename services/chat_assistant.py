@@ -217,6 +217,32 @@ def _detect_navigation_target(text: str) -> str:
     return "chat"
 
 
+def _infer_pending_intent(messages: list[dict[str, str]]) -> Optional[str]:
+    """Infer pending control intent from recent turns to avoid follow-up loops."""
+    recent_assistant = ""
+    recent_user_messages: list[str] = []
+
+    for message in reversed(messages):
+        role = message.get("role")
+        content = message.get("content", "")
+        if role == "assistant" and not recent_assistant:
+            recent_assistant = content.lower()
+        elif role == "user":
+            recent_user_messages.append(content)
+        if recent_assistant and len(recent_user_messages) >= 3:
+            break
+
+    if "which task should i target" not in recent_assistant and "please provide both day and time" not in recent_assistant:
+        return None
+
+    for user_message in recent_user_messages:
+        inferred = _detect_control_intent(user_message)
+        if inferred != "create":
+            return inferred
+
+    return None
+
+
 def _base_response(draft: dict[str, Any], message: str) -> dict[str, Any]:
     return {
         "assistant_message": message,
@@ -256,7 +282,8 @@ def _local_assistant_response(
         "notes": draft.get("notes"),
     }
 
-    intent = _detect_control_intent(last_user)
+    pending_intent = _infer_pending_intent(messages)
+    intent = pending_intent or _detect_control_intent(last_user)
 
     if intent == "navigate":
         target = _detect_navigation_target(last_user)
@@ -284,6 +311,9 @@ def _local_assistant_response(
     if intent in {"remove", "complete", "uncomplete", "reschedule"}:
         target_task = _resolve_task_target(last_user, task_context)
         if not target_task:
+            if task_context:
+                preview = ", ".join([str(task.get("title", "Untitled")) for task in task_context[:6]])
+                return _base_response(next_draft, f"I can do that. Which task should I target? Current tasks: {preview}")
             return _base_response(next_draft, "I can do that. Which task should I target?")
 
         target_id = str(target_task.get("id"))
