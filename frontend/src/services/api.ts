@@ -5,6 +5,7 @@ import type {
   AnalysisResponse,
   ChatMessage,
   ChatDraft,
+  ChatTaskContext,
   ChatAssistantResponse,
 } from "@app-types/api";
 
@@ -103,10 +104,12 @@ export const healthCheck = async (): Promise<boolean> => {
 export const chatAssistant = async (
   messages: ChatMessage[],
   draft: ChatDraft,
+  taskContext: ChatTaskContext[],
 ): Promise<ChatAssistantResponse> => {
   const response = await apiClient.post("/chat-assistant", {
     messages,
     draft,
+    task_context: taskContext,
     today_iso: new Date().toISOString().slice(0, 10),
     use_openai: true,
     openai_api_key: null,

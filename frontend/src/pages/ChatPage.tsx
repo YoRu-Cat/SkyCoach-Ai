@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChatDraft, ChatMessage } from "@app-types/api";
 import type { TaskStore } from "@hooks/useTaskStore";
 import { chatAssistant } from "@services/api";
@@ -17,17 +17,67 @@ const emptyDraft: ChatDraft = {
   notes: null,
 };
 
+const CHAT_STORAGE_KEY = "skycoach_chat_v1";
+
+const starterMessage: ChatMessage = {
+  role: "assistant",
+  content:
+    "I can run SkyCoach for you. Tell me a task and I will ask for day and time, then add it to Todo and Timetable after your confirmation.",
+};
+
+const loadChatState = (): { messages: ChatMessage[]; draft: ChatDraft } => {
+  if (typeof window === "undefined") {
+    return { messages: [starterMessage], draft: emptyDraft };
+  }
+
+  const raw = window.localStorage.getItem(CHAT_STORAGE_KEY);
+  if (!raw) {
+    return { messages: [starterMessage], draft: emptyDraft };
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as {
+      messages?: ChatMessage[];
+      draft?: ChatDraft;
+    };
+
+    const validMessages = (parsed.messages || []).filter(
+      (message) =>
+        (message.role === "user" || message.role === "assistant") &&
+        typeof message.content === "string" &&
+        message.content.trim().length > 0,
+    );
+
+    return {
+      messages: validMessages.length ? validMessages : [starterMessage],
+      draft: parsed.draft || emptyDraft,
+    };
+  } catch {
+    return { messages: [starterMessage], draft: emptyDraft };
+  }
+};
+
 export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      content:
-        "I can run SkyCoach for you. Tell me a task and I will ask for day and time, then add it to Todo and Timetable after your confirmation.",
-    },
-  ]);
-  const [draft, setDraft] = useState<ChatDraft>(emptyDraft);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    () => loadChatState().messages,
+  );
+  const [draft, setDraft] = useState<ChatDraft>(() => loadChatState().draft);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      CHAT_STORAGE_KEY,
+      JSON.stringify({ messages, draft }),
+    );
+  }, [messages, draft]);
+
+  const startNewChat = () => {
+    setMessages([starterMessage]);
+    setDraft(emptyDraft);
+    setInput("");
+    window.localStorage.removeItem(CHAT_STORAGE_KEY);
+  };
 
   const submitMessage = async () => {
     const content = input.trim();
@@ -40,7 +90,16 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
     setIsLoading(true);
 
     try {
-      const response = await chatAssistant(nextMessages, draft);
+      const response = await chatAssistant(
+        nextMessages,
+        draft,
+        taskStore.tasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          completed: task.completed,
+          scheduled_at: task.scheduledAt ?? null,
+        })),
+      );
 
       if (response.create_task && response.draft.task_title) {
         const createdId = taskStore.addTask(
@@ -53,6 +112,32 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
             scheduledAt: `${response.draft.date}T${response.draft.time}:00`,
           });
         }
+      }
+
+      if (response.remove_task_id) {
+        taskStore.removeTask(response.remove_task_id);
+      }
+
+      if (response.complete_task_id) {
+        taskStore.updateTask(response.complete_task_id, { completed: true });
+      }
+
+      if (response.uncomplete_task_id) {
+        taskStore.updateTask(response.uncomplete_task_id, { completed: false });
+      }
+
+      if (
+        response.reschedule_task_id &&
+        response.reschedule_date &&
+        response.reschedule_time
+      ) {
+        taskStore.updateTask(response.reschedule_task_id, {
+          scheduledAt: `${response.reschedule_date}T${response.reschedule_time}:00`,
+        });
+      }
+
+      if (response.clear_completed) {
+        taskStore.clearCompleted();
       }
 
       setDraft(response.reset_draft ? emptyDraft : response.draft);
@@ -86,6 +171,19 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
       </section>
 
       <section className="card space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-slate-400">
+            History is saved automatically.
+          </p>
+          <button
+            type="button"
+            onClick={startNewChat}
+            disabled={isLoading}
+            className="px-3 py-1.5 rounded-lg border border-slate-600 text-xs text-slate-200 hover:border-cyan-500/50 disabled:opacity-50">
+            Start New Chat
+          </button>
+        </div>
+
         <div className="max-h-[55vh] overflow-y-auto space-y-3 pr-1">
           {messages.map((message, index) => (
             <div

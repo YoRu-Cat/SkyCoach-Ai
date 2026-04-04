@@ -122,8 +122,15 @@ class ChatDraft(BaseModel):
 
 
 class ChatAssistantRequest(BaseModel):
+    class ChatTaskContext(BaseModel):
+        id: str
+        title: str
+        completed: bool = False
+        scheduled_at: Optional[str] = None
+
     messages: List[ChatMessage]
     draft: ChatDraft = Field(default_factory=ChatDraft)
+    task_context: List[ChatTaskContext] = Field(default_factory=list)
     today_iso: Optional[str] = None
     use_openai: bool = True
     openai_api_key: Optional[str] = None
@@ -136,5 +143,12 @@ class ChatAssistantResponse(BaseModel):
     missing_fields: List[Literal["task_title", "date", "time"]]
     requires_confirmation: bool
     create_task: bool
+    remove_task_id: Optional[str] = None
+    complete_task_id: Optional[str] = None
+    uncomplete_task_id: Optional[str] = None
+    reschedule_task_id: Optional[str] = None
+    reschedule_date: Optional[str] = None
+    reschedule_time: Optional[str] = None
+    clear_completed: bool = False
     navigate_to: Literal["dashboard", "todo", "timetable", "planner", "chat"]
     reset_draft: bool

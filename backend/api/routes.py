@@ -264,6 +264,15 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
                 "time": request.draft.time,
                 "notes": request.draft.notes,
             },
+            task_context=[
+                {
+                    "id": task.id,
+                    "title": task.title,
+                    "completed": task.completed,
+                    "scheduled_at": task.scheduled_at,
+                }
+                for task in request.task_context
+            ],
             today_iso=today_iso,
             use_openai=request.use_openai,
             openai_api_key=request.openai_api_key,
@@ -276,6 +285,13 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
             missing_fields=reply["missing_fields"],
             requires_confirmation=reply["requires_confirmation"],
             create_task=reply["create_task"],
+            remove_task_id=reply.get("remove_task_id"),
+            complete_task_id=reply.get("complete_task_id"),
+            uncomplete_task_id=reply.get("uncomplete_task_id"),
+            reschedule_task_id=reply.get("reschedule_task_id"),
+            reschedule_date=reply.get("reschedule_date"),
+            reschedule_time=reply.get("reschedule_time"),
+            clear_completed=bool(reply.get("clear_completed", False)),
             navigate_to=reply["navigate_to"],
             reset_draft=reply["reset_draft"],
         )

@@ -67,6 +67,13 @@ export interface ChatDraft {
   notes?: string | null;
 }
 
+export interface ChatTaskContext {
+  id: string;
+  title: string;
+  completed: boolean;
+  scheduled_at?: string | null;
+}
+
 export type ChatNavigateTo =
   | "dashboard"
   | "todo"
@@ -80,6 +87,13 @@ export interface ChatAssistantResponse {
   missing_fields: Array<"task_title" | "date" | "time">;
   requires_confirmation: boolean;
   create_task: boolean;
+  remove_task_id?: string | null;
+  complete_task_id?: string | null;
+  uncomplete_task_id?: string | null;
+  reschedule_task_id?: string | null;
+  reschedule_date?: string | null;
+  reschedule_time?: string | null;
+  clear_completed?: boolean;
   navigate_to: ChatNavigateTo;
   reset_draft: boolean;
 }
