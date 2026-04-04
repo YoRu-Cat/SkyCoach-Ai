@@ -46,7 +46,7 @@ def inject_global_styles():
             background:
                 radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
                 radial-gradient(circle at top right, rgba(168, 85, 247, 0.10), transparent 24%),
-                linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
+                linear-gradient(180deg, #0b1020 0%, #16425b 100%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-primary);
         }}
@@ -408,7 +408,7 @@ def inject_component_styles():
 
         .stButton > button {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
-            color: #0f172a !important;
+            color: #16425b !important;
             border: 1px solid rgba(226, 232, 240, 0.85) !important;
             border-radius: 12px !important;
             padding: 0.75rem 1.25rem !important;

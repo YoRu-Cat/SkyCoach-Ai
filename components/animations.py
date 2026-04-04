@@ -17,7 +17,7 @@ def render_motion_stage() -> None:
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: linear-gradient(135deg, #0f0f1a 0%, #12182b 50%, #0f172a 100%);
+      background: linear-gradient(135deg, #0f0f1a 0%, #12182b 50%, #16425b 100%);
       font-family: 'Space Grotesk', system-ui, sans-serif;
     }
 

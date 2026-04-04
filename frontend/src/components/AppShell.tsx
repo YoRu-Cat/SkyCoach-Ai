@@ -234,19 +234,19 @@ export default function AppShell() {
     <div
       ref={shellRef}
       data-scroll-container
-      className="relative min-h-screen overflow-hidden bg-[#060b13] text-slate-100">
+      className="relative min-h-screen overflow-hidden bg-baltic_blue-100 text-alabaster_grey-900">
       <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
         <ParticlesComponent id="skycoach-tech-particles" />
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(62,92,118,0.35),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(80,130,165,0.25),transparent_42%)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(47,102,144,0.34),transparent_42%),radial-gradient(circle_at_80%_70%,rgba(58,124,165,0.28),transparent_44%)]" />
 
-      <header className="sticky top-0 z-40 border-b border-[#3e5c76]/35 bg-[#081321]/80 backdrop-blur-2xl">
+      <header className="sticky top-0 z-40 border-b border-cerulean-500/45 bg-gradient-to-b from-yale_blue-300/92 to-yale_blue-200/84 backdrop-blur-2xl shadow-[0_10px_34px_rgba(9,20,28,0.45)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-[#d0e7f7]">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-alabaster_grey-900">
             SkyCoach Quantum Deck
           </h1>
-          <p className="text-xs sm:text-sm text-[#9ec4df]">
+          <p className="text-xs sm:text-sm text-sky_blue_light-800">
             {navItems.find((item) => item.id === activeView)?.label}
           </p>
         </div>
@@ -270,14 +270,14 @@ export default function AppShell() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="card border border-[#3e5c76]/50 bg-[#0c1727]/75 overflow-hidden">
-          <p className="hero-line text-xs uppercase tracking-[0.24em] text-[#8ab7d8]">
+          className="card border border-cerulean-600/45 bg-baltic_blue-200/72 overflow-hidden">
+          <p className="hero-line text-xs uppercase tracking-[0.24em] text-sky_blue_light-600">
             High-Tech Command Surface
           </p>
-          <h2 className="hero-line mt-3 text-3xl md:text-5xl leading-tight font-semibold max-w-4xl text-[#dbedfb]">
+          <h2 className="hero-line mt-3 text-3xl md:text-5xl leading-tight font-semibold max-w-4xl text-alabaster_grey-900">
             One cinematic chat cockpit to run your planning stack.
           </h2>
-          <p className="hero-line mt-4 text-[#aecce2] max-w-3xl">
+          <p className="hero-line mt-4 text-sky_blue_light-700 max-w-3xl">
             Scroll down and watch the command panel rise from grounded cinematic
             depth into full precision mode.
           </p>
@@ -294,10 +294,10 @@ export default function AppShell() {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveView(item.id)}
-              className={`nav-pill flex items-center gap-2 px-4 py-2 rounded-full border text-sm transition-colors ${
+              className={`nav-pill flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all backdrop-blur-md shadow-[0_4px_12px_rgba(9,20,28,0.28)] ${
                 item.id === activeView
-                  ? "bg-[#3e5c76]/45 border-[#8eb8d5] text-[#dff1ff]"
-                  : "bg-[#0d1b2c] border-[#35556f] text-[#b7d3e7] hover:border-[#7ea7c3]"
+                  ? "bg-cerulean-500/62 border-sky_blue_light-500 text-alabaster_grey-900 shadow-[0_0_0_1px_rgba(178,219,231,0.25),0_10px_18px_rgba(22,66,91,0.45)]"
+                  : "bg-yale_blue-300/95 border-baltic_blue-500 text-sky_blue_light-800 hover:border-cerulean-600 hover:bg-baltic_blue-400/85"
               }`}>
               {item.icon}
               {item.label}
@@ -313,7 +313,7 @@ export default function AppShell() {
 
           <main
             ref={panelRef}
-            className="home-main-panel preserve-3d card border border-[#3e5c76]/55 bg-[#0a1626]/82 transform-gpu">
+            className="home-main-panel preserve-3d card border border-cerulean-500/60 bg-baltic_blue-200/80 transform-gpu">
             {renderView()}
           </main>
         </div>

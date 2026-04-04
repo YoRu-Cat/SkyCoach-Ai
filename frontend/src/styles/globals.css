@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #3e5c76;
-  --color-secondary: #0a1220;
-  --color-accent: #78a9ca;
-  --color-glass-bg: rgba(9, 18, 33, 0.62);
+  --color-primary: #3a7ca5;
+  --color-secondary: #2f6690;
+  --color-accent: #81c3d7;
+  --color-glass-bg: rgba(9, 26, 36, 0.62);
 }
 
 * {
@@ -24,9 +24,9 @@ html {
 body {
   background: radial-gradient(
     circle at 12% 8%,
-    #20354c 0%,
-    #0b1627 42%,
-    #060b13 100%
+    #2f6690 0%,
+    #16425b 46%,
+    #0c1921 100%
   );
   color: #f8fafc;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -489,6 +489,48 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.85) contrast(1.1) !important;
   opacity: 1 !important;
   cursor: pointer;
+}
+
+.timetable-input {
+  color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.timetable-input::-webkit-calendar-picker-indicator {
+  opacity: 0 !important;
+  display: none !important;
+  visibility: hidden !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  width: 2.25rem;
+  height: 100%;
+}
+
+.timetable-input::-webkit-date-and-time-value,
+.timetable-input::-webkit-date-and-time-value * {
+  color: #f7f8f7 !important;
+}
+
+.timetable-input::-webkit-datetime-edit,
+.timetable-input::-webkit-datetime-edit-fields-wrapper,
+.timetable-input::-webkit-datetime-edit-text,
+.timetable-input::-webkit-datetime-edit-month-field,
+.timetable-input::-webkit-datetime-edit-day-field,
+.timetable-input::-webkit-datetime-edit-year-field,
+.timetable-input::-webkit-datetime-edit-hour-field,
+.timetable-input::-webkit-datetime-edit-minute-field,
+.timetable-input::-webkit-datetime-edit-ampm-field {
+  color: #f7f8f7;
+}
+
+.timetable-input::-webkit-clear-button,
+.timetable-input::-webkit-inner-spin-button {
+  display: none;
 }
 
 .btn-shimmer::after {

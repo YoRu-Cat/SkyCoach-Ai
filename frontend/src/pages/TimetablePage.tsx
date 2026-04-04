@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { CalendarDays, Clock3 } from "lucide-react";
 import type { TaskStore } from "@hooks/useTaskStore";
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10);
@@ -31,9 +32,9 @@ export default function TimetablePage({ tasks, updateTask }: TaskStore) {
 
   return (
     <div className="space-y-6">
-      <section className="card">
-        <h2 className="text-xl font-bold mb-2">1-Week Timetable</h2>
-        <p className="text-slate-400 text-sm">
+      <section className="card space-y-2">
+        <h2 className="text-xl font-bold text-slate-100">1-Week Timetable</h2>
+        <p className="text-sm text-slate-400">
           Schedule each task within the next 7 days. Date range is locked from
           today to one week ahead.
         </p>
@@ -55,48 +56,54 @@ export default function TimetablePage({ tasks, updateTask }: TaskStore) {
               <div
                 key={task.id}
                 className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg space-y-2">
-                <p className="font-medium">{task.title}</p>
+                <p className="font-medium text-slate-100">{task.title}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <input
-                    type="date"
-                    min={minDate}
-                    max={maxDate}
-                    value={currentDate}
-                    aria-label={`Select date for ${task.title}`}
-                    title={`Select date for ${task.title}`}
-                    onChange={(e) => {
-                      const date = e.target.value;
-                      if (!date) {
-                        updateTask(task.id, { scheduledAt: undefined });
-                        return;
-                      }
-                      const time = currentTime || "09:00";
-                      updateTask(task.id, {
-                        scheduledAt: `${date}T${time}:00`,
-                      });
-                    }}
-                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
-                  />
-                  <input
-                    type="time"
-                    value={currentTime}
-                    aria-label={`Select time for ${task.title}`}
-                    title={`Select time for ${task.title}`}
-                    onChange={(e) => {
-                      const time = e.target.value;
-                      if (!currentDate) return;
-                      updateTask(task.id, {
-                        scheduledAt: `${currentDate}T${time}:00`,
-                      });
-                    }}
-                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
-                  />
+                  <div className="relative">
+                    <input
+                      type="date"
+                      min={minDate}
+                      max={maxDate}
+                      value={currentDate}
+                      aria-label={`Select date for ${task.title}`}
+                      title={`Select date for ${task.title}`}
+                      onChange={(e) => {
+                        const date = e.target.value;
+                        if (!date) {
+                          updateTask(task.id, { scheduledAt: undefined });
+                          return;
+                        }
+                        const time = currentTime || "09:00";
+                        updateTask(task.id, {
+                          scheduledAt: `${date}T${time}:00`,
+                        });
+                      }}
+                      className="timetable-input px-3 py-2 pr-10 bg-[var(--color-glass-bg)] border border-slate-700 rounded-lg text-slate-100 w-full"
+                    />
+                    <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-100" />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="time"
+                      value={currentTime}
+                      aria-label={`Select time for ${task.title}`}
+                      title={`Select time for ${task.title}`}
+                      onChange={(e) => {
+                        const time = e.target.value;
+                        if (!currentDate) return;
+                        updateTask(task.id, {
+                          scheduledAt: `${currentDate}T${time}:00`,
+                        });
+                      }}
+                      className="timetable-input px-3 py-2 pr-10 bg-[var(--color-glass-bg)] border border-slate-700 rounded-lg text-slate-100 w-full"
+                    />
+                    <Clock3 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-100" />
+                  </div>
                   <button
                     type="button"
                     onClick={() =>
                       updateTask(task.id, { scheduledAt: undefined })
                     }
-                    className="px-3 py-2 border border-slate-700 rounded-lg text-sm hover:border-cyan-500/50">
+                    className="px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-200 bg-slate-800/70 hover:border-cyan-500/50 transition-colors">
                     Clear Slot
                   </button>
                 </div>
