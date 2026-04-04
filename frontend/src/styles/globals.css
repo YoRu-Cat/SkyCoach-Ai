@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: rgb(6, 182, 212);
-  --color-secondary: rgb(15, 23, 42);
-  --color-accent: rgb(56, 189, 248);
-  --color-glass-bg: rgba(10, 15, 30, 0.48);
+  --color-primary: #3e5c76;
+  --color-secondary: #0a1220;
+  --color-accent: #78a9ca;
+  --color-glass-bg: rgba(9, 18, 33, 0.62);
 }
 
 * {
@@ -22,12 +22,34 @@ html {
 }
 
 body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: radial-gradient(
+    circle at 12% 8%,
+    #20354c 0%,
+    #0b1627 42%,
+    #060b13 100%
+  );
   color: #f8fafc;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(8, 20, 34, 0.7);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(62, 92, 118, 0.9),
+    rgba(126, 167, 195, 0.8)
+  );
+  border-radius: 999px;
 }
 
 /* Glassmorphism base */
@@ -295,6 +317,20 @@ button {
 .gauge-shell--compact {
   display: grid;
   place-items: center;
+}
+
+.cursor-orb {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(180, 220, 255, 0.55),
+    rgba(62, 92, 118, 0.18) 45%,
+    rgba(62, 92, 118, 0) 72%
+  );
+  filter: blur(6px);
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
 }
 
 .gauge-ring {

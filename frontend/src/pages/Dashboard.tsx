@@ -15,7 +15,11 @@ interface AnalyzeInput {
   longitude?: number;
 }
 
-export default function Dashboard() {
+interface DashboardProps {
+  embedded?: boolean;
+}
+
+export default function Dashboard({ embedded = false }: DashboardProps) {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const { mutate: runAnalysis, isLoading } = useFullAnalysis();
   const { setCity } = usePreferredCity();
@@ -88,13 +92,17 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className={embedded ? "pb-4" : "min-h-screen pb-12"}>
       <WeatherBackground weather={analysis?.weather} />
-      <Header />
+      {!embedded ? <Header /> : null}
 
       <div
         ref={layoutRef}
-        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        className={
+          embedded
+            ? "max-w-6xl mx-auto px-2 sm:px-3 lg:px-4 py-4"
+            : "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        }>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 input-panel">
             <ActivityInput onAnalyze={handleAnalyze} isLoading={isLoading} />
