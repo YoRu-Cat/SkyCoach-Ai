@@ -61,7 +61,7 @@ export default function ParticlesComponent({
             color: "#98c1d9",
             distance: 140,
             enable: true,
-            opacity: 0.28,
+            opacity: 0.38,
             width: 1,
           },
           move: {
@@ -71,17 +71,17 @@ export default function ParticlesComponent({
               default: "bounce",
             },
             random: true,
-            speed: 1.25,
+            speed: 1.4,
             straight: false,
           },
           number: {
             density: {
               enable: true,
             },
-            value: 95,
+            value: 132,
           },
           opacity: {
-            value: 0.82,
+            value: 0.9,
           },
           shape: {
             type: "circle",

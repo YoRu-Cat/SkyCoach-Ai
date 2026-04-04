@@ -520,6 +520,89 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   border-radius: 4px;
 }
 
+.weather-map-shell {
+  box-shadow:
+    inset 0 0 0 1px rgba(158, 196, 223, 0.2),
+    0 14px 34px rgba(4, 13, 24, 0.45),
+    0 0 28px rgba(94, 143, 180, 0.3);
+}
+
+.weather-map-frame {
+  background: #d8ecfb;
+}
+
+.weather-leaflet-map {
+  filter: none;
+}
+
+.weather-leaflet-map .leaflet-tile-pane {
+  filter: none;
+}
+
+.weather-leaflet-map .leaflet-control-zoom a {
+  background: rgba(10, 24, 48, 0.92);
+  color: #eef7ff;
+  border: 1px solid rgba(126, 177, 212, 0.55);
+}
+
+.weather-leaflet-map .leaflet-control-zoom a:hover {
+  background: rgba(26, 56, 94, 0.95);
+}
+
+.weather-leaflet-map .leaflet-control-attribution {
+  background: rgba(8, 21, 40, 0.82);
+  color: #d6ebfb;
+}
+
+.weather-leaflet-map .leaflet-control-attribution a {
+  color: #8fd1ff;
+}
+
+.weather-leaflet-map .leaflet-tooltip {
+  background: rgba(10, 26, 48, 0.96);
+  color: #f3f9ff;
+  border: 1px solid rgba(137, 194, 233, 0.55);
+  box-shadow: 0 8px 20px rgba(8, 19, 35, 0.45);
+}
+
+.weather-leaflet-map .leaflet-tooltip-top:before {
+  border-top-color: rgba(137, 194, 233, 0.55);
+}
+
+.weather-map-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(87, 154, 205, 0.03) 0%,
+      rgba(87, 154, 205, 0.06) 100%
+    ),
+    radial-gradient(
+      circle at 24% 12%,
+      rgba(219, 240, 255, 0.08),
+      transparent 44%
+    );
+  box-shadow: inset 0 0 0 1px rgba(198, 226, 245, 0.2);
+}
+
+.weather-map-credit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 450;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(126, 177, 212, 0.5);
+  background: rgba(15, 51, 86, 0.86);
+  color: #ffffff;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(6, 182, 212, 0.6);
 }

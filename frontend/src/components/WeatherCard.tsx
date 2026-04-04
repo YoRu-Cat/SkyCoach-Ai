@@ -1,4 +1,5 @@
 import type { WeatherData } from "@app-types/api";
+import { CircleMarker, MapContainer, TileLayer, Tooltip } from "react-leaflet";
 
 interface WeatherCardProps {
   weather: WeatherData;
@@ -21,7 +22,7 @@ const getWeatherEmoji = (condition: string): string => {
 export default function WeatherCard({ weather }: WeatherCardProps) {
   const latLabel = `${Math.abs(weather.latitude).toFixed(2)}°${weather.latitude >= 0 ? "N" : "S"}`;
   const lonLabel = `${Math.abs(weather.longitude).toFixed(2)}°${weather.longitude >= 0 ? "E" : "W"}`;
-  const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${weather.longitude - 0.18}%2C${weather.latitude - 0.12}%2C${weather.longitude + 0.18}%2C${weather.latitude + 0.12}&layer=mapnik&marker=${weather.latitude}%2C${weather.longitude}`;
+  const coordinates: [number, number] = [weather.latitude, weather.longitude];
 
   return (
     <div className="card glow-cyan space-y-5">
@@ -113,16 +114,37 @@ export default function WeatherCard({ weather }: WeatherCardProps) {
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/50">
-        <div className="px-3 py-2 border-b border-slate-700/70 text-xs text-slate-400 uppercase tracking-wide">
+      <div className="weather-map-shell rounded-xl overflow-hidden border border-[#5e8fb4]/65 bg-[#0a1830]/82">
+        <div className="px-3 py-2 border-b border-[#5e8fb4]/55 text-xs text-[#eef7ff] uppercase tracking-wide">
           Map Preview
         </div>
-        <iframe
-          title="Location map"
-          src={mapSrc}
-          className="w-full h-56"
-          loading="lazy"
-        />
+        <div className="weather-map-frame relative h-56 w-full overflow-hidden">
+          <MapContainer
+            center={coordinates}
+            zoom={12}
+            scrollWheelZoom={false}
+            className="weather-leaflet-map h-full w-full"
+            attributionControl={false}>
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+            <CircleMarker
+              center={coordinates}
+              radius={9}
+              pathOptions={{
+                color: "#dff1ff",
+                weight: 2,
+                fillColor: "#4fb7ff",
+                fillOpacity: 0.78,
+              }}>
+              <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
+                {weather.city}, {weather.country}
+              </Tooltip>
+            </CircleMarker>
+          </MapContainer>
+          <div className="weather-map-overlay" />
+          <div className="weather-map-credit">
+            Map Data: OpenStreetMap, CARTO
+          </div>
+        </div>
       </div>
     </div>
   );
