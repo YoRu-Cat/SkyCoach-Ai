@@ -181,22 +181,51 @@ Keep intent unchanged. Do not classify."""
     issue_text = None
     needs_clarification = False
 
-    classification, confidence, matched_phrase = classify_with_dictionary(activity)
+    classification, confidence, matched_phrase = classify_with_dictionary(
+        activity,
+        use_web_enrichment=False,
+    )
+    if confidence < 0.62:
+        enriched_classification, enriched_confidence, enriched_match = classify_with_dictionary(
+            activity,
+            use_web_enrichment=True,
+        )
+        if enriched_confidence > confidence:
+            classification, confidence, matched_phrase = (
+                enriched_classification,
+                enriched_confidence,
+                enriched_match,
+            )
+
     if confidence < 0.42:
-        fallback_classification, fallback_confidence, fallback_match = classify_with_dictionary(cleaned_text)
+        fallback_classification, fallback_confidence, fallback_match = classify_with_dictionary(
+            cleaned_text,
+            use_web_enrichment=False,
+        )
         if fallback_confidence > confidence:
             classification, confidence, matched_phrase = (
                 fallback_classification,
                 fallback_confidence,
                 fallback_match,
             )
+        if confidence < 0.42:
+            enriched_fallback_classification, enriched_fallback_confidence, enriched_fallback_match = classify_with_dictionary(
+                cleaned_text,
+                use_web_enrichment=True,
+            )
+            if enriched_fallback_confidence > confidence:
+                classification, confidence, matched_phrase = (
+                    enriched_fallback_classification,
+                    enriched_fallback_confidence,
+                    enriched_fallback_match,
+                )
 
     if confidence < 0.42:
         needs_clarification = True
         issue_text = "Could not confidently map activity to the indoor/outdoor dictionary"
 
     match_text = matched_phrase or "closest dictionary phrase"
-    reasoning = f"OpenAI rephrased activity, then dictionary matched '{match_text}'"
+    reasoning = f"OpenAI rephrased activity, then web-enriched dictionary matched '{match_text}'"
 
     (
         needs_clarification,
@@ -238,6 +267,21 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     model_info = model_summary()
     compact_text = re.sub(r"\s+", " ", text.strip())
     suggestion = auto_judge_input(text)
+    dict_label, dict_confidence, dict_match = classify_with_dictionary(
+        text,
+        use_web_enrichment=False,
+    )
+    if dict_confidence < 0.62:
+        enriched_label, enriched_confidence, enriched_match = classify_with_dictionary(
+            text,
+            use_web_enrichment=True,
+        )
+        if enriched_confidence > dict_confidence:
+            dict_label, dict_confidence, dict_match = (
+                enriched_label,
+                enriched_confidence,
+                enriched_match,
+            )
 
     classification = prediction.classification
     confidence = prediction.confidence
@@ -261,6 +305,15 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
             classification = suggested_classification or classification
             confidence = max(confidence, min(0.94, suggestion_confidence))
             reasoning = "Auto-corrected with high-confidence suggestion"
+
+    # Blend ML with web-enriched dictionary to reduce rigid mislabels.
+    if dict_confidence >= 0.55:
+        if dict_label == classification:
+            confidence = min(0.99, max(confidence, (confidence + dict_confidence) / 2))
+        elif dict_confidence >= confidence + 0.12:
+            classification = dict_label
+            confidence = min(0.97, max(dict_confidence, confidence * 0.9))
+        reasoning = f"{reasoning}; dictionary matched '{dict_match or 'token-prior consensus'}'"
 
     return TaskAnalysis(
         original_text=text,

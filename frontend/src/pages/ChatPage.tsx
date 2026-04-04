@@ -98,7 +98,7 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
               <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
                 {message.role}
               </p>
-              <p className="text-sm text-slate-100 whitespace-pre-wrap">
+              <p className="chat-readable text-sm text-slate-100 whitespace-pre-wrap">
                 {message.content}
               </p>
             </div>
@@ -119,7 +119,7 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
               }
             }}
             placeholder="Example: Add gym on Monday at 7 pm"
-            className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+            className="chat-input-readable flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
           />
           <button
             type="button"

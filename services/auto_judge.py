@@ -1,5 +1,7 @@
 import re
+from functools import lru_cache
 from difflib import SequenceMatcher, get_close_matches
+import requests
 from typing import Optional, Tuple
 
 ACTIVITY_CORPUS = {
@@ -38,6 +40,7 @@ ACTIVITY_CORPUS = {
         "washing car", "wash car", "car washing",
         "car wash",
         "going to gym outside", "outdoor workout", "outdoor training",
+        "shopping", "grocery shopping", "market shopping", "mall shopping",
     ],
     "Indoor": [
         "wedding ceremony", "wedding", "attending wedding",
@@ -70,7 +73,7 @@ ACTIVITY_CORPUS = {
         "laundry", "doing laundry",
         "ironing", "iron clothes",
         "organizing", "organize room",
-        "shopping", "grocery shopping",
+        "online shopping", "shop online",
         "listening music", "listen music",
         "podcast", "listen podcast",
         "audiobook", "listening audiobook",
@@ -81,6 +84,7 @@ ACTIVITY_CORPUS = {
         "photo editing", "edit photo",
         "video editing", "edit video",
         "going to gym", "gym workout", "indoor workout",
+        "gooning", "goon",
     ]
 }
 
@@ -121,16 +125,103 @@ def _phrase_variants(label: str, phrase: str) -> list[str]:
     return [variant for variant in variants if variant]
 
 
-def classify_with_dictionary(activity_text: str) -> tuple[str, float, Optional[str]]:
+def _build_token_priors() -> dict[str, dict[str, float]]:
+    counts: dict[str, dict[str, int]] = {}
+    for label, activities in ACTIVITY_CORPUS.items():
+        for phrase in activities:
+            for token in _tokenize(phrase):
+                if len(token) < 3:
+                    continue
+                if token not in counts:
+                    counts[token] = {"Indoor": 0, "Outdoor": 0}
+                counts[token][label] += 1
+
+    priors: dict[str, dict[str, float]] = {}
+    for token, token_counts in counts.items():
+        total = token_counts["Indoor"] + token_counts["Outdoor"]
+        if total == 0:
+            continue
+        priors[token] = {
+            "Indoor": token_counts["Indoor"] / total,
+            "Outdoor": token_counts["Outdoor"] / total,
+        }
+    return priors
+
+
+TOKEN_PRIORS = _build_token_priors()
+
+
+@lru_cache(maxsize=256)
+def _fetch_runtime_slang_context(term: str) -> str:
+    """Fetch lightweight web context for unfamiliar/slang terms at runtime."""
+    normalized = _normalize(term)
+    if not normalized:
+        return ""
+
+    chunks: list[str] = []
+
+    try:
+        urban = requests.get(
+            "https://api.urbandictionary.com/v0/define",
+            params={"term": normalized},
+            timeout=1.8,
+        )
+        if urban.ok:
+            data = urban.json()
+            for item in (data.get("list") or [])[:2]:
+                definition = item.get("definition", "")
+                example = item.get("example", "")
+                chunks.append(f"{definition} {example}")
+    except Exception:
+        pass
+
+    try:
+        related = requests.get(
+            "https://api.datamuse.com/words",
+            params={"ml": normalized, "max": 10},
+            timeout=1.5,
+        )
+        if related.ok:
+            words = [entry.get("word", "") for entry in related.json()[:10]]
+            chunks.extend(words)
+    except Exception:
+        pass
+
+    return _normalize(" ".join(chunks))
+
+
+def _token_prior_votes(tokens: set[str]) -> tuple[float, float]:
+    indoor_vote = 0.0
+    outdoor_vote = 0.0
+    for token in tokens:
+        prior = TOKEN_PRIORS.get(token)
+        if not prior:
+            continue
+        indoor_vote += prior["Indoor"]
+        outdoor_vote += prior["Outdoor"]
+    return indoor_vote, outdoor_vote
+
+
+def classify_with_dictionary(
+    activity_text: str,
+    use_web_enrichment: bool = False,
+) -> tuple[str, float, Optional[str]]:
     """Classify activity as Indoor/Outdoor by matching against imported ACTIVITY_CORPUS."""
     normalized_input = _normalize(activity_text)
     if not normalized_input:
         return "Indoor", 0.0, None
 
-    input_tokens = _tokenize(normalized_input)
+    runtime_context = _fetch_runtime_slang_context(normalized_input) if use_web_enrichment else ""
+    enriched_input = _normalize(f"{normalized_input} {runtime_context}")
+    input_tokens = _tokenize(enriched_input)
     best_label = "Indoor"
     best_phrase: Optional[str] = None
     best_score = 0.0
+
+    indoor_prior, outdoor_prior = _token_prior_votes(input_tokens)
+    prior_total = indoor_prior + outdoor_prior
+    prior_confidence = max(indoor_prior, outdoor_prior) / prior_total if prior_total > 0 else 0.0
+    prior_label = "Outdoor" if outdoor_prior > indoor_prior else "Indoor"
 
     for label, activities in ACTIVITY_CORPUS.items():
         for phrase in activities:
@@ -149,12 +240,25 @@ def classify_with_dictionary(activity_text: str) -> tuple[str, float, Optional[s
                 if ("inside" in input_tokens or "indoor" in input_tokens or "home" in input_tokens) and label == "Indoor":
                     environment_bonus += 0.14
 
-                score = token_overlap * 0.58 + char_similarity * 0.34 + starts_with_bonus + environment_bonus
+                score = token_overlap * 0.70 + char_similarity * 0.18 + starts_with_bonus + environment_bonus
+
+                # Prevent misleading matches driven mostly by character similarity
+                # (e.g. unrelated slang accidentally close to a corpus phrase).
+                if token_overlap == 0.0 and starts_with_bonus == 0.0:
+                    score = min(score, 0.34)
 
                 if score > best_score:
                     best_score = score
                     best_label = label
                     best_phrase = phrase
+
+    # Blend phrase matching with corpus-derived token priors for less rigid behavior.
+    if prior_confidence >= 0.58 and prior_confidence > best_score:
+        best_label = prior_label
+        best_score = min(0.99, prior_confidence)
+        best_phrase = best_phrase or "token-prior consensus"
+    elif prior_total > 0:
+        best_score = min(0.99, (best_score * 0.8) + (prior_confidence * 0.2))
 
     return best_label, min(best_score, 0.99), best_phrase
 

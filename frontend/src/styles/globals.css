@@ -322,6 +322,22 @@ button {
   box-shadow: 0 0 14px rgba(34, 211, 238, 0.5);
 }
 
+.chat-readable {
+  line-height: 1.95;
+  letter-spacing: 0.02em;
+  word-spacing: 0.24em;
+}
+
+.chat-input-readable {
+  letter-spacing: 0.015em;
+  word-spacing: 0.22em;
+}
+
+.chat-input-readable::placeholder {
+  letter-spacing: 0.01em;
+  word-spacing: 0.16em;
+}
+
 .gauge-segment-0 {
   transform: translate(-50%, -50%) rotate(0deg);
 }
