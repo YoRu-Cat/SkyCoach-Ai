@@ -5,7 +5,7 @@ import requests
 import json
 from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
-from services.auto_judge import auto_judge_input
+from services.auto_judge import auto_judge_input, classify_with_dictionary
 from services.task_classifier_ml import model_summary, predict_task_label
 
 
@@ -139,48 +139,6 @@ def _apply_auto_judge_resolution(
     )
 
 
-def _apply_domain_overrides(
-    original_text: str,
-    classification: str,
-    confidence: float,
-    reasoning: str,
-) -> tuple[str, float, str]:
-    text_lower = re.sub(r"\s+", " ", original_text.lower()).strip()
-    outdoor_keywords = [
-        "going to gym",
-        "gym",
-        "workout",
-        "exercise",
-        "training",
-        "fitness",
-        "cardio",
-        "lifting",
-        "running",
-        "jogging",
-        "cycling",
-        "hiking",
-        "wash car",
-        "car wash",
-        "gardening",
-        "garden",
-        "soccer",
-        "football",
-        "basketball",
-        "tennis",
-        "swimming",
-        "picnic",
-        "outside",
-    ]
-
-    if any(re.search(rf"\b{re.escape(keyword)}\b", text_lower) for keyword in outdoor_keywords):
-        if classification != "Outdoor":
-            classification = "Outdoor"
-            confidence = max(confidence, 0.88)
-            reasoning = f"{reasoning}; domain override applied for outdoor activity"
-
-    return classification, confidence, reasoning
-
-
 def _openai_json_response(client, model: str, system_prompt: str, user_prompt: str) -> dict:
     response = client.chat.completions.create(
         model=model,
@@ -208,18 +166,6 @@ Return ONLY JSON:
   "activity": "Core activity in 2-4 words"
 }
 Keep intent unchanged. Do not classify."""
-    classification_prompt = """You classify activities as suitable for Indoor or Outdoor.
-Return ONLY JSON:
-{
-  "classification": "Indoor" or "Outdoor",
-  "confidence": 0.0-1.0,
-  "reasoning": "One concise sentence"
-}
-Rules:
-- If activity includes gym/workout/exercise/training/fitness/cardio/lifting, classify Outdoor.
-- Use only Indoor or Outdoor labels.
-- If mixed intent exists, choose the dominant practical activity and reduce confidence slightly.
-"""
 
     rephrased = _openai_json_response(
         client,
@@ -232,29 +178,25 @@ Rules:
     cleaned_text = rephrased.get("cleaned_text", text)
     activity = rephrased.get("activity", cleaned_text)
 
-    classified = _openai_json_response(
-        client,
-        model,
-        classification_prompt,
-        f"Classify this activity: {activity}. Original text: {original_text}",
-    )
-
     issue_text = None
     needs_clarification = False
 
-    outdoor_keywords = ["wash car", "washing car", "car wash", "car washing", "garden", "gardening", "jog", "jogging", "run", "running", "hike", "hiking", "bike", "biking", "cycle", "cycling", "walk", "walking", "dog walk", "dog walking", "picnic", "bbq", "swim", "swimming", "yard work", "lawn", "mow lawn", "paint outside", "sports", "sport", "soccer", "football", "cricket", "baseball", "basketball", "volleyball", "tennis", "golf", "park", "outside"]
-    indoor_keywords = ["cook", "cooking", "read", "reading", "clean", "cleaning", "computer", "work", "working", "study", "studying", "watch", "watching", "game", "gaming", "craft", "crafts", "laundry", "yoga", "inside", "homework", "at home", "wedding", "ceremony", "event", "meeting", "conference", "class", "seminar"]
-    outdoor_score = _count_keyword_matches(original_text.lower(), outdoor_keywords)
-    indoor_score = _count_keyword_matches(original_text.lower(), indoor_keywords)
-    detected_issue, detected_issue_text = _detect_input_issue(original_text, outdoor_score, indoor_score)
+    classification, confidence, matched_phrase = classify_with_dictionary(activity)
+    if confidence < 0.42:
+        fallback_classification, fallback_confidence, fallback_match = classify_with_dictionary(cleaned_text)
+        if fallback_confidence > confidence:
+            classification, confidence, matched_phrase = (
+                fallback_classification,
+                fallback_confidence,
+                fallback_match,
+            )
 
-    classification = classified.get("classification", "Indoor")
-    confidence = float(classified.get("confidence", 0.78))
-    reasoning = (classified.get("reasoning", "Classified by OpenAI") + (f". {issue_text}" if issue_text else "")).strip()
-
-    if detected_issue:
+    if confidence < 0.42:
         needs_clarification = True
-        issue_text = detected_issue_text
+        issue_text = "Could not confidently map activity to the indoor/outdoor dictionary"
+
+    match_text = matched_phrase or "closest dictionary phrase"
+    reasoning = f"OpenAI rephrased activity, then dictionary matched '{match_text}'"
 
     (
         needs_clarification,
@@ -319,13 +261,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
             classification = suggested_classification or classification
             confidence = max(confidence, min(0.94, suggestion_confidence))
             reasoning = "Auto-corrected with high-confidence suggestion"
-
-    classification, confidence, reasoning = _apply_domain_overrides(
-        original_text=text,
-        classification=classification,
-        confidence=confidence,
-        reasoning=reasoning,
-    )
 
     return TaskAnalysis(
         original_text=text,

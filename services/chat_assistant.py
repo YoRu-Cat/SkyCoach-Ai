@@ -17,9 +17,33 @@ DAY_INDEX = {
     "sunday": 6,
 }
 
+COMMON_WORD_FIXES = {
+    "shoping": "shopping",
+    "grcey": "grocery",
+    "grocey": "grocery",
+    "grocery": "grocery",
+    "wrk": "work",
+    "hmework": "homework",
+}
+
 
 def _normalize_space(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _normalize_typos(text: str) -> str:
+    words = re.findall(r"[a-zA-Z']+|[^a-zA-Z']+", text)
+    corrected: list[str] = []
+    for token in words:
+        key = token.lower()
+        if key in COMMON_WORD_FIXES:
+            fixed = COMMON_WORD_FIXES[key]
+            if token[:1].isupper():
+                fixed = fixed.capitalize()
+            corrected.append(fixed)
+        else:
+            corrected.append(token)
+    return "".join(corrected)
 
 
 def _parse_time(text: str) -> Optional[str]:
@@ -41,6 +65,17 @@ def _parse_time(text: str) -> Optional[str]:
         return None
 
     return f"{hour:02d}:{minute:02d}"
+
+
+def _parse_part_of_day(text: str) -> Optional[str]:
+    lowered = text.lower()
+    if "morning" in lowered:
+        return "09:00"
+    if "afternoon" in lowered:
+        return "14:00"
+    if "evening" in lowered or "tonight" in lowered:
+        return "19:00"
+    return None
 
 
 def _parse_date(text: str, today: datetime) -> Optional[str]:
@@ -66,15 +101,30 @@ def _parse_date(text: str, today: datetime) -> Optional[str]:
 
 
 def _extract_task(text: str) -> Optional[str]:
-    lowered = text.lower()
+    normalized_text = _normalize_typos(text)
+    lowered = normalized_text.lower()
 
     explicit_patterns = [
+        r"(?:can you|could you|would you|please)\s+(?:add|create|schedule)\s+(.+)",
+        r"(?:add|create|schedule)\s+(.+)",
         r"(?:task is|task:|add task|create task|schedule)\s+(.+)",
         r"(?:i need to|i want to|i have to)\s+(.+)",
     ]
 
     def clean_task(value: str) -> str:
         cleaned = _normalize_space(value)
+        cleaned = re.sub(
+            r"\bif\b.+$",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"\bunless\b.+$",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
         cleaned = re.sub(
             r"\b(on\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday|today|tomorrow|\d{4}-\d{2}-\d{2}))\b.*$",
             "",
@@ -87,6 +137,13 @@ def _extract_task(text: str) -> Optional[str]:
             cleaned,
             flags=re.IGNORECASE,
         )
+        cleaned = re.sub(
+            r"\b(in the\s+(morning|afternoon|evening)|tonight)\b.*$",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(r"\b(please|for me)\b", "", cleaned, flags=re.IGNORECASE)
         return _normalize_space(cleaned)
 
     for pattern in explicit_patterns:
@@ -97,8 +154,18 @@ def _extract_task(text: str) -> Optional[str]:
                 return value[:120]
 
     if len(lowered) <= 120 and any(token in lowered for token in ["gym", "work", "study", "meeting", "call", "homework", "shopping", "run", "walk"]):
-        return clean_task(text)[:120]
+        return clean_task(normalized_text)[:120]
 
+    return None
+
+
+def _extract_notes(text: str) -> Optional[str]:
+    normalized_text = _normalize_typos(text)
+    lowered = normalized_text.lower()
+    conditional = re.search(r"\b(if|unless)\b\s+(.+)", lowered)
+    if conditional:
+        clause = _normalize_space(conditional.group(0))
+        return clause[:140]
     return None
 
 
@@ -127,7 +194,8 @@ def _local_assistant_response(messages: list[dict[str, str]], draft: dict[str, A
 
     parsed_task = _extract_task(last_user)
     parsed_date = _parse_date(last_user, today)
-    parsed_time = _parse_time(last_user)
+    parsed_time = _parse_time(last_user) or _parse_part_of_day(last_user)
+    parsed_notes = _extract_notes(last_user)
 
     if parsed_task:
         next_draft["task_title"] = parsed_task
@@ -135,6 +203,8 @@ def _local_assistant_response(messages: list[dict[str, str]], draft: dict[str, A
         next_draft["date"] = parsed_date
     if parsed_time:
         next_draft["time"] = parsed_time
+    if parsed_notes:
+        next_draft["notes"] = parsed_notes
 
     missing = [
         field
@@ -154,12 +224,21 @@ def _local_assistant_response(messages: list[dict[str, str]], draft: dict[str, A
         }
 
     if missing:
-        prompts = {
-            "task_title": "What task should I add?",
-            "date": "Which day should I schedule it for? You can say today, tomorrow, Monday, or YYYY-MM-DD.",
-            "time": "What time should I schedule it?",
-        }
-        question = prompts[missing[0]]
+        if missing[0] == "task_title":
+            question = "I can do that. What task should I add?"
+        elif missing[0] == "date":
+            if next_draft.get("task_title"):
+                question = (
+                    f"Got it, I'll add '{next_draft['task_title']}'. Which day should I schedule it for? "
+                    "You can say today, tomorrow, Monday, or YYYY-MM-DD."
+                )
+            else:
+                question = "Which day should I schedule it for?"
+        else:
+            task_text = f"'{next_draft['task_title']}'" if next_draft.get("task_title") else "that"
+            day_text = f" on {next_draft['date']}" if next_draft.get("date") else ""
+            question = f"Great, what time should I schedule {task_text}{day_text}?"
+
         return {
             "assistant_message": question,
             "draft": next_draft,
@@ -183,7 +262,9 @@ def _local_assistant_response(messages: list[dict[str, str]], draft: dict[str, A
 
     return {
         "assistant_message": (
-            f"Please confirm: add '{next_draft['task_title']}' on {next_draft['date']} at {next_draft['time']}?"
+            f"I understood: add '{next_draft['task_title']}' on {next_draft['date']} at {next_draft['time']}. "
+            f"{('Notes: ' + next_draft['notes'] + '. ') if next_draft.get('notes') else ''}"
+            "Should I create it now?"
         ),
         "draft": next_draft,
         "missing_fields": [],
@@ -210,8 +291,11 @@ def chat_assistant_reply(
 
     client = OpenAI(api_key=api_key)
     system_prompt = (
-        "You are SkyCoach Chat Assistant. Help users operate the app conversationally. "
+        "You are SkyCoach Chat Assistant. Help users operate the app conversationally like a real assistant. "
         "Collect required fields for scheduling tasks: task_title, date (YYYY-MM-DD), time (HH:MM 24h). "
+        "Understand natural requests, typo-heavy text, and implied scheduling details. "
+        "Do not ask generic repeated prompts when useful context is already present. "
+        "Acknowledge what you understood before asking follow-up questions. "
         "If any field is missing, ask exactly one clear question for the next missing field. "
         "When all fields are present, ask for explicit user confirmation before creation. "
         "If user confirms, set create_task=true and reset_draft=true. "

@@ -11,61 +11,6 @@ interface PlannerPageProps {
   updateTask: (id: string, patch: Partial<UserTask>) => void;
 }
 
-const classifyTask = (title: string): TaskCategory => {
-  const text = title.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
-
-  const outdoor = [
-    "run",
-    "jog",
-    "walk",
-    "soccer",
-    "cricket",
-    "hike",
-    "cycle",
-    "cycling",
-    "workout",
-    "gym",
-    "exercise",
-    "wash car",
-    "garden",
-    "yard",
-    "outdoor",
-  ];
-
-  const indoor = [
-    "homework",
-    "study",
-    "read",
-    "coding",
-    "meeting",
-    "movie",
-    "clean",
-    "cook",
-    "dishes",
-    "dish",
-    "laundry",
-    "wash clothes",
-    "gooning",
-    "goon",
-    "indoor",
-  ];
-
-  const outdoorScore = outdoor.reduce(
-    (count, keyword) => count + (text.includes(keyword) ? 1 : 0),
-    0,
-  );
-  const indoorScore = indoor.reduce(
-    (count, keyword) => count + (text.includes(keyword) ? 1 : 0),
-    0,
-  );
-
-  if (outdoorScore > indoorScore) return "outdoor";
-  if (indoorScore > outdoorScore) return "indoor";
-  return text.includes("outside") || text.includes("outdoor")
-    ? "outdoor"
-    : "indoor";
-};
-
 const buildWeekForecast = (weather?: WeatherData): WeekForecastDay[] => {
   const baseTemp = weather?.temperature ?? 22;
   const baseWind = weather?.wind_mph ?? 8;
@@ -218,8 +163,8 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
           } catch {
             return {
               taskId: task.id,
-              category: classifyTask(task.title),
-              reasoning: "Local classifier used",
+              category: task.category ?? "indoor",
+              reasoning: "Using persisted classification",
               confidence: 60,
             };
           }
@@ -250,7 +195,7 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
     return candidates
       .map((task) => {
         const judged = aiJudgedTasks?.[task.id];
-        const category = judged?.category ?? classifyTask(task.title);
+        const category = judged?.category ?? task.category ?? "indoor";
         const ranked = forecast
           .map((day) => ({ day, ...scoreTaskForDay(category, day) }))
           .sort((a, b) => b.score - a.score);

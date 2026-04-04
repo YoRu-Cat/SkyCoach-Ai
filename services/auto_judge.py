@@ -37,6 +37,7 @@ ACTIVITY_CORPUS = {
         "photography", "photo walk",
         "washing car", "wash car", "car washing",
         "car wash",
+        "going to gym outside", "outdoor workout", "outdoor training",
     ],
     "Indoor": [
         "wedding ceremony", "wedding", "attending wedding",
@@ -79,12 +80,83 @@ ACTIVITY_CORPUS = {
         "blogging", "writing blog",
         "photo editing", "edit photo",
         "video editing", "edit video",
+        "going to gym", "gym workout", "indoor workout",
     ]
 }
 
 ALL_ACTIVITIES = [
     activity for activities in ACTIVITY_CORPUS.values() for activity in activities
 ]
+
+
+def _normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9\s]", " ", text.lower())).strip()
+
+
+def _tokenize(text: str) -> set[str]:
+    return set(re.findall(r"\b[a-z]+\b", _normalize(text)))
+
+
+def _phrase_variants(label: str, phrase: str) -> list[str]:
+    base = _normalize(phrase)
+    if not base:
+        return []
+
+    variants = {
+        base,
+        _normalize(f"going to {base}"),
+        _normalize(f"doing {base}"),
+        _normalize(f"planning {base}"),
+    }
+
+    if label == "Outdoor":
+        variants.add(_normalize(f"outside {base}"))
+        variants.add(_normalize(f"{base} outside"))
+        variants.add(_normalize(f"going outside for {base}"))
+    else:
+        variants.add(_normalize(f"inside {base}"))
+        variants.add(_normalize(f"{base} indoors"))
+        variants.add(_normalize(f"at home {base}"))
+
+    return [variant for variant in variants if variant]
+
+
+def classify_with_dictionary(activity_text: str) -> tuple[str, float, Optional[str]]:
+    """Classify activity as Indoor/Outdoor by matching against imported ACTIVITY_CORPUS."""
+    normalized_input = _normalize(activity_text)
+    if not normalized_input:
+        return "Indoor", 0.0, None
+
+    input_tokens = _tokenize(normalized_input)
+    best_label = "Indoor"
+    best_phrase: Optional[str] = None
+    best_score = 0.0
+
+    for label, activities in ACTIVITY_CORPUS.items():
+        for phrase in activities:
+            for variant in _phrase_variants(label, phrase):
+                phrase_tokens = _tokenize(variant)
+                token_overlap = 0.0
+                if input_tokens and phrase_tokens:
+                    token_overlap = len(input_tokens & phrase_tokens) / len(input_tokens | phrase_tokens)
+
+                char_similarity = calculate_similarity(normalized_input, variant)
+                starts_with_bonus = 0.08 if normalized_input.startswith(variant) or variant.startswith(normalized_input) else 0.0
+
+                environment_bonus = 0.0
+                if ("outside" in input_tokens or "outdoor" in input_tokens) and label == "Outdoor":
+                    environment_bonus += 0.14
+                if ("inside" in input_tokens or "indoor" in input_tokens or "home" in input_tokens) and label == "Indoor":
+                    environment_bonus += 0.14
+
+                score = token_overlap * 0.58 + char_similarity * 0.34 + starts_with_bonus + environment_bonus
+
+                if score > best_score:
+                    best_score = score
+                    best_label = label
+                    best_phrase = phrase
+
+    return best_label, min(best_score, 0.99), best_phrase
 
 
 def calculate_similarity(input_str: str, candidate: str) -> float:

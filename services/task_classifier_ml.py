@@ -37,7 +37,7 @@ def _normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9\s]", " ", text.lower())).strip()
 
 
-def _activity_variants(activity: str) -> list[str]:
+def _activity_variants(activity: str, label: str) -> list[str]:
     cleaned = _normalize_text(activity)
     if not cleaned:
         return []
@@ -60,6 +60,17 @@ def _activity_variants(activity: str) -> list[str]:
         variants.add(_normalize_text(f"my {cleaned}"))
         variants.add(_normalize_text(f"let us {cleaned}"))
 
+    # Add context-aware variants so the model learns environment cues
+    # from data instead of brittle runtime overrides.
+    if label == "Outdoor":
+        variants.add(_normalize_text(f"{cleaned} outside"))
+        variants.add(_normalize_text(f"outside {cleaned}"))
+        variants.add(_normalize_text(f"going outside for {cleaned}"))
+    elif label == "Indoor":
+        variants.add(_normalize_text(f"{cleaned} inside"))
+        variants.add(_normalize_text(f"inside {cleaned}"))
+        variants.add(_normalize_text(f"staying indoors for {cleaned}"))
+
     return [variant for variant in variants if variant]
 
 
@@ -69,7 +80,7 @@ def _build_training_set() -> tuple[list[str], list[str]]:
 
     for label, activities in ACTIVITY_CORPUS.items():
         for activity in activities:
-            for variant in _activity_variants(activity):
+            for variant in _activity_variants(activity, label):
                 texts.append(variant)
                 labels.append(label)
 
@@ -126,7 +137,7 @@ def _candidate_models() -> list[tuple[str, Pipeline, list[dict]]]:
 
 
 @lru_cache(maxsize=1)
-def _trained_model() -> tuple[Pipeline, ModelInfo]:
+def _trained_ensemble() -> tuple[list[tuple[str, Pipeline, float]], ModelInfo]:
     texts, labels = _build_training_set()
     if len(texts) < 10:
         raise RuntimeError("Training set is too small to build a reliable classifier")
@@ -136,42 +147,60 @@ def _trained_model() -> tuple[Pipeline, ModelInfo]:
     folds = max(3, min(5, min_class_count))
     cv = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
 
-    best_estimator: Pipeline | None = None
-    best_score = -1.0
-    best_name = ""
+    tuned_models: list[tuple[str, Pipeline, float]] = []
 
     for model_name, pipeline, parameter_sets in _candidate_models():
+        best_model_score = -1.0
+        best_model_estimator: Pipeline | None = None
+
         for parameters in parameter_sets:
             candidate = clone(pipeline).set_params(**parameters)
             scores = cross_val_score(candidate, texts, labels, scoring="accuracy", cv=cv, n_jobs=1)
             score = float(scores.mean())
 
-            if score > best_score:
-                best_score = score
-                best_estimator = clone(candidate).fit(texts, labels)
-                best_name = model_name
+            if score > best_model_score:
+                best_model_score = score
+                best_model_estimator = clone(candidate).fit(texts, labels)
 
-    if best_estimator is None:
+        if best_model_estimator is not None:
+            tuned_models.append((model_name, best_model_estimator, best_model_score))
+
+    if not tuned_models:
         raise RuntimeError("Could not train a task classification model")
 
-    return best_estimator, ModelInfo(name=best_name, cv_accuracy=best_score)
+    average_cv = sum(score for _, _, score in tuned_models) / len(tuned_models)
+    model_names = " + ".join(name for name, _, _ in tuned_models)
+
+    return tuned_models, ModelInfo(name=f"Ensemble ({model_names})", cv_accuracy=average_cv)
 
 
 def predict_task_label(text: str) -> PredictionResult:
-    model, model_info = _trained_model()
+    models, model_info = _trained_ensemble()
     normalized = _normalize_text(text)
-    probabilities = model.predict_proba([normalized])[0].tolist()
-    classes = model.named_steps["classifier"].classes_.tolist()
-    best_index = max(range(len(probabilities)), key=lambda index: probabilities[index])
+    class_scores: dict[str, float] = {}
+
+    for _, model, _ in models:
+        probabilities = model.predict_proba([normalized])[0].tolist()
+        classes = model.named_steps["classifier"].classes_.tolist()
+        for class_name, probability in zip(classes, probabilities):
+            class_scores[class_name] = class_scores.get(class_name, 0.0) + float(probability)
+
+    averaged_scores = {
+        class_name: score / len(models)
+        for class_name, score in class_scores.items()
+    }
+
+    best_class = max(averaged_scores, key=averaged_scores.get)
+    best_confidence = averaged_scores[best_class]
 
     return PredictionResult(
-        classification=cast(TaskLabel, classes[best_index]),
-        confidence=float(probabilities[best_index]),
+        classification=cast(TaskLabel, best_class),
+        confidence=float(best_confidence),
         model_name=model_info.name,
         cv_accuracy=model_info.cv_accuracy,
     )
 
 
 def model_summary() -> ModelInfo:
-    _, model_info = _trained_model()
+    _, model_info = _trained_ensemble()
     return model_info

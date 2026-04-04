@@ -2,6 +2,7 @@ export interface UserTask {
   id: string;
   title: string;
   notes?: string;
+  category?: TaskCategory;
   createdAt: string;
   completed: boolean;
   scheduledAt?: string;

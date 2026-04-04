@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { UserTask } from "@app-types/tasks";
+import type { TaskCategory, UserTask } from "@app-types/tasks";
+import { analyzeTask } from "@services/api";
 
 const STORAGE_KEY = "skycoach_tasks_v1";
 
@@ -29,9 +30,74 @@ const loadTasks = (): UserTask[] => {
 export const useTaskStore = () => {
   const [tasks, setTasks] = useState<UserTask[]>(() => loadTasks());
 
+  const relabelSignature = useMemo(
+    () =>
+      tasks
+        .map((task) => `${task.id}:${task.title}`)
+        .sort()
+        .join("|"),
+    [tasks],
+  );
+
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    if (!tasks.length) return;
+
+    let cancelled = false;
+
+    const relabelTasks = async () => {
+      const updates = await Promise.all(
+        tasks.map(async (task) => {
+          try {
+            const result = await analyzeTask(task.title, true);
+            const normalized = result.classification.toLowerCase();
+            const category: TaskCategory =
+              normalized === "outdoor" ? "outdoor" : "indoor";
+
+            if (task.category === category) {
+              return null;
+            }
+
+            return { id: task.id, category };
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      if (cancelled) return;
+
+      const updateMap = new Map(
+        updates
+          .filter((entry): entry is { id: string; category: TaskCategory } =>
+            Boolean(entry),
+          )
+          .map((entry) => [entry.id, entry.category]),
+      );
+
+      if (!updateMap.size) {
+        return;
+      }
+
+      setTasks((prev) =>
+        prev
+          .map((task) => {
+            const category = updateMap.get(task.id);
+            return category ? { ...task, category } : task;
+          })
+          .sort(byCreatedDesc),
+      );
+    };
+
+    void relabelTasks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [relabelSignature]);
 
   const addTask = (title: string, notes?: string): string | null => {
     const trimmed = title.trim();
