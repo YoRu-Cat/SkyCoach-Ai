@@ -227,7 +227,7 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
               }
             }}
             placeholder="Example: Add gym on Monday at 7 pm"
-            className="chat-input-readable flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg"
+            className="chat-input-readable flex-1 px-3 py-2 bg-[var(--color-glass-bg)] border border-slate-600 rounded-lg"
           />
           <button
             type="button"
