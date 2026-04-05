@@ -4,10 +4,12 @@ import { loadSlim } from "@tsparticles/slim";
 
 interface ParticlesComponentProps {
   id?: string;
+  themeMode?: "dark" | "light";
 }
 
 export default function ParticlesComponent({
   id = "skycoach-particles",
+  themeMode = "dark",
 }: ParticlesComponentProps) {
   const [init, setInit] = useState(false);
 
@@ -55,13 +57,13 @@ export default function ParticlesComponent({
         },
         particles: {
           color: {
-            value: "#8ab7d8",
+            value: themeMode === "light" ? "#9d77e4" : "#bb4dfb",
           },
           links: {
-            color: "#98c1d9",
+            color: themeMode === "light" ? "#b596e5" : "#8a3fd4",
             distance: 140,
             enable: true,
-            opacity: 0.38,
+            opacity: themeMode === "light" ? 0.32 : 0.36,
             width: 1,
           },
           move: {
@@ -92,7 +94,7 @@ export default function ParticlesComponent({
         },
         detectRetina: true,
       }) as const,
-    [],
+    [themeMode],
   );
 
   if (!init) {

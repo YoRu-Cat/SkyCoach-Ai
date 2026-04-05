@@ -284,42 +284,42 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
 
   return (
     <div className="space-y-6">
-      <section className="card border border-[#3e5c76]/55 bg-[#0b182a]/75 overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_20%,rgba(106,168,208,0.18),transparent_42%),radial-gradient(circle_at_86%_84%,rgba(62,92,118,0.2),transparent_48%)]" />
+      <section className="home-stats-shell card border border-[#5c0390]/45 bg-[#11001c]/78 overflow-hidden">
+        <div className="home-stats-glow pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_20%,rgba(149,5,233,0.18),transparent_42%),radial-gradient(circle_at_86%_84%,rgba(92,3,144,0.2),transparent_48%)]" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button
             type="button"
             onClick={() => onNavigate("todo")}
-            className="rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
-            <p className="text-xs text-slate-400">Tasks</p>
-            <p className="text-lg font-semibold text-slate-100">
+            className="home-stats-tile rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
+            <p className="home-stats-label text-xs text-slate-400">Tasks</p>
+            <p className="home-stats-value text-lg font-semibold text-slate-100">
               {stats.total}
             </p>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("timetable")}
-            className="rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
-            <p className="text-xs text-slate-400">Scheduled</p>
-            <p className="text-lg font-semibold text-slate-100">
+            className="home-stats-tile rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
+            <p className="home-stats-label text-xs text-slate-400">Scheduled</p>
+            <p className="home-stats-value text-lg font-semibold text-slate-100">
               {stats.scheduled}
             </p>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("planner")}
-            className="rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
-            <p className="text-xs text-slate-400">Pending</p>
-            <p className="text-lg font-semibold text-slate-100">
+            className="home-stats-tile rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
+            <p className="home-stats-label text-xs text-slate-400">Pending</p>
+            <p className="home-stats-value text-lg font-semibold text-slate-100">
               {stats.pending}
             </p>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("dashboard")}
-            className="rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
-            <p className="text-xs text-slate-400">Completed</p>
-            <p className="text-lg font-semibold text-slate-100">
+            className="home-stats-tile rounded-xl border border-slate-600/70 bg-slate-900/35 p-3 text-left hover:border-cyan-400/50 transition-colors">
+            <p className="home-stats-label text-xs text-slate-400">Completed</p>
+            <p className="home-stats-value text-lg font-semibold text-slate-100">
               {stats.completed}
             </p>
           </button>

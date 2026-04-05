@@ -6,10 +6,10 @@ interface ScoreCardProps {
 }
 
 const getScoreColor = (score: number): string => {
-  if (score >= 80) return "text-green-400";
-  if (score >= 60) return "text-cyan-400";
-  if (score >= 40) return "text-yellow-400";
-  return "text-red-400";
+  if (score >= 80) return "text-[#d89eff]";
+  if (score >= 60) return "text-[#c07eff]";
+  if (score >= 40) return "text-[#b35cf8]";
+  return "text-[#9e38e8]";
 };
 
 const getScoreLabel = (score: number): string => {
@@ -26,9 +26,9 @@ export default function ScoreCard({ score }: ScoreCardProps) {
 
   return (
     <div className="card space-y-6 glow-cyan">
-      <div className="relative overflow-hidden rounded-[28px] border border-cyan-900/25 bg-gradient-to-br from-slate-950/80 via-slate-900/55 to-slate-950/25 p-5 sm:p-6">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent" />
-        <div className="absolute -right-10 top-2 h-28 w-28 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-[28px] border border-[#5c0390]/45 bg-gradient-to-br from-[#11001c]/86 via-[#1c012c]/70 to-[#11001c]/48 p-5 sm:p-6">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#bb4dfb]/70 to-transparent" />
+        <div className="absolute -right-10 top-2 h-28 w-28 rounded-full bg-[#9505e9]/16 blur-3xl" />
 
         <div className="flex items-start gap-4 sm:gap-5">
           <div className="shrink-0 pt-1">
@@ -47,8 +47,8 @@ export default function ScoreCard({ score }: ScoreCardProps) {
                 </p>
               </div>
 
-              <div className="rounded-full border border-cyan-900/35 bg-slate-950/40 px-3 py-2 text-right">
-                <p className="text-2xl font-semibold text-cyan-300 leading-none">
+              <div className="rounded-full border border-[#5c0390]/55 bg-[#150121]/72 px-3 py-2 text-right">
+                <p className="text-2xl font-semibold text-[#d89eff] leading-none">
                   {score.score}
                 </p>
                 <p className="mt-1 text-[0.62rem] uppercase tracking-[0.32em] text-slate-500">
@@ -71,8 +71,8 @@ export default function ScoreCard({ score }: ScoreCardProps) {
                     key={index}
                     className={`h-2 rounded-full transition-all duration-300 ${
                       index < filledScoreSegments
-                        ? "bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 shadow-[0_0_10px_rgba(34,211,238,0.35)]"
-                        : "bg-slate-700/80"
+                        ? "bg-gradient-to-r from-[#9505e9] via-[#b13dff] to-[#dda6fd] shadow-[0_0_10px_rgba(149,5,233,0.42)]"
+                        : "bg-[#3a015c]/68"
                     }`}
                   />
                 ))}

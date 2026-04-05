@@ -278,7 +278,10 @@ export default function AppShell() {
           : "theme-dark bg-midnight_violet-100 text-alabaster_grey-900"
       }`}>
       <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
-        <ParticlesComponent id="skycoach-tech-particles" />
+        <ParticlesComponent
+          id="skycoach-tech-particles"
+          themeMode={themeMode}
+        />
       </div>
 
       <div
@@ -365,7 +368,7 @@ export default function AppShell() {
             className={`hero-line text-xs uppercase tracking-[0.24em] ${
               themeMode === "light" ? "text-[#642db5]" : "text-[#d3a7ff]"
             }`}>
-            High-Tech Command Surface
+            Smart Planning Assistant
           </p>
           <h2
             className={`hero-line mt-3 text-3xl md:text-5xl leading-tight font-semibold max-w-4xl ${
@@ -373,14 +376,15 @@ export default function AppShell() {
                 ? "text-[#210f3c]"
                 : "text-alabaster_grey-900"
             }`}>
-            One cinematic chat cockpit to run your planning stack.
+            SkyCoach helps you plan tasks, schedule your week, and adapt to
+            weather in one workspace.
           </h2>
           <p
             className={`hero-line mt-4 max-w-3xl ${
               themeMode === "light" ? "text-[#431e83]" : "text-[#d9b8ff]"
             }`}>
-            Scroll down and watch the command panel rise from grounded cinematic
-            depth into full precision mode.
+            Use chat commands, timetable controls, and weather-aware scoring to
+            turn ideas into clear, executable daily plans.
           </p>
         </motion.section>
 
@@ -399,10 +403,10 @@ export default function AppShell() {
                 item.id === activeView
                   ? themeMode === "light"
                     ? "bg-[#c0a7eb]/86 border-[#9166dc] text-[#210f3c] shadow-[0_0_0_1px_rgba(145,102,220,0.2),0_8px_14px_rgba(66,30,121,0.16)]"
-                    : "bg-[#5c0390]/82 border-[#d89eff] text-[#f6ecff] shadow-[0_0_0_1px_rgba(216,158,255,0.25),0_10px_18px_rgba(25,0,40,0.55)]"
+                    : "bg-[#7a24be]/86 border-[#e3baff] text-[#fff4ff] shadow-[0_0_0_1px_rgba(227,186,255,0.3),0_10px_18px_rgba(25,0,40,0.58)]"
                   : themeMode === "light"
                     ? "bg-[#e7def8]/88 border-[#b596e5] text-[#421e79] hover:border-[#8a59d5] hover:bg-[#d9cbf3]/92"
-                    : "bg-[#190028]/88 border-[#3a015c] text-[#e9d8ff] hover:border-[#b13dff] hover:bg-[#220135]/92"
+                    : "bg-[#3b085d]/78 border-[#a24fe0] text-[#f0d9ff] hover:border-[#d89eff] hover:bg-[#4d0f77]/86"
               }`}>
               {item.icon}
               {item.label}
