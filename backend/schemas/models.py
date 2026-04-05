@@ -152,3 +152,14 @@ class ChatAssistantResponse(BaseModel):
     clear_completed: bool = False
     navigate_to: Literal["dashboard", "todo", "timetable", "planner", "chat"]
     reset_draft: bool
+
+
+class BackendCliRequest(BaseModel):
+    command: str = Field(..., min_length=1, description="CLI command text")
+
+
+class BackendCliResponse(BaseModel):
+    command: str
+    output: str
+    ok: bool = True
+    timestamp: str

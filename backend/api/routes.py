@@ -3,6 +3,7 @@ from typing import List, Tuple
 from datetime import datetime
 import sys
 import os
+import shlex
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -29,6 +30,8 @@ from backend.schemas.models import (
     AnalysisResponse,
     ChatAssistantRequest,
     ChatAssistantResponse,
+    BackendCliRequest,
+    BackendCliResponse,
 )
 
 router = APIRouter(prefix="/api", tags=["analysis"])
@@ -297,3 +300,113 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Chat assistant failed: {str(e)}")
+
+
+@router.post("/backend-cli", response_model=BackendCliResponse)
+async def backend_cli(request: BackendCliRequest) -> BackendCliResponse:
+    """Safe backend command runner for frontend terminal UI.
+
+    This endpoint intentionally avoids shell execution and supports only a
+    constrained set of predefined commands.
+    """
+    command = request.command.strip()
+    if not command:
+        raise HTTPException(status_code=400, detail="Command is empty")
+
+    try:
+        parts = shlex.split(command)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid command syntax: {str(exc)}")
+
+    if not parts:
+        raise HTTPException(status_code=400, detail="Command is empty")
+
+    primary = parts[0].lower()
+    now_iso = datetime.utcnow().isoformat() + "Z"
+
+    help_text = "\n".join(
+        [
+            "SkyCoach Backend CLI",
+            "Supported commands:",
+            "- help: show this help",
+            "- health: show backend health status",
+            "- version: show API version",
+            "- time: show server UTC time",
+            "- weather <city>: fetch demo weather for city",
+            "- analyze <activity text>: classify activity",
+        ]
+    )
+
+    if primary == "help":
+        return BackendCliResponse(
+            command=command,
+            output=help_text,
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    if primary == "health":
+        return BackendCliResponse(
+            command=command,
+            output="status=healthy service=SkyCoach API version=1.0.0",
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    if primary == "version":
+        return BackendCliResponse(
+            command=command,
+            output="SkyCoach API v1.0.0",
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    if primary == "time":
+        return BackendCliResponse(
+            command=command,
+            output=f"UTC {now_iso}",
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    if primary == "weather":
+        if len(parts) < 2:
+            raise HTTPException(status_code=400, detail="Usage: weather <city>")
+        city = " ".join(parts[1:])
+        weather = get_demo_weather(city)
+        output = (
+            f"city={weather.city}, condition={weather.condition}, temp={weather.temperature}{weather.temp_unit}, "
+            f"rain_1h={weather.rain_1h}, wind_mph={weather.wind_mph:.1f}"
+        )
+        return BackendCliResponse(
+            command=command,
+            output=output,
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    if primary == "analyze":
+        if len(parts) < 2:
+            raise HTTPException(status_code=400, detail="Usage: analyze <activity text>")
+        activity_text = " ".join(parts[1:])
+        task = analyze_task_smart(
+            text=activity_text,
+            use_openai=False,
+            openai_api_key=None,
+            model=os.getenv("OPENAI_MODEL") or "gpt-4o-mini",
+        )
+        output = (
+            f"activity={task.activity}, classification={task.classification}, "
+            f"confidence={task.confidence:.2f}"
+        )
+        return BackendCliResponse(
+            command=command,
+            output=output,
+            ok=True,
+            timestamp=now_iso,
+        )
+
+    raise HTTPException(
+        status_code=400,
+        detail="Unknown command. Try: help",
+    )

@@ -7,6 +7,7 @@ import type {
   ChatDraft,
   ChatTaskContext,
   ChatAssistantResponse,
+  BackendCliResponse,
 } from "@app-types/api";
 
 export interface AnalysisParams {
@@ -114,6 +115,15 @@ export const chatAssistant = async (
     use_openai: true,
     openai_api_key: null,
     openai_model: openAIModel,
+  });
+  return response.data;
+};
+
+export const runBackendCliCommand = async (
+  command: string,
+): Promise<BackendCliResponse> => {
+  const response = await apiClient.post("/backend-cli", {
+    command,
   });
   return response.data;
 };

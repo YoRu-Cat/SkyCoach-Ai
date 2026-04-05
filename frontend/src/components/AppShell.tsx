@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
+  Home,
   CalendarDays,
   ClipboardList,
   MessageSquare,
@@ -13,10 +14,17 @@ import TodoPage from "../pages/TodoPage";
 import TimetablePage from "../pages/TimetablePage";
 import PlannerPage from "../pages/PlannerPage";
 import ChatPage from "../pages/ChatPage";
+import HomePage from "../pages/HomePage";
 import ParticlesComponent from "@components/ParticlesComponent";
 import { useTaskStore } from "@hooks/useTaskStore";
 
-export type AppView = "dashboard" | "todo" | "timetable" | "planner" | "chat";
+export type AppView =
+  | "home"
+  | "dashboard"
+  | "todo"
+  | "timetable"
+  | "planner"
+  | "chat";
 
 interface NavItem {
   id: AppView;
@@ -28,7 +36,7 @@ const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
 export default function AppShell() {
-  const [activeView, setActiveView] = useState<AppView>("chat");
+  const [activeView, setActiveView] = useState<AppView>("home");
   const taskStore = useTaskStore();
   const shellRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -37,6 +45,11 @@ export default function AppShell() {
 
   const navItems: NavItem[] = useMemo(
     () => [
+      {
+        id: "home",
+        label: "Home",
+        icon: <Home className="w-4 h-4" />,
+      },
       {
         id: "chat",
         label: "Command Chat",
@@ -68,6 +81,13 @@ export default function AppShell() {
 
   const renderView = () => {
     switch (activeView) {
+      case "home":
+        return (
+          <HomePage
+            taskStore={taskStore}
+            onNavigate={(target) => setActiveView(target)}
+          />
+        );
       case "todo":
         return <TodoPage {...taskStore} />;
       case "timetable":

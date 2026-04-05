@@ -97,3 +97,10 @@ export interface ChatAssistantResponse {
   navigate_to: ChatNavigateTo;
   reset_draft: boolean;
 }
+
+export interface BackendCliResponse {
+  command: string;
+  output: string;
+  ok: boolean;
+  timestamp: string;
+}
