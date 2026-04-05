@@ -261,7 +261,7 @@ export default function AppShell() {
 
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(47,102,144,0.34),transparent_42%),radial-gradient(circle_at_80%_70%,rgba(58,124,165,0.28),transparent_44%)]" />
 
-      <header className="sticky top-0 z-40 border-b border-cerulean-500/45 bg-gradient-to-b from-yale_blue-300/92 to-yale_blue-200/84 backdrop-blur-2xl shadow-[0_10px_34px_rgba(9,20,28,0.45)]">
+      <header className="sticky top-0 z-40 border-b border-[#3b5f78]/45 bg-gradient-to-r from-[#10324a]/72 via-[#0c2a3f]/68 to-[#092235]/72 backdrop-blur-2xl shadow-[0_8px_24px_rgba(4,12,20,0.35)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-alabaster_grey-900">
             SkyCoach Quantum Deck
@@ -316,8 +316,8 @@ export default function AppShell() {
               onClick={() => setActiveView(item.id)}
               className={`nav-pill flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all backdrop-blur-md shadow-[0_4px_12px_rgba(9,20,28,0.28)] ${
                 item.id === activeView
-                  ? "bg-cerulean-500/62 border-sky_blue_light-500 text-alabaster_grey-900 shadow-[0_0_0_1px_rgba(178,219,231,0.25),0_10px_18px_rgba(22,66,91,0.45)]"
-                  : "bg-yale_blue-300/95 border-baltic_blue-500 text-sky_blue_light-800 hover:border-cerulean-600 hover:bg-baltic_blue-400/85"
+                  ? "bg-[#128178]/82 border-[#7edbd3] text-[#eefcff] shadow-[0_0_0_1px_rgba(126,219,211,0.3),0_10px_18px_rgba(8,41,58,0.55)]"
+                  : "bg-[#102c42]/90 border-[#274f71] text-[#d4e8f5] hover:border-[#63aec9] hover:bg-[#183e5a]/94"
               }`}>
               {item.icon}
               {item.label}
