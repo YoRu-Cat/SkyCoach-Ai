@@ -243,6 +243,60 @@ def _infer_pending_intent(messages: list[dict[str, str]]) -> Optional[str]:
     return None
 
 
+def _should_use_local_controller(
+    messages: list[dict[str, str]],
+    draft: dict[str, Any],
+    task_context: list[dict[str, Any]],
+) -> bool:
+    last_user = ""
+    for message in reversed(messages):
+        if message.get("role") == "user":
+            last_user = message.get("content", "")
+            break
+
+    if not last_user:
+        return False
+
+    lowered = last_user.lower()
+    if any(
+        token in lowered
+        for token in [
+            "remove",
+            "delete",
+            "complete",
+            "finish",
+            "uncomplete",
+            "reopen",
+            "reschedule",
+            "move",
+            "clear completed",
+            "list tasks",
+            "show tasks",
+            "open todo",
+            "open timetable",
+            "open planner",
+            "open dashboard",
+            "go to todo",
+            "go to timetable",
+            "go to planner",
+            "go to dashboard",
+            "go to chat",
+        ]
+    ):
+        return True
+
+    if any(draft.get(field) for field in ["task_title", "date", "time", "notes"]):
+        if _is_yes(last_user) or _is_no(last_user):
+            return True
+        if re.search(r"\b(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|\d{4}-\d{2}-\d{2}|\d{1,2}(?::\d{2})?\s*(am|pm)?)\b", lowered):
+            return True
+
+    if task_context and re.search(r"\b(add|create|schedule|remove|delete|complete|finish|undo|reopen|reschedule|move)\b", lowered):
+        return True
+
+    return False
+
+
 def _base_response(draft: dict[str, Any], message: str) -> dict[str, Any]:
     return {
         "assistant_message": message,
@@ -428,68 +482,71 @@ def chat_assistant_reply(
     if not today_iso:
         today_iso = datetime.now().date().isoformat()
 
-    if not use_openai or not api_key:
+    if not use_openai or not api_key or _should_use_local_controller(messages, draft, task_context):
         return _local_assistant_response(messages, draft, today_iso, task_context)
 
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
 
-    client = OpenAI(api_key=api_key)
-    system_prompt = (
-        "You are SkyCoach Chat Assistant. Help users operate the app conversationally like a real assistant. "
-        "You can fully control the app: create tasks, remove tasks, mark complete/incomplete, reschedule tasks, clear completed tasks, list tasks, and navigate views. "
-        "Collect required fields for creating or rescheduling tasks: task_title, date (YYYY-MM-DD), time (HH:MM 24h). "
-        "If fields are missing for create/reschedule, ask one clear follow-up. "
-        "When creating a new task with all fields present, ask for explicit confirmation before create_task=true. "
-        "For remove/complete/uncomplete/reschedule, prefer using task IDs from task_context. "
-        "Return JSON only with keys: assistant_message, draft, missing_fields, requires_confirmation, create_task, remove_task_id, complete_task_id, uncomplete_task_id, reschedule_task_id, reschedule_date, reschedule_time, clear_completed, navigate_to, reset_draft. "
-        "navigate_to must be one of dashboard, todo, timetable, planner, chat."
-    )
+        client = OpenAI(api_key=api_key)
+        system_prompt = (
+            "You are SkyCoach Chat Assistant. Help users operate the app conversationally like a real assistant. "
+            "You can fully control the app: create tasks, remove tasks, mark complete/incomplete, reschedule tasks, clear completed tasks, list tasks, and navigate views. "
+            "Collect required fields for creating or rescheduling tasks: task_title, date (YYYY-MM-DD), time (HH:MM 24h). "
+            "If fields are missing for create/reschedule, ask one clear follow-up. "
+            "When creating a new task with all fields present, ask for explicit confirmation before create_task=true. "
+            "For remove/complete/uncomplete/reschedule, prefer using task IDs from task_context. "
+            "Return JSON only with keys: assistant_message, draft, missing_fields, requires_confirmation, create_task, remove_task_id, complete_task_id, uncomplete_task_id, reschedule_task_id, reschedule_date, reschedule_time, clear_completed, navigate_to, reset_draft. "
+            "navigate_to must be one of dashboard, todo, timetable, planner, chat."
+        )
 
-    payload = {
-        "today": today_iso,
-        "current_draft": {
-            "task_title": draft.get("task_title"),
-            "date": draft.get("date"),
-            "time": draft.get("time"),
-            "notes": draft.get("notes"),
-        },
-        "task_context": task_context,
-        "conversation": messages,
-    }
+        payload = {
+            "today": today_iso,
+            "current_draft": {
+                "task_title": draft.get("task_title"),
+                "date": draft.get("date"),
+                "time": draft.get("time"),
+                "notes": draft.get("notes"),
+            },
+            "task_context": task_context,
+            "conversation": messages,
+        }
 
-    response = client.chat.completions.create(
-        model=openai_model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": json.dumps(payload)},
-        ],
-        response_format={"type": "json_object"},
-        max_tokens=420,
-        temperature=0.2,
-    )
+        response = client.chat.completions.create(
+            model=openai_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": json.dumps(payload)},
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=420,
+            temperature=0.2,
+        )
 
-    content = response.choices[0].message.content or "{}"
-    parsed = json.loads(content)
+        content = response.choices[0].message.content or "{}"
+        parsed = json.loads(content)
 
-    draft_result = parsed.get("draft", {}) or {}
-    return {
-        "assistant_message": str(parsed.get("assistant_message", "Tell me what you want me to do.")),
-        "draft": {
-            "task_title": draft_result.get("task_title"),
-            "date": draft_result.get("date"),
-            "time": draft_result.get("time"),
-            "notes": draft_result.get("notes"),
-        },
-        "missing_fields": parsed.get("missing_fields", []),
-        "requires_confirmation": bool(parsed.get("requires_confirmation", False)),
-        "create_task": bool(parsed.get("create_task", False)),
-        "remove_task_id": parsed.get("remove_task_id"),
-        "complete_task_id": parsed.get("complete_task_id"),
-        "uncomplete_task_id": parsed.get("uncomplete_task_id"),
-        "reschedule_task_id": parsed.get("reschedule_task_id"),
-        "reschedule_date": parsed.get("reschedule_date"),
-        "reschedule_time": parsed.get("reschedule_time"),
-        "clear_completed": bool(parsed.get("clear_completed", False)),
-        "navigate_to": parsed.get("navigate_to", "chat"),
-        "reset_draft": bool(parsed.get("reset_draft", False)),
-    }
+        draft_result = parsed.get("draft", {}) or {}
+        return {
+            "assistant_message": str(parsed.get("assistant_message", "Tell me what you want me to do.")),
+            "draft": {
+                "task_title": draft_result.get("task_title"),
+                "date": draft_result.get("date"),
+                "time": draft_result.get("time"),
+                "notes": draft_result.get("notes"),
+            },
+            "missing_fields": parsed.get("missing_fields", []),
+            "requires_confirmation": bool(parsed.get("requires_confirmation", False)),
+            "create_task": bool(parsed.get("create_task", False)),
+            "remove_task_id": parsed.get("remove_task_id"),
+            "complete_task_id": parsed.get("complete_task_id"),
+            "uncomplete_task_id": parsed.get("uncomplete_task_id"),
+            "reschedule_task_id": parsed.get("reschedule_task_id"),
+            "reschedule_date": parsed.get("reschedule_date"),
+            "reschedule_time": parsed.get("reschedule_time"),
+            "clear_completed": bool(parsed.get("clear_completed", False)),
+            "navigate_to": parsed.get("navigate_to", "chat"),
+            "reset_draft": bool(parsed.get("reset_draft", False)),
+        }
+    except Exception:
+        return _local_assistant_response(messages, draft, today_iso, task_context)

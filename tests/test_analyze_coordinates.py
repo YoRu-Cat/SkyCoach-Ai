@@ -185,3 +185,40 @@ def test_rulejudge_keeps_going_to_work_indoor():
 def test_rulejudge_treats_going_to_work_outside_as_outdoor():
     result = ai_engine.analyze_task_smart("going to work outside", use_openai=False)
     assert result.classification == "Outdoor"
+
+
+def test_openai_verification_can_correct_local_indoor_judgment(monkeypatch):
+    responses = iter(
+        [
+            {"cleaned_text": "going to uni", "activity": "going to uni"},
+            {
+                "classification": "Outdoor",
+                "confidence": 0.93,
+                "reasoning": "Going to uni is a commute, not an indoor activity.",
+                "corrected_activity": "going to uni",
+            },
+        ]
+    )
+
+    def fake_openai_json_response(*args, **kwargs):
+        return next(responses)
+
+    def fake_classify_with_dictionary(*args, **kwargs):
+        return "Indoor", 0.81, "token-prior consensus"
+
+    def fake_auto_judge_input(*args, **kwargs):
+        return {
+            "is_broken": False,
+            "suggestion": None,
+            "confidence": 0.0,
+            "classification": None,
+        }
+
+    monkeypatch.setattr(ai_engine, "_openai_json_response", fake_openai_json_response)
+    monkeypatch.setattr(ai_engine, "classify_with_dictionary", fake_classify_with_dictionary)
+    monkeypatch.setattr(ai_engine, "auto_judge_input", fake_auto_judge_input)
+
+    result = ai_engine.analyze_task_openai("going to uni", api_key="test-key")
+
+    assert result.classification == "Outdoor"
+    assert "verification corrected" in result.reasoning.lower()

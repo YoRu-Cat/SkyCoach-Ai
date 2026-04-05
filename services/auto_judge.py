@@ -9,6 +9,8 @@ ACTIVITY_CORPUS = {
         "playing soccer", "playing football", "soccer", "football",
         "running", "jogging", "sprint",
         "cycling", "biking", "bike riding",
+        "going to uni", "going to university", "going to college", "commuting to uni",
+        "going to gym", "gym workout", "indoor workout",
         "hiking", "trekking", "trail walking",
         "swimming", "swimming pool",
         "playing tennis", "tennis",
@@ -83,7 +85,6 @@ ACTIVITY_CORPUS = {
         "blogging", "writing blog",
         "photo editing", "edit photo",
         "video editing", "edit video",
-        "going to gym", "gym workout", "indoor workout",
         "gooning", "goon",
     ]
 }

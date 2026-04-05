@@ -154,6 +154,53 @@ def _openai_json_response(client, model: str, system_prompt: str, user_prompt: s
     return json.loads(content)
 
 
+def _verify_openai_classification(
+    client,
+    model: str,
+    original_text: str,
+    cleaned_text: str,
+    rephrased_activity: str,
+    local_activity: str,
+    local_classification: str,
+    local_confidence: float,
+    local_reasoning: str,
+    suggested_activity: Optional[str],
+    suggested_classification: Optional[str],
+    suggestion_confidence: float,
+) -> dict:
+    system_prompt = """You verify an activity classification after a local judge has already made a decision.
+Return ONLY JSON with these keys:
+{
+  "classification": "Indoor" or "Outdoor",
+  "confidence": 0.0,
+  "reasoning": "short explanation",
+  "corrected_activity": "optional corrected activity text"
+}
+Use the original text, the rephrased text, and the local judgment. If the local judgment is correct, confirm it. If it is wrong, correct it. Prefer the user's intent over keyword traps.
+"""
+
+    user_prompt = json.dumps(
+        {
+            "original_text": original_text,
+            "cleaned_text": cleaned_text,
+            "rephrased_activity": rephrased_activity,
+            "local_judgment": {
+                "activity": local_activity,
+                "classification": local_classification,
+                "confidence": local_confidence,
+                "reasoning": local_reasoning,
+            },
+            "auto_judge_suggestion": {
+                "activity": suggested_activity,
+                "classification": suggested_classification,
+                "confidence": suggestion_confidence,
+            },
+        }
+    )
+
+    return _openai_json_response(client, model, system_prompt, user_prompt)
+
+
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     from openai import OpenAI
     
@@ -246,6 +293,42 @@ Keep intent unchanged. Do not classify."""
         confidence=confidence,
         reasoning=reasoning,
     )
+
+    verification = _verify_openai_classification(
+        client=client,
+        model=model,
+        original_text=original_text,
+        cleaned_text=cleaned_text,
+        rephrased_activity=activity,
+        local_activity=activity,
+        local_classification=classification,
+        local_confidence=confidence,
+        local_reasoning=reasoning,
+        suggested_activity=suggested_activity,
+        suggested_classification=suggested_classification,
+        suggestion_confidence=suggestion_confidence,
+    )
+
+    verified_classification = verification.get("classification")
+    if verified_classification not in {"Indoor", "Outdoor"}:
+        verified_classification = classification
+
+    verified_confidence = float(verification.get("confidence", 0.0) or 0.0)
+    verified_reasoning = str(verification.get("reasoning", "OpenAI verification completed"))
+    verified_activity = str(verification.get("corrected_activity") or activity)
+
+    if verified_classification != classification:
+        if verified_confidence >= max(0.72, confidence - 0.05):
+            classification = verified_classification
+            confidence = max(confidence, min(0.99, verified_confidence))
+            activity = verified_activity
+            reasoning = f"{reasoning}; OpenAI verification corrected the label to {classification.lower()} ({verified_reasoning})"
+        else:
+            reasoning = f"{reasoning}; OpenAI verification disagreed but was not stronger than the local judgment ({verified_reasoning})"
+    else:
+        confidence = max(confidence, min(0.99, (confidence + verified_confidence) / 2 if verified_confidence else confidence))
+        activity = verified_activity
+        reasoning = f"{reasoning}; OpenAI verification confirmed {classification.lower()} ({verified_reasoning})"
     
     return TaskAnalysis(
         original_text=text,
