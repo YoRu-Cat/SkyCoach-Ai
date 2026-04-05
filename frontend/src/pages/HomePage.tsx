@@ -393,8 +393,8 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
         </div>
 
         <div className="card xl:col-span-2 space-y-3 border border-emerald-900/35">
-          <div className="rounded-xl border border-slate-700/80 bg-[#060b14]/95 overflow-hidden shadow-[0_12px_30px_rgba(2,6,23,0.55)]">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-800/90 bg-[#0a111d] px-3 py-2">
+          <div className="backend-logs-shell rounded-xl border border-slate-700/80 bg-[#060b14]/95 overflow-hidden shadow-[0_12px_30px_rgba(2,6,23,0.55)]">
+            <div className="backend-logs-head flex items-center justify-between gap-2 border-b border-slate-800/90 bg-[#0a111d] px-3 py-2">
               <div className="flex items-center gap-2 text-slate-200">
                 <TerminalSquare className="w-4 h-4 text-emerald-300" />
                 <p className="text-xs font-semibold tracking-wide uppercase">
@@ -404,32 +404,32 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
               <p className="text-[11px] text-slate-400">SkyCoach-Ai</p>
             </div>
 
-            <div className="grid grid-cols-12 gap-2 border-b border-slate-800/90 bg-[#070d18] px-3 py-2">
+            <div className="backend-logs-toolbar grid grid-cols-12 gap-2 border-b border-slate-800/90 bg-[#070d18] px-3 py-2">
               <button
                 type="button"
-                className="col-span-3 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-left text-[11px] text-slate-200">
+                className="backend-logs-filter col-span-3 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-left text-[11px] text-slate-200">
                 All logs
               </button>
               <input
                 value={cliSearch}
                 onChange={(event) => setCliSearch(event.target.value)}
                 placeholder="Search logs"
-                className="col-span-6 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-[11px] text-slate-200 placeholder:text-slate-500"
+                className="backend-logs-search col-span-6 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-[11px] text-slate-200 placeholder:text-slate-500"
               />
               <button
                 type="button"
-                className="col-span-3 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-[11px] text-slate-300">
+                className="backend-logs-range col-span-3 rounded-md border border-slate-700 bg-[#0a1220] px-2 py-1 text-[11px] text-slate-300">
                 Last hour
               </button>
             </div>
 
             <div
               ref={cliScrollRef}
-              className="h-[33vh] overflow-y-auto bg-[#050a12] font-mono text-xs"
+              className="backend-logs-stream h-[33vh] overflow-y-auto bg-[#050a12] font-mono text-xs"
               onWheelCapture={(event) => event.stopPropagation()}
               onTouchMoveCapture={(event) => event.stopPropagation()}>
               {filteredCliLines.length === 0 ? (
-                <p className="px-3 py-3 text-slate-500">
+                <p className="backend-logs-empty px-3 py-3 text-slate-500">
                   No logs yet. Run help.
                 </p>
               ) : (
@@ -447,15 +447,15 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
                   return (
                     <div
                       key={`${line.timestamp}-${index}`}
-                      className="grid grid-cols-12 gap-2 border-b border-slate-900/70 px-3 py-1.5 hover:bg-[#08101d]">
-                      <p className="col-span-3 text-[11px] text-slate-500">
+                      className="backend-logs-row grid grid-cols-12 gap-2 border-b border-slate-900/70 px-3 py-1.5 hover:bg-[#08101d]">
+                      <p className="backend-logs-time col-span-3 text-[11px] text-slate-500">
                         {formatCliTime(line.timestamp)}
                       </p>
                       <p
-                        className={`col-span-2 text-[11px] font-semibold ${levelClass}`}>
+                        className={`backend-logs-level col-span-2 text-[11px] font-semibold ${levelClass}`}>
                         {level}
                       </p>
-                      <p className="col-span-7 text-[11px] text-slate-300 whitespace-pre-wrap break-words">
+                      <p className="backend-logs-message col-span-7 text-[11px] text-slate-300 whitespace-pre-wrap break-words">
                         {line.text}
                       </p>
                     </div>
@@ -463,7 +463,7 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
                 })
               )}
               {cliLoading ? (
-                <p className="px-3 py-2 text-[11px] text-slate-500">
+                <p className="backend-logs-running px-3 py-2 text-[11px] text-slate-500">
                   Running command...
                 </p>
               ) : null}
@@ -483,7 +483,7 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
                 key={cmd}
                 type="button"
                 onClick={() => void runCommand(cmd)}
-                className="text-xs px-2 py-1 rounded-md border border-slate-600/80 text-slate-300 bg-slate-900/40 hover:border-emerald-400/55">
+                className="backend-logs-chip text-xs px-2 py-1 rounded-md border border-slate-600/80 text-slate-300 bg-slate-900/40 hover:border-emerald-400/55">
                 {cmd}
               </button>
             ))}
@@ -500,13 +500,13 @@ export default function HomePage({ taskStore, onNavigate }: HomePageProps) {
                 }
               }}
               placeholder="Type backend command..."
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-600 bg-[#0a1220] font-mono text-sm"
+              className="backend-logs-input flex-1 px-3 py-2 rounded-lg border border-slate-600 bg-[#0a1220] font-mono text-sm"
             />
             <button
               type="button"
               onClick={() => void runCommand()}
               disabled={cliLoading}
-              className="px-3 py-2 rounded-lg border border-emerald-400/70 text-emerald-200 bg-emerald-500/15 disabled:opacity-50">
+              className="backend-logs-run px-3 py-2 rounded-lg border border-emerald-400/70 text-emerald-200 bg-emerald-500/15 disabled:opacity-50">
               Run
             </button>
           </div>

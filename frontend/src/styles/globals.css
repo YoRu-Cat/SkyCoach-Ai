@@ -5,10 +5,314 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #3a7ca5;
-  --color-secondary: #2f6690;
-  --color-accent: #81c3d7;
-  --color-glass-bg: rgba(9, 26, 36, 0.62);
+  --color-primary: #9505e9;
+  --color-secondary: #220135;
+  --color-accent: #b13dff;
+  --color-glass-bg: rgba(17, 0, 28, 0.62);
+  --color-text: #f8fafc;
+  --bg-start: #220135;
+  --bg-mid: #11001c;
+  --bg-end: #06000a;
+  --scrollbar-track: rgba(20, 6, 33, 0.55);
+  --scrollbar-thumb: rgba(126, 86, 175, 0.62);
+  --scrollbar-thumb-hover: rgba(145, 102, 220, 0.78);
+}
+
+:root[data-theme="light"] {
+  --color-primary: #642db5;
+  --color-secondary: #d0bef2;
+  --color-accent: #b596e5;
+  --color-glass-bg: rgba(240, 234, 250, 0.72);
+  --color-text: #210f3c;
+  --bg-start: #e1d8f7;
+  --bg-mid: #d7c8f3;
+  --bg-end: #d0bef2;
+  --scrollbar-track: rgba(177, 154, 216, 0.36);
+  --scrollbar-thumb: rgba(138, 89, 213, 0.52);
+  --scrollbar-thumb-hover: rgba(114, 69, 184, 0.68);
+}
+
+/* Light mode text remap: avoid white text on bright backgrounds. */
+:root[data-theme="light"] .theme-light .text-alabaster_grey-900,
+:root[data-theme="light"] .theme-light .text-slate-100,
+:root[data-theme="light"] .theme-light .text-slate-200,
+:root[data-theme="light"] .theme-light .text-slate-300,
+:root[data-theme="light"] .theme-light .text-slate-400,
+:root[data-theme="light"] .theme-light .text-cyan-200,
+:root[data-theme="light"] .theme-light .text-cyan-300,
+:root[data-theme="light"] .theme-light .text-emerald-200,
+:root[data-theme="light"] .theme-light .text-emerald-300 {
+  color: #2b1847 !important;
+}
+
+:root[data-theme="light"] .theme-light .text-xs,
+:root[data-theme="light"] .theme-light .text-sm {
+  color: #3b2360;
+}
+
+/* Light mode surface remap: replace leftover dark utilities with theme tones. */
+:root[data-theme="light"] .theme-light .card {
+  background: rgba(240, 234, 250, 0.78);
+  border-color: rgba(181, 150, 229, 0.35);
+}
+
+:root[data-theme="light"] .theme-light .bg-slate-900,
+:root[data-theme="light"] .theme-light .bg-slate-900\/80,
+:root[data-theme="light"] .theme-light .bg-slate-900\/35,
+:root[data-theme="light"] .theme-light .bg-slate-800,
+:root[data-theme="light"] .theme-light .bg-slate-800\/50,
+:root[data-theme="light"] .theme-light .bg-slate-800\/60,
+:root[data-theme="light"] .theme-light .bg-slate-800\/70 {
+  background-color: #daccf5 !important;
+}
+
+:root[data-theme="light"] .theme-light .border-slate-600,
+:root[data-theme="light"] .theme-light .border-slate-700,
+:root[data-theme="light"] .theme-light .border-slate-700\/50,
+:root[data-theme="light"] .theme-light .border-slate-600\/80 {
+  border-color: #b596e5 !important;
+}
+
+:root[data-theme="light"] .theme-light .hover\:border-cyan-500\/50:hover,
+:root[data-theme="light"] .theme-light .hover\:border-cyan-500:hover,
+:root[data-theme="light"] .theme-light .hover\:border-emerald-400\/55:hover,
+:root[data-theme="light"] .theme-light .hover\:border-emerald-400\/70:hover {
+  border-color: #8a59d5 !important;
+}
+
+:root[data-theme="light"] .theme-light .bg-cyan-500\/10,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/20,
+:root[data-theme="light"] .theme-light .bg-emerald-500\/15 {
+  background-color: rgba(181, 150, 229, 0.28) !important;
+}
+
+:root[data-theme="light"] .theme-light .border-cyan-400,
+:root[data-theme="light"] .theme-light .border-cyan-500\/40,
+:root[data-theme="light"] .theme-light .border-emerald-400\/70 {
+  border-color: #9166dc !important;
+}
+
+:root[data-theme="light"] .theme-light input,
+:root[data-theme="light"] .theme-light textarea,
+:root[data-theme="light"] .theme-light select {
+  background-color: #f0eafa;
+  border-color: #b596e5;
+  color: #210f3c;
+}
+
+:root[data-theme="light"] .theme-light input::placeholder,
+:root[data-theme="light"] .theme-light textarea::placeholder {
+  color: #6a47a8;
+}
+
+/* Light mode date/time controls: force dark readable text, not white. */
+:root[data-theme="light"] .theme-light input[type="date"],
+:root[data-theme="light"] .theme-light input[type="time"],
+:root[data-theme="light"] .theme-light .timetable-input {
+  color-scheme: light !important;
+  color: #2b1847 !important;
+}
+
+:root[data-theme="light"]
+  .theme-light
+  input[type="date"]::-webkit-calendar-picker-indicator,
+:root[data-theme="light"]
+  .theme-light
+  input[type="time"]::-webkit-calendar-picker-indicator {
+  -webkit-filter: none !important;
+  filter: none !important;
+}
+
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-date-and-time-value,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-date-and-time-value
+  *,
+:root[data-theme="light"] .theme-light .timetable-input::-webkit-datetime-edit,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-fields-wrapper,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-text,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-month-field,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-day-field,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-year-field,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-hour-field,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-minute-field,
+:root[data-theme="light"]
+  .theme-light
+  .timetable-input::-webkit-datetime-edit-ampm-field {
+  color: #2b1847 !important;
+  -webkit-text-fill-color: #2b1847 !important;
+}
+
+:root[data-theme="light"] .theme-light .timetable-input,
+:root[data-theme="light"] .theme-light .timetable-input * {
+  -webkit-text-fill-color: #2b1847 !important;
+}
+
+/* Remove blue/cyan accents on core page in light mode. */
+:root[data-theme="light"] .theme-light .text-blue-200,
+:root[data-theme="light"] .theme-light .text-blue-300,
+:root[data-theme="light"] .theme-light .text-blue-400,
+:root[data-theme="light"] .theme-light .text-blue-500,
+:root[data-theme="light"] .theme-light .text-cyan-200,
+:root[data-theme="light"] .theme-light .text-cyan-300,
+:root[data-theme="light"] .theme-light .text-cyan-400,
+:root[data-theme="light"] .theme-light .text-green-300,
+:root[data-theme="light"] .theme-light .text-green-400,
+:root[data-theme="light"] .theme-light .text-red-300,
+:root[data-theme="light"] .theme-light .text-red-400,
+:root[data-theme="light"] .theme-light .text-yellow-300,
+:root[data-theme="light"] .theme-light .text-yellow-400 {
+  color: #4a2a76 !important;
+}
+
+:root[data-theme="light"] .theme-light .bg-blue-500\/15,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/10,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/15,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/20,
+:root[data-theme="light"] .theme-light .bg-green-900\/20,
+:root[data-theme="light"] .theme-light .bg-red-900\/20,
+:root[data-theme="light"] .theme-light .bg-yellow-900\/30 {
+  background-color: rgba(181, 150, 229, 0.24) !important;
+}
+
+:root[data-theme="light"] .theme-light .border-blue-400\/30,
+:root[data-theme="light"] .theme-light .border-cyan-400,
+:root[data-theme="light"] .theme-light .border-cyan-400\/40,
+:root[data-theme="light"] .theme-light .border-cyan-500\/30,
+:root[data-theme="light"] .theme-light .border-cyan-500\/50,
+:root[data-theme="light"] .theme-light .border-yellow-600\/50,
+:root[data-theme="light"] .theme-light .border-green-700\/30,
+:root[data-theme="light"] .theme-light .border-red-700\/30 {
+  border-color: #9d77e4 !important;
+}
+
+:root[data-theme="light"] .theme-light .glow-cyan {
+  box-shadow:
+    0 0 18px rgba(145, 102, 220, 0.2),
+    inset 0 0 18px rgba(181, 150, 229, 0.16) !important;
+}
+
+:root[data-theme="light"] .theme-light .score-meter {
+  background: rgba(205, 185, 239, 0.72);
+  border-color: rgba(157, 119, 228, 0.5);
+}
+
+:root[data-theme="light"] .theme-light .score-meter__segment {
+  background: rgba(157, 119, 228, 0.34);
+}
+
+:root[data-theme="light"] .theme-light .score-meter__segment.is-active {
+  background: linear-gradient(90deg, #9166dc 0%, #642db5 100%);
+  box-shadow: 0 0 10px rgba(100, 45, 181, 0.28);
+}
+
+:root[data-theme="light"] .theme-light .weather-map-shell {
+  background: rgba(240, 234, 250, 0.88) !important;
+  border-color: rgba(157, 119, 228, 0.65) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(157, 119, 228, 0.22),
+    0 12px 28px rgba(66, 30, 121, 0.2),
+    0 0 18px rgba(181, 150, 229, 0.18) !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-map-shell > div:first-child {
+  border-bottom-color: rgba(157, 119, 228, 0.5) !important;
+  color: #431e83 !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-map-frame {
+  background: #f6f2fc !important;
+}
+
+/* Home backend logs box in light mode */
+:root[data-theme="light"] .theme-light .backend-logs-shell {
+  background: rgba(240, 234, 250, 0.9) !important;
+  border-color: rgba(157, 119, 228, 0.62) !important;
+  box-shadow: 0 12px 28px rgba(66, 30, 121, 0.18) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-head {
+  background: rgba(218, 204, 245, 0.88) !important;
+  border-bottom-color: rgba(157, 119, 228, 0.5) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-head .text-slate-200,
+:root[data-theme="light"] .theme-light .backend-logs-head .text-slate-400 {
+  color: #311a53 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-toolbar {
+  background: rgba(227, 217, 247, 0.82) !important;
+  border-bottom-color: rgba(157, 119, 228, 0.42) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-filter,
+:root[data-theme="light"] .theme-light .backend-logs-range,
+:root[data-theme="light"] .theme-light .backend-logs-search {
+  background: rgba(246, 242, 252, 0.95) !important;
+  border-color: rgba(157, 119, 228, 0.6) !important;
+  color: #311a53 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-search::placeholder {
+  color: #6a47a8 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-stream {
+  background: rgba(240, 234, 250, 0.8) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-row {
+  border-bottom-color: rgba(157, 119, 228, 0.26) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-row:hover {
+  background: rgba(205, 185, 239, 0.32) !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-time,
+:root[data-theme="light"] .theme-light .backend-logs-message,
+:root[data-theme="light"] .theme-light .backend-logs-empty,
+:root[data-theme="light"] .theme-light .backend-logs-running {
+  color: #3a2160 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-chip {
+  background: rgba(205, 185, 239, 0.72) !important;
+  border-color: rgba(157, 119, 228, 0.58) !important;
+  color: #311a53 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-input {
+  background: rgba(246, 242, 252, 0.98) !important;
+  border-color: rgba(157, 119, 228, 0.62) !important;
+  color: #2b1847 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-input::placeholder {
+  color: #6a47a8 !important;
+}
+
+:root[data-theme="light"] .theme-light .backend-logs-run {
+  background: rgba(176, 144, 226, 0.45) !important;
+  border-color: rgba(138, 89, 213, 0.72) !important;
+  color: #311a53 !important;
 }
 
 * {
@@ -24,11 +328,11 @@ html {
 body {
   background: radial-gradient(
     circle at 12% 8%,
-    #2f6690 0%,
-    #16425b 46%,
-    #0c1921 100%
+    var(--bg-start) 0%,
+    var(--bg-mid) 48%,
+    var(--bg-end) 100%
   );
-  color: #f8fafc;
+  color: var(--color-text);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   min-height: 100vh;
   position: relative;
@@ -40,15 +344,11 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-  background: rgba(8, 20, 34, 0.7);
+  background: var(--scrollbar-track);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    180deg,
-    rgba(62, 92, 118, 0.9),
-    rgba(126, 167, 195, 0.8)
-  );
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
 }
 
@@ -554,11 +854,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.4);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
@@ -646,5 +946,5 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.6);
+  background: var(--scrollbar-thumb-hover);
 }

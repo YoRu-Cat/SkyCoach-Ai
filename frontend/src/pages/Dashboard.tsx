@@ -95,11 +95,11 @@ export default function Dashboard({ embedded = false }: DashboardProps) {
     <div
       className={
         embedded
-          ? "relative overflow-hidden rounded-2xl border border-[#3e5c76]/55 bg-[#0b182a]/75 pb-4"
+          ? "relative overflow-hidden rounded-2xl border border-[#b596e5]/35 bg-[var(--color-glass-bg)] pb-4"
           : "min-h-screen pb-12"
       }>
       {embedded ? (
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_10%,rgba(106,168,208,0.2),transparent_44%),radial-gradient(circle_at_88%_92%,rgba(62,92,118,0.24),transparent_48%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_10%,rgba(181,150,229,0.18),transparent_44%),radial-gradient(circle_at_88%_92%,rgba(100,45,181,0.2),transparent_48%)]" />
       ) : (
         <WeatherBackground weather={analysis?.weather} />
       )}

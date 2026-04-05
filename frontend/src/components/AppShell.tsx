@@ -4,7 +4,9 @@ import {
   CalendarDays,
   ClipboardList,
   MessageSquare,
+  Moon,
   Sparkles,
+  Sun,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
@@ -35,8 +37,19 @@ interface NavItem {
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
+type ThemeMode = "dark" | "light";
+
+const THEME_STORAGE_KEY = "skycoach_theme_v1";
+
+const loadTheme = (): ThemeMode => {
+  if (typeof window === "undefined") return "dark";
+  const value = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return value === "light" ? "light" : "dark";
+};
+
 export default function AppShell() {
   const [activeView, setActiveView] = useState<AppView>("home");
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadTheme());
   const taskStore = useTaskStore();
   const shellRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -111,6 +124,11 @@ export default function AppShell() {
         return <Dashboard embedded />;
     }
   };
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", themeMode);
+    window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
 
   useEffect(() => {
     if (!shellRef.current) return;
@@ -254,21 +272,65 @@ export default function AppShell() {
     <div
       ref={shellRef}
       data-scroll-container
-      className="relative min-h-screen overflow-hidden bg-baltic_blue-100 text-alabaster_grey-900">
+      className={`relative min-h-screen overflow-hidden ${
+        themeMode === "light"
+          ? "theme-light bg-[#f6f2fc] text-[#210f3c]"
+          : "theme-dark bg-midnight_violet-100 text-alabaster_grey-900"
+      }`}>
       <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
         <ParticlesComponent id="skycoach-tech-particles" />
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(47,102,144,0.34),transparent_42%),radial-gradient(circle_at_80%_70%,rgba(58,124,165,0.28),transparent_44%)]" />
+      <div
+        className={`pointer-events-none absolute inset-0 z-0 ${
+          themeMode === "light"
+            ? "bg-[radial-gradient(circle_at_20%_10%,rgba(181,150,229,0.34),transparent_44%),radial-gradient(circle_at_80%_70%,rgba(208,190,242,0.35),transparent_48%)]"
+            : "bg-[radial-gradient(circle_at_20%_10%,rgba(149,5,233,0.24),transparent_44%),radial-gradient(circle_at_80%_70%,rgba(73,0,122,0.26),transparent_46%)]"
+        }`}
+      />
 
-      <header className="sticky top-0 z-40 border-b border-[#3b5f78]/45 bg-gradient-to-r from-[#10324a]/72 via-[#0c2a3f]/68 to-[#092235]/72 backdrop-blur-2xl shadow-[0_8px_24px_rgba(4,12,20,0.35)]">
+      <header
+        className={`sticky top-0 z-40 border-b backdrop-blur-2xl shadow-[0_8px_24px_rgba(9,0,20,0.2)] ${
+          themeMode === "light"
+            ? "border-[#b596e5]/45 bg-gradient-to-r from-[#e1d8f7]/76 via-[#d7c8f3]/70 to-[#d0bef2]/76"
+            : "border-[#5f2e86]/45 bg-gradient-to-r from-[#220135]/74 via-[#190028]/70 to-[#11001c]/74"
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-alabaster_grey-900">
+          <h1
+            className={`text-lg sm:text-xl font-semibold tracking-tight ${
+              themeMode === "light"
+                ? "text-[#210f3c]"
+                : "text-alabaster_grey-900"
+            }`}>
             SkyCoach Quantum Deck
           </h1>
-          <p className="text-xs sm:text-sm text-sky_blue_light-800">
-            {navItems.find((item) => item.id === activeView)?.label}
-          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                setThemeMode((prev) => (prev === "dark" ? "light" : "dark"))
+              }
+              aria-label="Toggle theme"
+              title="Toggle theme"
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs ${
+                themeMode === "light"
+                  ? "border-[#9166dc]/60 bg-[#f2eefb]/85 text-[#421e79]"
+                  : "border-[#b13dff]/55 bg-[#220135]/70 text-[#e9d8ff]"
+              }`}>
+              {themeMode === "light" ? (
+                <Moon className="h-3.5 w-3.5" />
+              ) : (
+                <Sun className="h-3.5 w-3.5" />
+              )}
+              {themeMode === "light" ? "Dark" : "Light"}
+            </button>
+            <p
+              className={`text-xs sm:text-sm ${
+                themeMode === "light" ? "text-[#431e83]" : "text-[#e2c8ff]"
+              }`}>
+              {navItems.find((item) => item.id === activeView)?.label}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -277,12 +339,16 @@ export default function AppShell() {
           <div
             data-scroll
             data-scroll-speed="-2"
-            className="absolute top-6 right-[7%] w-56 h-56 rounded-full bg-[#3e5c76]/35 blur-3xl"
+            className={`absolute top-6 right-[7%] w-56 h-56 rounded-full blur-3xl ${
+              themeMode === "light" ? "bg-[#b596e5]/36" : "bg-[#5c0390]/30"
+            }`}
           />
           <div
             data-scroll
             data-scroll-speed="2"
-            className="absolute top-40 left-[8%] w-52 h-52 rounded-full bg-[#5e8fb4]/25 blur-3xl"
+            className={`absolute top-40 left-[8%] w-52 h-52 rounded-full blur-3xl ${
+              themeMode === "light" ? "bg-[#d0bef2]/38" : "bg-[#49007a]/28"
+            }`}
           />
         </div>
 
@@ -290,14 +356,29 @@ export default function AppShell() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="card border border-cerulean-600/45 bg-baltic_blue-200/72 overflow-hidden">
-          <p className="hero-line text-xs uppercase tracking-[0.24em] text-sky_blue_light-600">
+          className={`card border overflow-hidden ${
+            themeMode === "light"
+              ? "border-[#b596e5]/55 bg-[#f2eefb]/78"
+              : "border-[#5f2e86]/45 bg-[#190028]/72"
+          }`}>
+          <p
+            className={`hero-line text-xs uppercase tracking-[0.24em] ${
+              themeMode === "light" ? "text-[#642db5]" : "text-[#d3a7ff]"
+            }`}>
             High-Tech Command Surface
           </p>
-          <h2 className="hero-line mt-3 text-3xl md:text-5xl leading-tight font-semibold max-w-4xl text-alabaster_grey-900">
+          <h2
+            className={`hero-line mt-3 text-3xl md:text-5xl leading-tight font-semibold max-w-4xl ${
+              themeMode === "light"
+                ? "text-[#210f3c]"
+                : "text-alabaster_grey-900"
+            }`}>
             One cinematic chat cockpit to run your planning stack.
           </h2>
-          <p className="hero-line mt-4 text-sky_blue_light-700 max-w-3xl">
+          <p
+            className={`hero-line mt-4 max-w-3xl ${
+              themeMode === "light" ? "text-[#431e83]" : "text-[#d9b8ff]"
+            }`}>
             Scroll down and watch the command panel rise from grounded cinematic
             depth into full precision mode.
           </p>
@@ -316,8 +397,12 @@ export default function AppShell() {
               onClick={() => setActiveView(item.id)}
               className={`nav-pill flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all backdrop-blur-md shadow-[0_4px_12px_rgba(9,20,28,0.28)] ${
                 item.id === activeView
-                  ? "bg-[#128178]/82 border-[#7edbd3] text-[#eefcff] shadow-[0_0_0_1px_rgba(126,219,211,0.3),0_10px_18px_rgba(8,41,58,0.55)]"
-                  : "bg-[#102c42]/90 border-[#274f71] text-[#d4e8f5] hover:border-[#63aec9] hover:bg-[#183e5a]/94"
+                  ? themeMode === "light"
+                    ? "bg-[#c0a7eb]/86 border-[#9166dc] text-[#210f3c] shadow-[0_0_0_1px_rgba(145,102,220,0.2),0_8px_14px_rgba(66,30,121,0.16)]"
+                    : "bg-[#5c0390]/82 border-[#d89eff] text-[#f6ecff] shadow-[0_0_0_1px_rgba(216,158,255,0.25),0_10px_18px_rgba(25,0,40,0.55)]"
+                  : themeMode === "light"
+                    ? "bg-[#e7def8]/88 border-[#b596e5] text-[#421e79] hover:border-[#8a59d5] hover:bg-[#d9cbf3]/92"
+                    : "bg-[#190028]/88 border-[#3a015c] text-[#e9d8ff] hover:border-[#b13dff] hover:bg-[#220135]/92"
               }`}>
               {item.icon}
               {item.label}
@@ -333,7 +418,11 @@ export default function AppShell() {
 
           <main
             ref={panelRef}
-            className="home-main-panel preserve-3d card border border-cerulean-500/60 bg-baltic_blue-200/80 transform-gpu">
+            className={`home-main-panel preserve-3d card border transform-gpu ${
+              themeMode === "light"
+                ? "border-[#b596e5]/55 bg-[#f7f4fd]/80"
+                : "border-[#5c0390]/55 bg-[#11001c]/78"
+            }`}>
             {renderView()}
           </main>
         </div>
