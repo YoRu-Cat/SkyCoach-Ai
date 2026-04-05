@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChatDraft, ChatMessage } from "@app-types/api";
 import type { TaskStore } from "@hooks/useTaskStore";
 import { chatAssistant } from "@services/api";
@@ -64,6 +64,7 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
   const [draft, setDraft] = useState<ChatDraft>(() => loadChatState().draft);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -71,6 +72,11 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
       JSON.stringify({ messages, draft }),
     );
   }, [messages, draft]);
+
+  useEffect(() => {
+    if (!chatScrollRef.current) return;
+    chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+  }, [messages, isLoading]);
 
   const startNewChat = () => {
     setMessages([starterMessage]);
@@ -184,7 +190,11 @@ export default function ChatPage({ taskStore, onNavigate }: ChatPageProps) {
           </button>
         </div>
 
-        <div className="max-h-[55vh] overflow-y-auto space-y-3 pr-1">
+        <div
+          ref={chatScrollRef}
+          className="h-[55vh] overflow-y-auto overscroll-contain space-y-3 pr-1"
+          onWheelCapture={(event) => event.stopPropagation()}
+          onTouchMoveCapture={(event) => event.stopPropagation()}>
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}`}
