@@ -399,14 +399,14 @@ export default function AppShell() {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveView(item.id)}
-              className={`nav-pill flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all backdrop-blur-md shadow-[0_4px_12px_rgba(9,20,28,0.28)] ${
-                item.id === activeView
-                  ? themeMode === "light"
-                    ? "bg-[#c0a7eb]/86 border-[#9166dc] text-[#210f3c] shadow-[0_0_0_1px_rgba(145,102,220,0.2),0_8px_14px_rgba(66,30,121,0.16)]"
-                    : "bg-[#7a24be]/86 border-[#e3baff] text-[#fff4ff] shadow-[0_0_0_1px_rgba(227,186,255,0.3),0_10px_18px_rgba(25,0,40,0.58)]"
-                  : themeMode === "light"
-                    ? "bg-[#e7def8]/88 border-[#b596e5] text-[#421e79] hover:border-[#8a59d5] hover:bg-[#d9cbf3]/92"
-                    : "bg-[#3b085d]/78 border-[#a24fe0] text-[#f0d9ff] hover:border-[#d89eff] hover:bg-[#4d0f77]/86"
+              className={`nav-pill flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all backdrop-blur-md ${
+                themeMode === "light"
+                  ? `shadow-[0_4px_12px_rgba(9,20,28,0.28)] ${
+                      item.id === activeView
+                        ? "bg-[#c0a7eb]/86 border-[#9166dc] text-[#210f3c] shadow-[0_0_0_1px_rgba(145,102,220,0.2),0_8px_14px_rgba(66,30,121,0.16)]"
+                        : "bg-[#e7def8]/88 border-[#b596e5] text-[#421e79] hover:border-[#8a59d5] hover:bg-[#d9cbf3]/92"
+                    }`
+                  : "bg-[#6b2e99]/72 border-[#9d66d9] text-[#f5e6ff] shadow-[0_0_0_1px_rgba(157,102,217,0.3),0_8px_14px_rgba(66,30,121,0.16)]"
               }`}>
               {item.icon}
               {item.label}
