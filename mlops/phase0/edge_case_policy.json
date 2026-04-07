@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "COMMUTE_001",
+      "pattern_examples": [
+        "going to uni",
+        "commuting to college",
+        "travel to campus"
+      ],
+      "default_label": "Outdoor",
+      "rationale": "Commute semantics imply outdoor mobility exposure."
+    },
+    {
+      "id": "WORK_001",
+      "pattern_examples": ["going to work", "office work"],
+      "default_label": "Indoor",
+      "override_if_contains": ["outside", "outdoor"],
+      "override_label": "Outdoor"
+    },
+    {
+      "id": "MIXED_001",
+      "pattern_examples": ["study then football", "office and evening run"],
+      "default_label": "Mixed",
+      "resolution": "If a dominant intent is >0.7 confidence from the model, emit dominant label; otherwise Mixed."
+    },
+    {
+      "id": "NOISE_001",
+      "pattern_examples": ["idk", "something", "do stuff"],
+      "default_label": "Unclear",
+      "resolution": "Request clarification from chat layer or route to human review queue."
+    }
+  ]
+}

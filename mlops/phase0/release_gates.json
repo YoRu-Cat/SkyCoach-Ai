@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "evaluation": {
+    "primary_metric": "macro_f1",
+    "thresholds": {
+      "macro_f1": 0.93,
+      "accuracy": 0.94,
+      "indoor_recall": 0.93,
+      "outdoor_recall": 0.95,
+      "unclear_precision": 0.85,
+      "ece_max": 0.06,
+      "p95_latency_ms": 50
+    },
+    "minimum_test_samples": 10000,
+    "minimum_hardset_samples": 1200
+  },
+  "promotion_rules": {
+    "must_pass_all_thresholds": true,
+    "required_slices": [
+      "typo_heavy",
+      "slang_and_colloquial",
+      "short_phrases",
+      "commute_phrases",
+      "mixed_intent"
+    ],
+    "max_regression_vs_champion": {
+      "macro_f1": 0.005,
+      "outdoor_recall": 0.003
+    }
+  }
+}
