@@ -76,6 +76,36 @@ class Trainer:
         x_test, y_test = split_xy(test_rows)
         x_hard, y_hard = split_xy(hard_rows)
 
+        focus_examples = [
+            {"phrase": "going on a date", "label": "Indoor"},
+            {"phrase": "going on a date with a girl", "label": "Indoor"},
+            {"phrase": "going on a date with my girlfriend", "label": "Indoor"},
+            {"phrase": "date night", "label": "Indoor"},
+            {"phrase": "romantic date", "label": "Indoor"},
+            {"phrase": "coffee date", "label": "Indoor"},
+            {"phrase": "dinner date", "label": "Indoor"},
+            {"phrase": "meeting my girlfriend for a date", "label": "Indoor"},
+            {"phrase": "going to meet my girlfriend", "label": "Indoor"},
+            {"phrase": "going out with my girlfriend", "label": "Indoor"},
+            {"phrase": "seeing my girlfriend tonight", "label": "Indoor"},
+            {"phrase": "social date plan", "label": "Indoor"},
+            {"phrase": "planning a date", "label": "Indoor"},
+            {"phrase": "date with a girl", "label": "Indoor"},
+            {"phrase": "going on a date at a restaurant", "label": "Indoor"},
+            {"phrase": "date night at home", "label": "Indoor"},
+            {"phrase": "coffee date at a cafe", "label": "Indoor"},
+            {"phrase": "movie date at the cinema", "label": "Indoor"},
+            {"phrase": "going on a date at an amusement park", "label": "Outdoor"},
+            {"phrase": "date at an amusement park", "label": "Outdoor"},
+            {"phrase": "amusement park date", "label": "Outdoor"},
+            {"phrase": "romantic date at the park", "label": "Outdoor"},
+            {"phrase": "going on a date outside", "label": "Outdoor"},
+            {"phrase": "date at the beach", "label": "Outdoor"},
+        ]
+
+        x_train.extend(example["phrase"] for example in focus_examples)
+        y_train.extend(example["label"] for example in focus_examples)
+
         labels = sorted({*y_train, *y_val, *y_test, *y_hard})
 
         # Train tokenizer

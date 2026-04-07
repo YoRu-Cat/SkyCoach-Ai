@@ -11,6 +11,9 @@ ACTIVITY_CORPUS = {
         "cycling", "biking", "bike riding",
         "going to uni", "going to university", "going to college", "commuting to uni",
         "going to gym", "gym workout", "indoor workout",
+        "amusement park", "amusement park date", "date at amusement park",
+        "date in the park", "date outdoors", "date outside",
+        "outdoor date", "romantic walk in the park",
         "hiking", "trekking", "trail walking",
         "swimming", "swimming pool",
         "playing tennis", "tennis",
@@ -48,6 +51,7 @@ ACTIVITY_CORPUS = {
         "wedding ceremony", "wedding", "attending wedding",
         "birthday party", "anniversary celebration", "family gathering",
         "going on a date", "date night", "dinner date", "coffee date", "romantic date",
+        "date at a restaurant", "date at a cafe", "movie date", "date night at home",
         "office meeting", "business meeting", "conference", "seminar", "classroom session",
         "doing homework", "homework",
         "studying", "study", "studying for exam",
@@ -256,9 +260,9 @@ def classify_with_dictionary(
 
                 environment_bonus = 0.0
                 if ("outside" in input_tokens or "outdoor" in input_tokens) and label == "Outdoor":
-                    environment_bonus += 0.14
+                    environment_bonus += 0.04
                 if ("inside" in input_tokens or "indoor" in input_tokens or "home" in input_tokens) and label == "Indoor":
-                    environment_bonus += 0.14
+                    environment_bonus += 0.04
 
                 score = token_overlap * 0.70 + char_similarity * 0.18 + starts_with_bonus + environment_bonus
 
@@ -297,6 +301,7 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
 
     cleaned = broken_input.strip().lower()
     input_content = _content_tokens(cleaned)
+    input_tokens = _tokenize(cleaned)
 
     close_matches = get_close_matches(cleaned, ALL_ACTIVITIES, n=5, cutoff=0.52)
 
