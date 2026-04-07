@@ -1,0 +1,16 @@
+{"phrase":"office meeting at work","label":"Indoor"}
+{"phrase":"study at home","label":"Indoor"}
+{"phrase":"coding in my room","label":"Indoor"}
+{"phrase":"cook dinner in kitchen","label":"Indoor"}
+{"phrase":"run in park","label":"Outdoor"}
+{"phrase":"going to uni","label":"Outdoor"}
+{"phrase":"playing football outside","label":"Outdoor"}
+{"phrase":"cycling on road","label":"Outdoor"}
+{"phrase":"study then football","label":"Mixed"}
+{"phrase":"office then evening walk","label":"Mixed"}
+{"phrase":"gym and home workout","label":"Mixed"}
+{"phrase":"class and outdoor training","label":"Mixed"}
+{"phrase":"do something","label":"Unclear"}
+{"phrase":"idk what to do","label":"Unclear"}
+{"phrase":"maybe later","label":"Unclear"}
+{"phrase":"random task","label":"Unclear"}
