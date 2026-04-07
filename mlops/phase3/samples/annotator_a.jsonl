@@ -1,0 +1,4 @@
+{"phrase":"going to uni","annotator_id":"ann_a","label":"Outdoor","note":"commute","annotated_at":"2026-04-07T10:00:00Z"}
+{"phrase":"office meeting","annotator_id":"ann_a","label":"Indoor","note":"inside office","annotated_at":"2026-04-07T10:00:01Z"}
+{"phrase":"study then football","annotator_id":"ann_a","label":"Mixed","note":"two intents","annotated_at":"2026-04-07T10:00:02Z"}
+{"phrase":"do something","annotator_id":"ann_a","label":"Unclear","note":"ambiguous","annotated_at":"2026-04-07T10:00:03Z"}

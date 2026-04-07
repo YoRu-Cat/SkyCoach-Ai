@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "task": "phrase_classification",
+  "labels": ["Indoor", "Outdoor", "Mixed", "Unclear"],
+  "priority_rules": [
+    "Commute and travel semantics default to Outdoor unless explicit indoor-only intent is dominant.",
+    "If two clear intents appear and neither dominates, use Mixed.",
+    "Use Unclear for incomplete or ambiguous text that cannot be reliably interpreted."
+  ],
+  "double_annotation_policy": {
+    "required_annotators": 2,
+    "agreement_threshold": 1.0,
+    "conflict_resolution_required": true
+  },
+  "golden_set_policy": {
+    "eligible_if": [
+      "agreement_status == resolved",
+      "resolved_label in [Indoor, Outdoor, Mixed, Unclear]"
+    ],
+    "frozen_set_immutable": true
+  }
+}
