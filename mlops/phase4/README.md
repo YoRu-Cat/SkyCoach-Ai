@@ -3,6 +3,7 @@
 This phase implements model training components built in-house (no outsourced model dependency).
 
 Implemented:
+
 - Tokenizer training from scratch
 - Scratch Multinomial Naive Bayes classifier
 - Scratch linear softmax classifier (SGD)
