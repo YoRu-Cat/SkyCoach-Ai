@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 import os
 import shlex
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -252,6 +253,52 @@ async def health_check():
         "service": "SkyCoach API",
         "version": "1.0.0"
     }
+
+
+@router.post("/predict")
+async def predict_activity_type(request: dict) -> dict:
+    """Phase 5: Classify activity as Indoor/Outdoor/Mixed/Unclear using trained ML model."""
+    try:
+        from mlops.phase5.inference.inference import PredictionEngine
+        from mlops.phase5.inference.schema import PredictionRequest
+        
+        phrase = request.get("phrase", "")
+        if not phrase or not phrase.strip():
+            raise ValueError("Phrase cannot be empty")
+        
+        artifacts_dir = Path("mlops/phase5/artifacts")
+        if not artifacts_dir.exists():
+            raise FileNotFoundError(
+                f"ML artifacts not found. Run: python mlops/phase5/run_phase5.py"
+            )
+        
+        engine = PredictionEngine(
+            tokenizer_path=artifacts_dir / "phase4_tokenizer.json",
+            model_path=artifacts_dir / "phase4_champion_model.json",
+            report_path=artifacts_dir / "phase4_training_report.json",
+            min_confidence=0.72,
+        )
+        
+        pred_request = PredictionRequest(phrase=phrase)
+        response = engine.predict(pred_request)
+        
+        return {
+            "label": response.label,
+            "confidence": response.confidence,
+            "rationale": response.rationale,
+            "model": response.model,
+            "all_scores": response.all_scores,
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"ML service not initialized: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Prediction failed: {str(e)}"
+        )
 
 
 @router.post("/chat-assistant", response_model=ChatAssistantResponse)
