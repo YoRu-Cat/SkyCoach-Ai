@@ -1,0 +1,19 @@
+{
+  "champion_model": "linear_softmax",
+  "labels": [
+    "Indoor",
+    "Mixed",
+    "Outdoor",
+    "Unclear"
+  ],
+  "val": {
+    "macro_f1": 0.9986666654814793
+  },
+  "test": {
+    "macro_f1": 0.996999987999952
+  },
+  "hardset": {
+    "macro_f1": 1.0
+  },
+  "temperature": 0.5
+}

@@ -1,0 +1,500 @@
+{"phrase": "I enjoy retail store", "label": "Indoor"}
+{"phrase": "Some me time", "label": "Unclear"}
+{"phrase": "Let's visit train station", "label": "Mixed"}
+{"phrase": "Let's go parkour outdoor", "label": "Outdoor"}
+{"phrase": "I enjoy physical therapy", "label": "Indoor"}
+{"phrase": "Going to activity", "label": "Unclear"}
+{"phrase": "Cashier work is fun", "label": "Indoor"}
+{"phrase": "Visiting parking lot waiting", "label": "Mixed"}
+{"phrase": "Just finished attend art gallery", "label": "Indoor"}
+{"phrase": "Currently park workout", "label": "Outdoor"}
+{"phrase": "Time for pub with garden", "label": "Mixed"}
+{"phrase": "Can we administrative work?", "label": "Indoor"}
+{"phrase": "Heading out for exploring valleys", "label": "Outdoor"}
+{"phrase": "Can we corporate presentation?", "label": "Indoor"}
+{"phrase": "Currently recovering", "label": "Unclear"}
+{"phrase": "Preparing for landscaping", "label": "Outdoor"}
+{"phrase": "Thinking about contemplating", "label": "Unclear"}
+{"phrase": "Spending time at train platform activity", "label": "Mixed"}
+{"phrase": "Planning trip to market with indoor/outdoor", "label": "Mixed"}
+{"phrase": "Just got back from gardening", "label": "Outdoor"}
+{"phrase": "It's time to engagement", "label": "Unclear"}
+{"phrase": "Going to evening activity", "label": "Unclear"}
+{"phrase": "Hang gliding is exciting", "label": "Outdoor"}
+{"phrase": "I'm attending fair", "label": "Outdoor"}
+{"phrase": "Taking a trip for zip lining", "label": "Outdoor"}
+{"phrase": "I'm pending", "label": "Unclear"}
+{"phrase": "Doing obligation", "label": "Unclear"}
+{"phrase": "Doing some typing", "label": "Indoor"}
+{"phrase": "Landscape painting is exciting", "label": "Outdoor"}
+{"phrase": "Planning an outing for outdoor painting", "label": "Outdoor"}
+{"phrase": "I enjoy attending meeting", "label": "Indoor"}
+{"phrase": "Just got back from snorkeling", "label": "Outdoor"}
+{"phrase": "Motorcycle rally is exciting", "label": "Outdoor"}
+{"phrase": "Currently american football", "label": "Outdoor"}
+{"phrase": "Currently at market with indoor/outdoor", "label": "Mixed"}
+{"phrase": "Heading to attend convention under shelter", "label": "Indoor"}
+{"phrase": "Doing checking out", "label": "Unclear"}
+{"phrase": "Heading to performance venue", "label": "Mixed"}
+{"phrase": "Let's visit restaurant with outdoor seating", "label": "Mixed"}
+{"phrase": "I want to watching", "label": "Indoor"}
+{"phrase": "Spending time at cinema multiplex", "label": "Mixed"}
+{"phrase": "I'm staying active", "label": "Unclear"}
+{"phrase": "Patio party is exciting", "label": "Outdoor"}
+{"phrase": "Maybe responsibility", "label": "Unclear"}
+{"phrase": "Sightseeing tour is exciting", "label": "Outdoor"}
+{"phrase": "Time for hospital with outdoor garden", "label": "Mixed"}
+{"phrase": "It's time to leisure time", "label": "Unclear"}
+{"phrase": "Currently weeding", "label": "Outdoor"}
+{"phrase": "Want to meeting?", "label": "Unclear"}
+{"phrase": "Heading out for attending sports event", "label": "Outdoor"}
+{"phrase": "Let me social interaction", "label": "Unclear"}
+{"phrase": "Just finished playing board games", "label": "Indoor"}
+{"phrase": "Planning an outing for greenhouse work", "label": "Outdoor"}
+{"phrase": "Maybe pending", "label": "Unclear"}
+{"phrase": "Maybe habit", "label": "Unclear"}
+{"phrase": "I'm tech campus", "label": "Mixed"}
+{"phrase": "Just got back from canoeing", "label": "Outdoor"}
+{"phrase": "Want to attending fair?", "label": "Outdoor"}
+{"phrase": "Let me activity", "label": "Unclear"}
+{"phrase": "Let's go writing", "label": "Indoor"}
+{"phrase": "Attend conference is fun", "label": "Indoor"}
+{"phrase": "Want to exploring?", "label": "Unclear"}
+{"phrase": "Starting to attend fair", "label": "Indoor"}
+{"phrase": "Want to canoeing?", "label": "Outdoor"}
+{"phrase": "Need to changing", "label": "Unclear"}
+{"phrase": "Going to lawn bowling on cliff", "label": "Outdoor"}
+{"phrase": "Planning to glass blowing", "label": "Indoor"}
+{"phrase": "Thinking about event", "label": "Unclear"}
+{"phrase": "Adventure at airport lounge work", "label": "Mixed"}
+{"phrase": "Let's go exploring forest", "label": "Outdoor"}
+{"phrase": "Doing some cooking", "label": "Indoor"}
+{"phrase": "Planning trip to bus station", "label": "Mixed"}
+{"phrase": "Exploring office complex", "label": "Mixed"}
+{"phrase": "Taking family to restaurant with outdoor seating", "label": "Mixed"}
+{"phrase": "Currently bonfire", "label": "Outdoor"}
+{"phrase": "Heading out for attending carnival", "label": "Outdoor"}
+{"phrase": "Just finished cleaning house", "label": "Indoor"}
+{"phrase": "Time for train platform activity", "label": "Mixed"}
+{"phrase": "Planning to processing information", "label": "Unclear"}
+{"phrase": "Want to vague objective?", "label": "Unclear"}
+{"phrase": "Maybe lunch break", "label": "Unclear"}
+{"phrase": "Going to winery with tour areas", "label": "Mixed"}
+{"phrase": "Some participation", "label": "Unclear"}
+{"phrase": "Visiting banquet hall", "label": "Mixed"}
+{"phrase": "Currently at going to gym with cafe", "label": "Mixed"}
+{"phrase": "Let's shopping department store together", "label": "Indoor"}
+{"phrase": "I want to administrative work", "label": "Indoor"}
+{"phrase": "Enjoying market with indoor/outdoor", "label": "Mixed"}
+{"phrase": "Going to sleeping", "label": "Unclear"}
+{"phrase": "Some afternoon activity", "label": "Unclear"}
+{"phrase": "Thinking about downtime", "label": "Unclear"}
+{"phrase": "Thinking about in progress", "label": "Unclear"}
+{"phrase": "Visiting wedding venue indoor/outdoor", "label": "Mixed"}
+{"phrase": "Let's camping outside", "label": "Outdoor"}
+{"phrase": "I'm analyzing", "label": "Unclear"}
+{"phrase": "Planning trip to recreation center", "label": "Mixed"}
+{"phrase": "I decided to go shopping department store", "label": "Indoor"}
+{"phrase": "I'm truck stop visit", "label": "Mixed"}
+{"phrase": "Going to landscape painting in countryside", "label": "Outdoor"}
+{"phrase": "Team meeting is fun", "label": "Indoor"}
+{"phrase": "Need to resting", "label": "Unclear"}
+{"phrase": "Taking family to entertainment district", "label": "Mixed"}
+{"phrase": "Let me quiet time", "label": "Unclear"}
+{"phrase": "Spending time at startup incubator", "label": "Mixed"}
+{"phrase": "I decided to go attending seminar", "label": "Indoor"}
+{"phrase": "Need to project", "label": "Unclear"}
+{"phrase": "Day at transfer time activity", "label": "Mixed"}
+{"phrase": "Going to glass blowing in basement", "label": "Indoor"}
+{"phrase": "Some short-term", "label": "Unclear"}
+{"phrase": "Currently planting trees", "label": "Outdoor"}
+{"phrase": "I'm sports complex", "label": "Mixed"}
+{"phrase": "Currently at hotel with outdoor area", "label": "Mixed"}
+{"phrase": "I love livestock management", "label": "Outdoor"}
+{"phrase": "Heading out for spelunking", "label": "Outdoor"}
+{"phrase": "That's short-term", "label": "Unclear"}
+{"phrase": "Want to trail running?", "label": "Outdoor"}
+{"phrase": "Let's visit going to gym with cafe", "label": "Mixed"}
+{"phrase": "Planning trip to office building with rooftop garden", "label": "Mixed"}
+{"phrase": "Can we ironing?", "label": "Indoor"}
+{"phrase": "Let's playing cornhole outside", "label": "Outdoor"}
+{"phrase": "Taking family to cultural center", "label": "Mixed"}
+{"phrase": "Adventure of hang gliding", "label": "Outdoor"}
+{"phrase": "Preparing for surfing", "label": "Outdoor"}
+{"phrase": "I'm industrial park", "label": "Mixed"}
+{"phrase": "Planning to attending workshop", "label": "Indoor"}
+{"phrase": "I'm event space mixed", "label": "Mixed"}
+{"phrase": "Time for theme park", "label": "Mixed"}
+{"phrase": "Going to shopping mall in the building", "label": "Indoor"}
+{"phrase": "Starting to working", "label": "Indoor"}
+{"phrase": "I'm involvement", "label": "Unclear"}
+{"phrase": "Should I planning?", "label": "Unclear"}
+{"phrase": "Adventure of trimming hedges", "label": "Outdoor"}
+{"phrase": "Exploring cafe with patio", "label": "Mixed"}
+{"phrase": "Need to social gathering", "label": "Unclear"}
+{"phrase": "Let me making decision", "label": "Unclear"}
+{"phrase": "Starting to watching", "label": "Indoor"}
+{"phrase": "Taking a trip for inline skating", "label": "Outdoor"}
+{"phrase": "Heading out for kitesurfing", "label": "Outdoor"}
+{"phrase": "Planning an outing for boogie boarding", "label": "Outdoor"}
+{"phrase": "Doing some having breakfast", "label": "Indoor"}
+{"phrase": "Planning an outing for nature photography", "label": "Outdoor"}
+{"phrase": "I'm attend museum", "label": "Indoor"}
+{"phrase": "Planning an outing for hot air ballooning", "label": "Outdoor"}
+{"phrase": "I decided to go clerical work", "label": "Indoor"}
+{"phrase": "Going to watching theater in store", "label": "Indoor"}
+{"phrase": "Just arrived at shipping facility", "label": "Mixed"}
+{"phrase": "Going to basketball in nature", "label": "Outdoor"}
+{"phrase": "Going to commuting journey", "label": "Mixed"}
+{"phrase": "Let's go attending fair", "label": "Outdoor"}
+{"phrase": "Attend conference is fun", "label": "Indoor"}
+{"phrase": "Let's visit convention center", "label": "Mixed"}
+{"phrase": "Going to carpentry in the building", "label": "Indoor"}
+{"phrase": "Heading to recreation center", "label": "Mixed"}
+{"phrase": "Want to trail running?", "label": "Outdoor"}
+{"phrase": "Time for car waiting", "label": "Mixed"}
+{"phrase": "Thinking about exploring", "label": "Unclear"}
+{"phrase": "Spending time at hospital with outdoor garden", "label": "Mixed"}
+{"phrase": "I'm involvement", "label": "Unclear"}
+{"phrase": "Planning an outing for outdoor sketching", "label": "Outdoor"}
+{"phrase": "Let's attend planetarium together", "label": "Indoor"}
+{"phrase": "Planning an outing for outdoor painting", "label": "Outdoor"}
+{"phrase": "I'm trimming hedges", "label": "Outdoor"}
+{"phrase": "Let's go bouldering outdoor", "label": "Outdoor"}
+{"phrase": "Planning trip to shopping complex", "label": "Mixed"}
+{"phrase": "Visiting market with indoor/outdoor", "label": "Mixed"}
+{"phrase": "I decided to go cooking", "label": "Indoor"}
+{"phrase": "Going to dining restaurant in the building", "label": "Indoor"}
+{"phrase": "I decided to go glass blowing", "label": "Indoor"}
+{"phrase": "Let's go visit herb garden indoor", "label": "Indoor"}
+{"phrase": "Currently social interaction", "label": "Unclear"}
+{"phrase": "Just responsibility", "label": "Unclear"}
+{"phrase": "Just arrived at cafe with patio", "label": "Mixed"}
+{"phrase": "Let's visit bar with rooftop", "label": "Mixed"}
+{"phrase": "Let's go landscaping", "label": "Outdoor"}
+{"phrase": "I want to practicing guitar", "label": "Indoor"}
+{"phrase": "Attending lecture is fun", "label": "Indoor"}
+{"phrase": "Heading to pub with garden", "label": "Mixed"}
+{"phrase": "I want to dining cafe", "label": "Indoor"}
+{"phrase": "Doing analyzing", "label": "Unclear"}
+{"phrase": "Let's visit going to gym with cafe", "label": "Mixed"}
+{"phrase": "Let's go outdoor drawing", "label": "Outdoor"}
+{"phrase": "I'm meditation time", "label": "Unclear"}
+{"phrase": "Thinking about exploring", "label": "Unclear"}
+{"phrase": "I'm sleeping", "label": "Unclear"}
+{"phrase": "Eating snacks is fun", "label": "Indoor"}
+{"phrase": "Thinking about evening routine", "label": "Unclear"}
+{"phrase": "Thinking about starting something", "label": "Unclear"}
+{"phrase": "I'm hospital with outdoor garden", "label": "Mixed"}
+{"phrase": "Day at hotel conference", "label": "Mixed"}
+{"phrase": "I decided to go quilting", "label": "Indoor"}
+{"phrase": "Currently at retreat with nature", "label": "Mixed"}
+{"phrase": "I love walking", "label": "Outdoor"}
+{"phrase": "Heading out for outdoor painting", "label": "Outdoor"}
+{"phrase": "I'm tool shed building", "label": "Outdoor"}
+{"phrase": "Planning an outing for crop harvesting", "label": "Outdoor"}
+{"phrase": "I love racquetball", "label": "Outdoor"}
+{"phrase": "Let's go attend exhibition", "label": "Indoor"}
+{"phrase": "Let me resuming something", "label": "Unclear"}
+{"phrase": "Maybe stopping something", "label": "Unclear"}
+{"phrase": "Thinking about social gathering", "label": "Unclear"}
+{"phrase": "That's popping in", "label": "Unclear"}
+{"phrase": "Preparing for cattle drive", "label": "Outdoor"}
+{"phrase": "Just arrived at tech campus", "label": "Mixed"}
+{"phrase": "That's checking out", "label": "Unclear"}
+{"phrase": "Doing some dining restaurant", "label": "Indoor"}
+{"phrase": "Want to livestock management?", "label": "Outdoor"}
+{"phrase": "Currently having lunch", "label": "Indoor"}
+{"phrase": "Laying stone path is exciting", "label": "Outdoor"}
+{"phrase": "Heading to car waiting", "label": "Mixed"}
+{"phrase": "I love sailing", "label": "Outdoor"}
+{"phrase": "That's afternoon activity", "label": "Unclear"}
+{"phrase": "Let's outdoor yoga outside", "label": "Outdoor"}
+{"phrase": "Just planning", "label": "Unclear"}
+{"phrase": "Planning to administrative work", "label": "Indoor"}
+{"phrase": "Should I task?", "label": "Unclear"}
+{"phrase": "That's social interaction", "label": "Unclear"}
+{"phrase": "Going to attend zoo indoor section in attic", "label": "Indoor"}
+{"phrase": "I love roller hockey", "label": "Outdoor"}
+{"phrase": "Currently playing video games", "label": "Indoor"}
+{"phrase": "Want to outdoor ceremony?", "label": "Outdoor"}
+{"phrase": "Let's go exercising on treadmill", "label": "Indoor"}
+{"phrase": "Just finished corporate presentation", "label": "Indoor"}
+{"phrase": "Adventure at startup incubator", "label": "Mixed"}
+{"phrase": "Enjoying trail riding", "label": "Outdoor"}
+{"phrase": "Going to pub with garden", "label": "Mixed"}
+{"phrase": "Just got back from pet exercise", "label": "Outdoor"}
+{"phrase": "Doing vague objective", "label": "Unclear"}
+{"phrase": "I decided to go having lunch", "label": "Indoor"}
+{"phrase": "Want to hay baling?", "label": "Outdoor"}
+{"phrase": "Planning to ironing", "label": "Indoor"}
+{"phrase": "Enjoying nature walk", "label": "Outdoor"}
+{"phrase": "That's responsibility", "label": "Unclear"}
+{"phrase": "Heading to fixing plumbing in arcade", "label": "Indoor"}
+{"phrase": "Taking family to truck stop visit", "label": "Mixed"}
+{"phrase": "Starting to electrical work", "label": "Indoor"}
+{"phrase": "Currently at transfer activity", "label": "Mixed"}
+{"phrase": "Exploring hotel conference", "label": "Mixed"}
+{"phrase": "Taking family to hospital with outdoor garden", "label": "Mixed"}
+{"phrase": "Thinking about transitioning", "label": "Unclear"}
+{"phrase": "Exploring truck stop visit", "label": "Mixed"}
+{"phrase": "It's time to task", "label": "Unclear"}
+{"phrase": "Let's car show outside", "label": "Outdoor"}
+{"phrase": "Enjoying cultural center", "label": "Mixed"}
+{"phrase": "Let's fishing outside", "label": "Outdoor"}
+{"phrase": "Spending time at restaurant with outdoor seating", "label": "Mixed"}
+{"phrase": "Let's office work together", "label": "Indoor"}
+{"phrase": "Just got back from installing outdoor lighting", "label": "Outdoor"}
+{"phrase": "Adventure at medical facility with parking", "label": "Mixed"}
+{"phrase": "I decided to go dancing indoors", "label": "Indoor"}
+{"phrase": "Maybe attending", "label": "Unclear"}
+{"phrase": "I want to glass blowing", "label": "Indoor"}
+{"phrase": "Adventure of installing outdoor lighting", "label": "Outdoor"}
+{"phrase": "Taking a trip for mowing lawn", "label": "Outdoor"}
+{"phrase": "Currently embroidery", "label": "Indoor"}
+{"phrase": "Doing some working", "label": "Indoor"}
+{"phrase": "Spending time at distribution center", "label": "Mixed"}
+{"phrase": "Adventure at winery with tour areas", "label": "Mixed"}
+{"phrase": "Let's visit transfer time activity", "label": "Mixed"}
+{"phrase": "Let me something productive", "label": "Unclear"}
+{"phrase": "Taking family to train station", "label": "Mixed"}
+{"phrase": "I decided to go reading books", "label": "Indoor"}
+{"phrase": "I enjoy embroidery", "label": "Indoor"}
+{"phrase": "Taking family to community center", "label": "Mixed"}
+{"phrase": "It's time to odd jobs", "label": "Unclear"}
+{"phrase": "I'm routine", "label": "Unclear"}
+{"phrase": "Time for bus station", "label": "Mixed"}
+{"phrase": "Preparing for stargazing", "label": "Outdoor"}
+{"phrase": "Let's go retail store", "label": "Indoor"}
+{"phrase": "Just got back from off-road racing", "label": "Outdoor"}
+{"phrase": "Heading to restaurant with outdoor seating", "label": "Mixed"}
+{"phrase": "Day at shopping mall with outdoor plaza", "label": "Mixed"}
+{"phrase": "Let me thinking", "label": "Unclear"}
+{"phrase": "Taking family to entertainment district", "label": "Mixed"}
+{"phrase": "Spending time at wedding venue indoor/outdoor", "label": "Mixed"}
+{"phrase": "Heading to staff meeting inside", "label": "Indoor"}
+{"phrase": "Heading to painting in warehouse", "label": "Indoor"}
+{"phrase": "Exploring ferry terminal", "label": "Mixed"}
+{"phrase": "I'm outdoor drawing", "label": "Outdoor"}
+{"phrase": "Currently quilting", "label": "Indoor"}
+{"phrase": "Just arrived at rest stop activity", "label": "Mixed"}
+{"phrase": "Planning to thinking", "label": "Unclear"}
+{"phrase": "Planning trip to car waiting", "label": "Mixed"}
+{"phrase": "Let me visiting", "label": "Unclear"}
+{"phrase": "Currently at going to gym with cafe", "label": "Mixed"}
+{"phrase": "I love trail riding", "label": "Outdoor"}
+{"phrase": "I want to attend museum", "label": "Indoor"}
+{"phrase": "Just engagement", "label": "Unclear"}
+{"phrase": "Enjoying retreat center", "label": "Mixed"}
+{"phrase": "Enjoying school campus", "label": "Mixed"}
+{"phrase": "Spending time at market with indoor/outdoor", "label": "Mixed"}
+{"phrase": "Taking a trip for mountain biking", "label": "Outdoor"}
+{"phrase": "Visiting convention center", "label": "Mixed"}
+{"phrase": "Adventure of composting", "label": "Outdoor"}
+{"phrase": "I'm painting", "label": "Indoor"}
+{"phrase": "Doing ongoing", "label": "Unclear"}
+{"phrase": "I'm outdoor tai chi", "label": "Outdoor"}
+{"phrase": "That's alone time", "label": "Unclear"}
+{"phrase": "Planning to metalworking", "label": "Indoor"}
+{"phrase": "Spending time at performance venue", "label": "Mixed"}
+{"phrase": "I want to consulting", "label": "Indoor"}
+{"phrase": "Let's boogie boarding outside", "label": "Outdoor"}
+{"phrase": "Planning to reading books", "label": "Indoor"}
+{"phrase": "Outdoor gym is exciting", "label": "Outdoor"}
+{"phrase": "Just pending", "label": "Unclear"}
+{"phrase": "Starting to painting", "label": "Indoor"}
+{"phrase": "Just finished browsing library", "label": "Indoor"}
+{"phrase": "Practicing guitar is fun", "label": "Indoor"}
+{"phrase": "Want to hobby yet to be defined?", "label": "Unclear"}
+{"phrase": "Exploring school campus", "label": "Mixed"}
+{"phrase": "Just arrived at convention center", "label": "Mixed"}
+{"phrase": "That's waiting", "label": "Unclear"}
+{"phrase": "Starting to ceramics", "label": "Indoor"}
+{"phrase": "Heading to staff meeting under shelter", "label": "Indoor"}
+{"phrase": "Going to welding in arcade", "label": "Indoor"}
+{"phrase": "I love hang gliding", "label": "Outdoor"}
+{"phrase": "Let's welding together", "label": "Indoor"}
+{"phrase": "Planning trip to cinema multiplex", "label": "Mixed"}
+{"phrase": "Currently at sports complex", "label": "Mixed"}
+{"phrase": "Let's visit corporate park", "label": "Mixed"}
+{"phrase": "Some uncertain activity", "label": "Unclear"}
+{"phrase": "Enjoying weeding", "label": "Outdoor"}
+{"phrase": "Want to basketball?", "label": "Outdoor"}
+{"phrase": "Currently street market", "label": "Outdoor"}
+{"phrase": "Going to attending meeting indoors", "label": "Indoor"}
+{"phrase": "Taking a trip for outdoor exercise class", "label": "Outdoor"}
+{"phrase": "Adventure at concert hall with grounds", "label": "Mixed"}
+{"phrase": "Preparing for skateboarding", "label": "Outdoor"}
+{"phrase": "Visiting bus stop waiting", "label": "Mixed"}
+{"phrase": "Planning an outing for installing outdoor lighting", "label": "Outdoor"}
+{"phrase": "Taking a trip for installing outdoor lighting", "label": "Outdoor"}
+{"phrase": "Let's softball outside", "label": "Outdoor"}
+{"phrase": "Adventure of trail riding", "label": "Outdoor"}
+{"phrase": "Spending time at college grounds", "label": "Mixed"}
+{"phrase": "Preparing for cattle drive", "label": "Outdoor"}
+{"phrase": "Taking a trip for roller hockey", "label": "Outdoor"}
+{"phrase": "Want to napping?", "label": "Unclear"}
+{"phrase": "I decided to go organizing", "label": "Indoor"}
+{"phrase": "Going to attend fair in the house", "label": "Indoor"}
+{"phrase": "Should I wasting time?", "label": "Unclear"}
+{"phrase": "Let me social interaction", "label": "Unclear"}
+{"phrase": "Doing odd jobs", "label": "Unclear"}
+{"phrase": "Let's go park exercise", "label": "Outdoor"}
+{"phrase": "Just arrived at bar with rooftop", "label": "Mixed"}
+{"phrase": "Adventure of cattle drive", "label": "Outdoor"}
+{"phrase": "Heading to retreat center", "label": "Mixed"}
+{"phrase": "Some leisure time", "label": "Unclear"}
+{"phrase": "Maybe leisure time", "label": "Unclear"}
+{"phrase": "Let's go attending festival", "label": "Outdoor"}
+{"phrase": "Heading to administrative work at work", "label": "Indoor"}
+{"phrase": "Let's go hairdressing salon", "label": "Indoor"}
+{"phrase": "Taking family to ferry terminal", "label": "Mixed"}
+{"phrase": "Just short-term", "label": "Unclear"}
+{"phrase": "Planning to passing time", "label": "Unclear"}
+{"phrase": "Need to resuming something", "label": "Unclear"}
+{"phrase": "Planning to attend art gallery", "label": "Indoor"}
+{"phrase": "It's time to something fun", "label": "Unclear"}
+{"phrase": "Preparing for rock climbing", "label": "Outdoor"}
+{"phrase": "Taking family to truck stop visit", "label": "Mixed"}
+{"phrase": "Planning to massage therapy", "label": "Indoor"}
+{"phrase": "Thinking about in progress", "label": "Unclear"}
+{"phrase": "Currently at shopping complex", "label": "Mixed"}
+{"phrase": "Going to dining cafe in covered area", "label": "Indoor"}
+{"phrase": "Want to trail riding?", "label": "Outdoor"}
+{"phrase": "Planning to attend art gallery", "label": "Indoor"}
+{"phrase": "Going to hotel conference", "label": "Mixed"}
+{"phrase": "Going to distribution center", "label": "Mixed"}
+{"phrase": "Want to hunting?", "label": "Outdoor"}
+{"phrase": "Adventure at retreat with nature", "label": "Mixed"}
+{"phrase": "Starting to corporate presentation", "label": "Indoor"}
+{"phrase": "Planning to booked", "label": "Unclear"}
+{"phrase": "Planning to nighttime activity", "label": "Unclear"}
+{"phrase": "Taking family to amusement park", "label": "Mixed"}
+{"phrase": "Let me engagement", "label": "Unclear"}
+{"phrase": "Adventure at exposition hall", "label": "Mixed"}
+{"phrase": "Adventure at truck stop visit", "label": "Mixed"}
+{"phrase": "Need to staying active", "label": "Unclear"}
+{"phrase": "Can we painting?", "label": "Indoor"}
+{"phrase": "Adventure of parkour outdoor", "label": "Outdoor"}
+{"phrase": "I'm gardening", "label": "Outdoor"}
+{"phrase": "Preparing for attending sports event", "label": "Outdoor"}
+{"phrase": "I enjoy massage therapy", "label": "Indoor"}
+{"phrase": "I'm boogie boarding", "label": "Outdoor"}
+{"phrase": "Heading to writing in shop", "label": "Indoor"}
+{"phrase": "Just arrived at convention center", "label": "Mixed"}
+{"phrase": "Currently scuba diving", "label": "Outdoor"}
+{"phrase": "Preparing for surfing", "label": "Outdoor"}
+{"phrase": "Need to coffee break", "label": "Unclear"}
+{"phrase": "Enjoying theater complex", "label": "Mixed"}
+{"phrase": "I love skateboarding", "label": "Outdoor"}
+{"phrase": "I'm spa services", "label": "Indoor"}
+{"phrase": "I want to attend aquarium", "label": "Indoor"}
+{"phrase": "Currently attend conference", "label": "Indoor"}
+{"phrase": "Starting to watching movies", "label": "Indoor"}
+{"phrase": "Going to rugby field on beach", "label": "Outdoor"}
+{"phrase": "Currently at office building with rooftop garden", "label": "Mixed"}
+{"phrase": "Let's windsurfing outside", "label": "Outdoor"}
+{"phrase": "Going to entertainment district", "label": "Mixed"}
+{"phrase": "I'm trade fair venue", "label": "Mixed"}
+{"phrase": "I enjoy training session", "label": "Indoor"}
+{"phrase": "Planning an outing for surfing", "label": "Outdoor"}
+{"phrase": "Want to napping?", "label": "Unclear"}
+{"phrase": "Just got back from hiking", "label": "Outdoor"}
+{"phrase": "Planning to thinking", "label": "Unclear"}
+{"phrase": "Renovating kitchen is fun", "label": "Indoor"}
+{"phrase": "Surfing is exciting", "label": "Outdoor"}
+{"phrase": "Doing family time", "label": "Unclear"}
+{"phrase": "Heading out for attending parade", "label": "Outdoor"}
+{"phrase": "Going to resuming something", "label": "Unclear"}
+{"phrase": "Maybe temporary", "label": "Unclear"}
+{"phrase": "Some doing things", "label": "Unclear"}
+{"phrase": "Adventure at hotel lobby", "label": "Mixed"}
+{"phrase": "I decided to go attend aquarium", "label": "Indoor"}
+{"phrase": "Just got back from building fence", "label": "Outdoor"}
+{"phrase": "That's ongoing", "label": "Unclear"}
+{"phrase": "Doing uncertain activity", "label": "Unclear"}
+{"phrase": "Just arrived at pub with garden", "label": "Mixed"}
+{"phrase": "I'm staying active", "label": "Unclear"}
+{"phrase": "Let's go kitesurfing", "label": "Outdoor"}
+{"phrase": "Adventure at going to gym with cafe", "label": "Mixed"}
+{"phrase": "I'm clerical work", "label": "Indoor"}
+{"phrase": "Just finished ironing", "label": "Indoor"}
+{"phrase": "Some stopping something", "label": "Unclear"}
+{"phrase": "Maybe something productive", "label": "Unclear"}
+{"phrase": "Want to habit?", "label": "Unclear"}
+{"phrase": "Need to being active", "label": "Unclear"}
+{"phrase": "Going to train station", "label": "Mixed"}
+{"phrase": "I decided to go spa services", "label": "Indoor"}
+{"phrase": "Currently standby", "label": "Unclear"}
+{"phrase": "Planning an outing for caving", "label": "Outdoor"}
+{"phrase": "Let's glass blowing together", "label": "Indoor"}
+{"phrase": "Can we playing chess?", "label": "Indoor"}
+{"phrase": "Doing some stretching", "label": "Indoor"}
+{"phrase": "Taking family to going to gym with cafe", "label": "Mixed"}
+{"phrase": "I love roller hockey", "label": "Outdoor"}
+{"phrase": "Heading to startup incubator", "label": "Mixed"}
+{"phrase": "Let's go playing chess", "label": "Indoor"}
+{"phrase": "Need to errand", "label": "Unclear"}
+{"phrase": "Currently cooking", "label": "Indoor"}
+{"phrase": "Just popping in", "label": "Unclear"}
+{"phrase": "Day at retreat with nature", "label": "Mixed"}
+{"phrase": "Want to family time?", "label": "Unclear"}
+{"phrase": "Time for amusement park", "label": "Mixed"}
+{"phrase": "Going to security guard station in arcade", "label": "Indoor"}
+{"phrase": "Let's go jogging", "label": "Outdoor"}
+{"phrase": "Time for retreat center", "label": "Mixed"}
+{"phrase": "Planning to exercising on treadmill", "label": "Indoor"}
+{"phrase": "Planning to contemplating", "label": "Unclear"}
+{"phrase": "Heading to attend fair in warehouse", "label": "Indoor"}
+{"phrase": "Spending time at pub with garden", "label": "Mixed"}
+{"phrase": "I decided to go watching movies", "label": "Indoor"}
+{"phrase": "Let's ceramics together", "label": "Indoor"}
+{"phrase": "Taking family to rest stop activity", "label": "Mixed"}
+{"phrase": "Let's visit travel between locations", "label": "Mixed"}
+{"phrase": "Need to scheduled", "label": "Unclear"}
+{"phrase": "Planning to making decision", "label": "Unclear"}
+{"phrase": "Attending seminar is fun", "label": "Indoor"}
+{"phrase": "Time for university campus", "label": "Mixed"}
+{"phrase": "Just engagement", "label": "Unclear"}
+{"phrase": "Just finished playing video games", "label": "Indoor"}
+{"phrase": "Adventure of badminton outdoor", "label": "Outdoor"}
+{"phrase": "Outdoor construction is exciting", "label": "Outdoor"}
+{"phrase": "Organizing is fun", "label": "Indoor"}
+{"phrase": "Going to sleeping", "label": "Unclear"}
+{"phrase": "Can we attend museum?", "label": "Indoor"}
+{"phrase": "Taking a trip for kitesurfing", "label": "Outdoor"}
+{"phrase": "Need to social gathering", "label": "Unclear"}
+{"phrase": "I enjoy eating snacks", "label": "Indoor"}
+{"phrase": "Farming work is exciting", "label": "Outdoor"}
+{"phrase": "Planning trip to office complex", "label": "Mixed"}
+{"phrase": "I'm attending movie premiere", "label": "Indoor"}
+{"phrase": "Doing on hold", "label": "Unclear"}
+{"phrase": "Time for medical facility with parking", "label": "Mixed"}
+{"phrase": "I'm resuming something", "label": "Unclear"}
+{"phrase": "Thinking about pausing", "label": "Unclear"}
+{"phrase": "I'm clerical work", "label": "Indoor"}
+{"phrase": "I decided to go playing board games", "label": "Indoor"}
+{"phrase": "Fixing plumbing is fun", "label": "Indoor"}
+{"phrase": "Adventure of axe throwing range", "label": "Outdoor"}
+{"phrase": "I'm parking lot waiting", "label": "Mixed"}
+{"phrase": "Doing passing through", "label": "Unclear"}
+{"phrase": "Just finished sculpting", "label": "Indoor"}
+{"phrase": "Let me on hold", "label": "Unclear"}
+{"phrase": "Going to something productive", "label": "Unclear"}
+{"phrase": "Shopping department store is fun", "label": "Indoor"}
+{"phrase": "Spending time at event space mixed", "label": "Mixed"}
+{"phrase": "Let's go racquetball", "label": "Outdoor"}
+{"phrase": "Going to tea time", "label": "Unclear"}
+{"phrase": "It's time to passing time", "label": "Unclear"}
+{"phrase": "Taking family to bus station", "label": "Mixed"}
+{"phrase": "Enjoying bouldering outdoor", "label": "Outdoor"}
+{"phrase": "Just got back from outdoor sculpture", "label": "Outdoor"}
+{"phrase": "I love go-kart racing", "label": "Outdoor"}
+{"phrase": "Heading out for outdoor meditation", "label": "Outdoor"}
+{"phrase": "Want to exploring?", "label": "Unclear"}
+{"phrase": "Some starting something", "label": "Unclear"}
+{"phrase": "Taking family to truck stop visit", "label": "Mixed"}
+{"phrase": "I want to eating snacks", "label": "Indoor"}
+{"phrase": "I'm parking lot waiting", "label": "Mixed"}
+{"phrase": "Heading to attend zoo indoor section in basement", "label": "Indoor"}
+{"phrase": "I'm dropping by", "label": "Unclear"}

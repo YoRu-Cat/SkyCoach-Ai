@@ -266,7 +266,14 @@ async def predict_activity_type(request: dict) -> dict:
             raise ValueError("Phrase cannot be empty")
 
         ml_system = get_ml_system()
-        return ml_system.predict(phrase)
+        result = ml_system.predict(phrase)
+
+        # Backward-compatible aliases for clients expecting legacy field names.
+        return {
+            **result,
+            "predicted_label": result.get("label"),
+            "predicted_confidence": result.get("confidence"),
+        }
     except FileNotFoundError as e:
         raise HTTPException(
             status_code=503,
@@ -286,8 +293,8 @@ async def submit_prediction_feedback(request: dict) -> dict:
         from ml_system.api import get_ml_system
         
         phrase = request.get("phrase", "")
-        predicted_label = request.get("predicted_label", "")
-        predicted_confidence = request.get("predicted_confidence", 0.0)
+        predicted_label = request.get("predicted_label") or request.get("label", "")
+        predicted_confidence = request.get("predicted_confidence", request.get("confidence", 0.0))
         corrected_label = request.get("corrected_label", "")
         
         if not all([phrase, predicted_label, corrected_label]):
