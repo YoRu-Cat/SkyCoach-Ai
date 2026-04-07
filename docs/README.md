@@ -8,6 +8,18 @@ Complete reference documentation for the SkyCoach AI system.
 
 System design, deployment architecture, request-response flow, component relationships, decision matrices, and technology stack.
 
+#### [🤖 ML System Overview](architecture/ml_system/overview.md)
+
+Component-based ML architecture overview for training, inference, and continuous learning.
+
+#### [🧩 ML System Integration](architecture/ml_system/integration.md)
+
+Step-by-step backend integration guide for the unified `ml_system` API.
+
+#### [⚡ ML System Quick Reference](architecture/ml_system/quick_reference.md)
+
+Fast operational reference for setup, common API calls, and troubleshooting.
+
 ### Backend Services
 
 #### [🧠 AI Engine](backend/ai_engine.md)
@@ -133,7 +145,11 @@ Comprehensive reference for all dataclasses, type definitions, and schemas.
 /docs/
 ├── README.md (this file)
 ├── architecture/
-│   └── system_design.md
+│   ├── system_design.md
+│   └── ml_system/
+│       ├── overview.md
+│       ├── integration.md
+│       └── quick_reference.md
 ├── backend/
 │   ├── ai_engine.md
 │   ├── auto_judge.md

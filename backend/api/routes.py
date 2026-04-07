@@ -257,38 +257,16 @@ async def health_check():
 
 @router.post("/predict")
 async def predict_activity_type(request: dict) -> dict:
-    """Phase 5: Classify activity as Indoor/Outdoor/Mixed/Unclear using trained ML model."""
+    """Classify activity as Indoor/Outdoor/Mixed/Unclear using unified ML system."""
     try:
-        from mlops.phase5.inference.inference import PredictionEngine
-        from mlops.phase5.inference.schema import PredictionRequest
+        from ml_system.api import get_ml_system
         
         phrase = request.get("phrase", "")
         if not phrase or not phrase.strip():
             raise ValueError("Phrase cannot be empty")
-        
-        artifacts_dir = Path("mlops/phase5/artifacts")
-        if not artifacts_dir.exists():
-            raise FileNotFoundError(
-                f"ML artifacts not found. Run: python mlops/phase5/run_phase5.py"
-            )
-        
-        engine = PredictionEngine(
-            tokenizer_path=artifacts_dir / "phase4_tokenizer.json",
-            model_path=artifacts_dir / "phase4_champion_model.json",
-            report_path=artifacts_dir / "phase4_training_report.json",
-            min_confidence=0.72,
-        )
-        
-        pred_request = PredictionRequest(phrase=phrase)
-        response = engine.predict(pred_request)
-        
-        return {
-            "label": response.label,
-            "confidence": response.confidence,
-            "rationale": response.rationale,
-            "model": response.model,
-            "all_scores": response.all_scores,
-        }
+
+        ml_system = get_ml_system()
+        return ml_system.predict(phrase)
     except FileNotFoundError as e:
         raise HTTPException(
             status_code=503,
@@ -303,9 +281,9 @@ async def predict_activity_type(request: dict) -> dict:
 
 @router.post("/feedback")
 async def submit_prediction_feedback(request: dict) -> dict:
-    """Phase 6: Record user feedback to a model prediction for continuous learning."""
+    """Record user feedback to a model prediction for continuous learning."""
     try:
-        from mlops.phase6.learning_orchestrator import ContinuousLearningEngine
+        from ml_system.api import get_ml_system
         
         phrase = request.get("phrase", "")
         predicted_label = request.get("predicted_label", "")
@@ -314,33 +292,25 @@ async def submit_prediction_feedback(request: dict) -> dict:
         
         if not all([phrase, predicted_label, corrected_label]):
             raise ValueError("Missing required fields: phrase, predicted_label, corrected_label")
-        
-        engine = ContinuousLearningEngine(base_dir="mlops/phase6/learning")
-        engine.record_prediction_feedback(
+
+        ml_system = get_ml_system()
+        return ml_system.submit_feedback(
             phrase=phrase,
-            predicted_label=predicted_label,
-            predicted_confidence=float(predicted_confidence),
-            corrected_label=corrected_label,
+            predicted=predicted_label,
+            confidence=float(predicted_confidence),
+            corrected=corrected_label,
         )
-        
-        status = engine.get_learning_status()
-        return {
-            "status": "feedback_recorded",
-            "total_feedback": status["feedback_records"],
-            "should_retrain": status["should_retrain"],
-        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Feedback submission failed: {str(e)}")
 
 
 @router.get("/learning-status")
 async def get_learning_status() -> dict:
-    """Phase 6: Get continuous learning system status."""
+    """Get continuous learning system status."""
     try:
-        from mlops.phase6.learning_orchestrator import ContinuousLearningEngine
+        from ml_system.api import get_ml_system
         
-        engine = ContinuousLearningEngine(base_dir="mlops/phase6/learning")
-        status = engine.get_learning_status()
+        status = get_ml_system().get_status()
         
         return {
             "feedback_records": status["feedback_records"],

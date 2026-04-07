@@ -1,6 +1,0 @@
-{"phrase":"going to uni","label":"Outdoor","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:00Z","split_hint":"train"}
-{"phrase":"Going to UNI","label":"Outdoor","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:01Z","split_hint":"train"}
-{"phrase":"play football outside","label":"Outdoor","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:02Z","split_hint":"train"}
-{"phrase":"office meeting","label":"Indoor","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by-sa","collected_at":"2026-04-07T00:00:03Z","split_hint":"val"}
-{"phrase":"study at home","label":"Indoor","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by-sa","collected_at":"2026-04-07T00:00:04Z","split_hint":"val"}
-{"phrase":"idk","label":"Unclear","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:05Z","split_hint":"train"}

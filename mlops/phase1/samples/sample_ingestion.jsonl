@@ -1,5 +1,0 @@
-{"phrase":"going to uni","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:00Z","split_hint":"train"}
-{"phrase":"going to UNI","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:01Z","split_hint":"train"}
-{"phrase":"play football outside","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:02Z","split_hint":"train"}
-{"phrase":"??","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by","collected_at":"2026-04-07T00:00:03Z","split_hint":"train"}
-{"phrase":"office meeting","language":"en","source_name":"sample_web_dump","source_url":"https://example.org/dataset/phrases","license":"cc-by-sa","collected_at":"2026-04-07T00:00:04Z","split_hint":"val"}
