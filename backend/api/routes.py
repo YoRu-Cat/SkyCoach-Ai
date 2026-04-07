@@ -301,6 +301,61 @@ async def predict_activity_type(request: dict) -> dict:
         )
 
 
+@router.post("/feedback")
+async def submit_prediction_feedback(request: dict) -> dict:
+    """Phase 6: Record user feedback to a model prediction for continuous learning."""
+    try:
+        from mlops.phase6.learning_orchestrator import ContinuousLearningEngine
+        
+        phrase = request.get("phrase", "")
+        predicted_label = request.get("predicted_label", "")
+        predicted_confidence = request.get("predicted_confidence", 0.0)
+        corrected_label = request.get("corrected_label", "")
+        
+        if not all([phrase, predicted_label, corrected_label]):
+            raise ValueError("Missing required fields: phrase, predicted_label, corrected_label")
+        
+        engine = ContinuousLearningEngine(base_dir="mlops/phase6/learning")
+        engine.record_prediction_feedback(
+            phrase=phrase,
+            predicted_label=predicted_label,
+            predicted_confidence=float(predicted_confidence),
+            corrected_label=corrected_label,
+        )
+        
+        status = engine.get_learning_status()
+        return {
+            "status": "feedback_recorded",
+            "total_feedback": status["feedback_records"],
+            "should_retrain": status["should_retrain"],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Feedback submission failed: {str(e)}")
+
+
+@router.get("/learning-status")
+async def get_learning_status() -> dict:
+    """Phase 6: Get continuous learning system status."""
+    try:
+        from mlops.phase6.learning_orchestrator import ContinuousLearningEngine
+        
+        engine = ContinuousLearningEngine(base_dir="mlops/phase6/learning")
+        status = engine.get_learning_status()
+        
+        return {
+            "feedback_records": status["feedback_records"],
+            "uncertain_predictions": status["uncertain_predictions"],
+            "total_new_data": status["total_new_data"],
+            "should_retrain": status["should_retrain"],
+            "active_model_version": status["active_model_version"],
+            "active_model_test_f1": status["active_model_test_f1"],
+            "model_versions_count": status["model_versions_count"],
+            "drift_alert_count": status["drift_alert_count"],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Learning status query failed: {str(e)}")
+
+
 @router.post("/chat-assistant", response_model=ChatAssistantResponse)
 async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse:
     try:
