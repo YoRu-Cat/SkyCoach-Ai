@@ -57,12 +57,24 @@ class MLSystem:
                 all_scores=response.all_scores,
             )
         
+        ranked_scores = sorted(
+            response.all_scores.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        top_suggestions = [
+            {"label": label, "confidence": score}
+            for label, score in ranked_scores
+            if label != "Unclear"
+        ][:2]
+
         return {
             "label": response.label,
             "confidence": response.confidence,
             "rationale": response.rationale,
             "model": response.model,
             "all_scores": response.all_scores,
+            "suggestions": top_suggestions,
         }
 
     def submit_feedback(self, phrase: str, predicted: str, confidence: float, corrected: str) -> dict:

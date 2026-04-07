@@ -43,6 +43,12 @@ export default function ActivityInput({
     "doing homework",
     "jogging",
     "cycling",
+    "plaiyng soccr in prk",
+    "readng buk at hom",
+    "shopping mall with restaurant",
+    "thinking about something",
+    "cooking dinner in kitchen",
+    "hiking in mountain trail",
   ];
 
   const detectLocation = () => {

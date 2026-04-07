@@ -52,7 +52,7 @@ export const useTaskStore = () => {
       const updates = await Promise.all(
         tasks.map(async (task) => {
           try {
-            const result = await analyzeTask(task.title, true);
+            const result = await analyzeTask(task.title);
             const normalized = result.classification.toLowerCase();
             const category: TaskCategory =
               normalized === "outdoor" ? "outdoor" : "indoor";

@@ -47,6 +47,7 @@ ACTIVITY_CORPUS = {
     "Indoor": [
         "wedding ceremony", "wedding", "attending wedding",
         "birthday party", "anniversary celebration", "family gathering",
+        "going on a date", "date night", "dinner date", "coffee date", "romantic date",
         "office meeting", "business meeting", "conference", "seminar", "classroom session",
         "doing homework", "homework",
         "studying", "study", "studying for exam",
@@ -93,6 +94,12 @@ ALL_ACTIVITIES = [
     activity for activities in ACTIVITY_CORPUS.values() for activity in activities
 ]
 
+STOPWORDS = {
+    "a", "an", "and", "at", "for", "from", "go", "going", "in", "into",
+    "is", "it", "my", "of", "on", "or", "the", "to", "with", "want",
+    "plan", "doing", "do", "need", "some", "something",
+}
+
 
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9\s]", " ", text.lower())).strip()
@@ -100,6 +107,10 @@ def _normalize(text: str) -> str:
 
 def _tokenize(text: str) -> set[str]:
     return set(re.findall(r"\b[a-z]+\b", _normalize(text)))
+
+
+def _content_tokens(text: str) -> set[str]:
+    return {token for token in _tokenize(text) if len(token) >= 3 and token not in STOPWORDS}
 
 
 def _phrase_variants(label: str, phrase: str) -> list[str]:
@@ -215,11 +226,12 @@ def classify_with_dictionary(
     runtime_context = _fetch_runtime_slang_context(normalized_input) if use_web_enrichment else ""
     enriched_input = _normalize(f"{normalized_input} {runtime_context}")
     input_tokens = _tokenize(enriched_input)
+    content_input_tokens = _content_tokens(enriched_input)
     best_label = "Indoor"
     best_phrase: Optional[str] = None
     best_score = 0.0
 
-    indoor_prior, outdoor_prior = _token_prior_votes(input_tokens)
+    indoor_prior, outdoor_prior = _token_prior_votes(content_input_tokens)
     prior_total = indoor_prior + outdoor_prior
     prior_confidence = max(indoor_prior, outdoor_prior) / prior_total if prior_total > 0 else 0.0
     prior_label = "Outdoor" if outdoor_prior > indoor_prior else "Indoor"
@@ -228,12 +240,19 @@ def classify_with_dictionary(
         for phrase in activities:
             for variant in _phrase_variants(label, phrase):
                 phrase_tokens = _tokenize(variant)
+                phrase_content_tokens = _content_tokens(variant)
                 token_overlap = 0.0
-                if input_tokens and phrase_tokens:
+                if content_input_tokens and phrase_content_tokens:
+                    token_overlap = len(content_input_tokens & phrase_content_tokens) / len(
+                        content_input_tokens | phrase_content_tokens
+                    )
+                elif input_tokens and phrase_tokens:
                     token_overlap = len(input_tokens & phrase_tokens) / len(input_tokens | phrase_tokens)
 
                 char_similarity = calculate_similarity(normalized_input, variant)
-                starts_with_bonus = 0.08 if normalized_input.startswith(variant) or variant.startswith(normalized_input) else 0.0
+                starts_with_bonus = 0.0
+                if token_overlap > 0.0 and (normalized_input.startswith(variant) or variant.startswith(normalized_input)):
+                    starts_with_bonus = 0.04
 
                 environment_bonus = 0.0
                 if ("outside" in input_tokens or "outdoor" in input_tokens) and label == "Outdoor":
@@ -275,13 +294,14 @@ def extract_words(text: str) -> list[str]:
 def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
     if not broken_input or len(broken_input.strip()) < 3:
         return None
-    
+
     cleaned = broken_input.strip().lower()
-    
-    close_matches = get_close_matches(cleaned, ALL_ACTIVITIES, n=5, cutoff=0.4)
-    
+    input_content = _content_tokens(cleaned)
+
+    close_matches = get_close_matches(cleaned, ALL_ACTIVITIES, n=5, cutoff=0.52)
+
     best_match = None
-    best_score = 0
+    best_score = 0.0
     
     if not close_matches:
         words = extract_words(broken_input)
@@ -312,8 +332,18 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
         else:
             return None
     else:
-        suggestion = close_matches[0]
-        confidence = calculate_similarity(cleaned, suggestion)
+        viable = []
+        for candidate in close_matches:
+            candidate_tokens = _content_tokens(candidate)
+            overlap = len(input_content & candidate_tokens) if input_content and candidate_tokens else 0
+            similarity = calculate_similarity(cleaned, candidate)
+            if overlap > 0 or similarity >= 0.86:
+                viable.append((candidate, similarity, overlap))
+
+        if not viable:
+            return None
+
+        suggestion, confidence, _ = max(viable, key=lambda item: (item[2], item[1]))
     
     classification = None
     for cat, activities in ACTIVITY_CORPUS.items():
@@ -323,9 +353,12 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
     
     if not classification:
         classification = "Indoor"
-    
-    return (suggestion, confidence, classification)
 
+    # Avoid low-quality hints from unrelated phrases.
+    if confidence < 0.58:
+        return None
+
+    return (suggestion, confidence, classification)
 
 def auto_judge_input(text: str) -> dict:
     suggestion_result = suggest_activity(text)

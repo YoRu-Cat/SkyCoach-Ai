@@ -33,7 +33,7 @@ class MLSystemConfig:
     laplace_alpha: float = 1.0
     
     # Inference configuration
-    confidence_threshold: float = 0.72
+    confidence_threshold: float = 0.62
     temperature_scaling: float = 0.50
     
     # Learning configuration

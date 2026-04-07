@@ -81,10 +81,32 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.text,
-            use_openai=request.use_openai,
-            openai_api_key=request.openai_api_key,
+            use_openai=False,
+            openai_api_key=None,
             model=model_name,
         )
+
+        # ML fallback suggestions for autocorrect-like guidance in UI.
+        try:
+            from ml_system.api import get_ml_system
+
+            ml_result = get_ml_system().predict(request.text)
+            suggestions = ml_result.get("suggestions", [])
+
+            if suggestions and not task.suggested_classification:
+                top = suggestions[0]
+                task.suggested_classification = top.get("label")
+                task.suggestion_confidence = float(top.get("confidence", 0.0))
+
+            if (
+                suggestions
+                and not task.suggested_activity
+                and (task.needs_clarification or task.confidence < 0.75)
+            ):
+                task.suggested_activity = request.text
+        except Exception:
+            # Keep primary analysis response intact if ML fallback is unavailable.
+            pass
         
         return convert_task_to_response(task)
     except Exception as e:
@@ -203,8 +225,8 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.activity_text,
-            use_openai=request.use_openai,
-            openai_api_key=request.openai_api_key,
+            use_openai=False,
+            openai_api_key=None,
             model=model_name,
         )
         

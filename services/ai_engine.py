@@ -6,7 +6,7 @@ import json
 from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
 from services.auto_judge import auto_judge_input, classify_with_dictionary
-from services.task_classifier_ml import model_summary, predict_task_label
+from services.task_classifier_ml import predict_task_label
 
 
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
@@ -346,10 +346,33 @@ Keep intent unchanged. Do not classify."""
 
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
-    prediction = predict_task_label(text)
-    model_info = model_summary()
     compact_text = re.sub(r"\s+", " ", text.strip())
-    suggestion = auto_judge_input(text)
+    activity = compact_text[:60]
+
+    ml_label = None
+    ml_confidence = 0.0
+    ml_rationale = ""
+    ml_suggestions: list[dict] = []
+
+    # Primary runtime classifier: trained ML system model on disk.
+    try:
+        from ml_system.api import get_ml_system
+
+        ml_result = get_ml_system().predict(text)
+        ml_label = ml_result.get("label")
+        ml_confidence = float(ml_result.get("confidence", 0.0) or 0.0)
+        ml_rationale = str(ml_result.get("rationale", ""))
+        ml_suggestions = ml_result.get("suggestions", []) or []
+    except Exception:
+        # Safety fallback for environments where unified model files are unavailable.
+        legacy_prediction = predict_task_label(text)
+        ml_label = legacy_prediction.classification
+        ml_confidence = legacy_prediction.confidence
+        ml_rationale = (
+            f"{legacy_prediction.model_name} runtime fallback predicted "
+            f"{legacy_prediction.classification.lower()} with {legacy_prediction.confidence:.2f} confidence"
+        )
+
     dict_label, dict_confidence, dict_match = classify_with_dictionary(
         text,
         use_web_enrichment=False,
@@ -366,37 +389,76 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
                 enriched_match,
             )
 
-    classification = prediction.classification
-    confidence = prediction.confidence
-    activity = compact_text[:30]
-    reasoning = (
-        f"{prediction.model_name} selected via {model_info.cv_accuracy:.2f} cross-validation accuracy; "
-        f"predicted {classification.lower()} with {confidence:.2f} confidence"
-    )
+    # Prefer calibrated ML output when confident; otherwise rely on dictionary evidence.
+    if ml_label in {"Indoor", "Outdoor"}:
+        classification = ml_label
+        confidence = ml_confidence
+    else:
+        classification = dict_label if dict_confidence >= 0.52 else "Indoor"
+        confidence = max(ml_confidence, dict_confidence * 0.9)
+
+    disagreement_override = False
+    if (
+        ml_label in {"Indoor", "Outdoor"}
+        and dict_confidence >= 0.8
+        and dict_label != ml_label
+        and ml_confidence < 0.75
+    ):
+        classification = dict_label
+        confidence = min(0.88, max(dict_confidence * 0.85, ml_confidence))
+        disagreement_override = True
+
     needs_clarification = False
     issue = None
     suggested_activity = None
     suggested_classification = None
     suggestion_confidence = 0.0
 
+    if ml_suggestions:
+        top = ml_suggestions[0]
+        suggested_classification = top.get("label")
+        suggestion_confidence = float(top.get("confidence", 0.0) or 0.0)
+
+    if disagreement_override and not suggested_classification:
+        suggested_classification = ml_label
+        suggestion_confidence = ml_confidence
+
+    # Clarify ambiguous intents instead of forcing hard labels on uncertain input.
+    if ml_label == "Unclear" or max(ml_confidence, dict_confidence) < 0.62:
+        needs_clarification = True
+        issue = "Activity intent is understandable but ambiguous between indoor and outdoor"
+        if dict_confidence >= 0.52:
+            classification = dict_label
+            confidence = min(0.7, max(dict_confidence, ml_confidence))
+
+    suggestion = auto_judge_input(text)
     if suggestion["is_broken"] and suggestion["suggestion"]:
         suggested_activity = suggestion["suggestion"]
-        suggested_classification = suggestion["classification"]
-        suggestion_confidence = suggestion["confidence"]
-        if suggestion_confidence >= 0.78:
+        if suggestion.get("classification"):
+            suggested_classification = suggestion["classification"]
+        suggestion_confidence = max(
+            suggestion_confidence,
+            float(suggestion.get("confidence", 0.0) or 0.0),
+        )
+
+        if suggestion_confidence >= 0.82 and _has_word_overlap(text, suggested_activity):
             activity = suggested_activity
             classification = suggested_classification or classification
             confidence = max(confidence, min(0.94, suggestion_confidence))
-            reasoning = "Auto-corrected with high-confidence suggestion"
+            needs_clarification = False
+            issue = None
 
-    # Blend ML with web-enriched dictionary to reduce rigid mislabels.
-    if dict_confidence >= 0.55:
-        if dict_label == classification:
-            confidence = min(0.99, max(confidence, (confidence + dict_confidence) / 2))
-        elif dict_confidence >= confidence + 0.12:
-            classification = dict_label
-            confidence = min(0.97, max(dict_confidence, confidence * 0.9))
-        reasoning = f"{reasoning}; dictionary matched '{dict_match or 'token-prior consensus'}'"
+    reasoning_parts = []
+    if ml_rationale:
+        reasoning_parts.append(f"ML: {ml_rationale}")
+    if dict_match and dict_confidence >= 0.52:
+        reasoning_parts.append(f"Dictionary match: '{dict_match}' ({dict_confidence:.2f})")
+    if disagreement_override:
+        reasoning_parts.append("Dictionary override applied because semantic match strongly disagreed with low-confidence ML")
+    if needs_clarification:
+        reasoning_parts.append("Marked for clarification due to low or uncertain confidence")
+
+    reasoning = "; ".join(reasoning_parts) if reasoning_parts else "Local auto-judge analysis"
 
     return TaskAnalysis(
         original_text=text,
@@ -420,17 +482,11 @@ def analyze_task_smart(
     model: str = "gpt-4o-mini",
     min_confidence_for_openai: float = 0.70,
 ) -> TaskAnalysis:
-    """Use OpenAI when available, otherwise fall back to the local ML classifier."""
-    if use_openai:
-        api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
-        if api_key:
-            try:
-                return analyze_task_openai(text, api_key=api_key, model=model)
-            except Exception:
-                return analyze_task_fallback(text)
-
-        return analyze_task_fallback(text)
-
+    """Task analysis always uses local Auto-Judge + ML runtime models."""
+    _ = use_openai
+    _ = openai_api_key
+    _ = model
+    _ = min_confidence_for_openai
     return analyze_task_fallback(text)
 
 

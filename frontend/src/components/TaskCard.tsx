@@ -89,27 +89,31 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
         </div>
       </div>
 
-      {task.suggested_activity && (
+      {(task.suggested_activity || task.suggested_classification) && (
         <div className="pt-4 border-t border-slate-700">
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
             <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wide mb-2">
               💡 Auto-Judge Suggestion
             </p>
             <div className="space-y-2">
-              <div>
-                <p className="text-xs text-slate-400">Likely activity</p>
-                <p className="text-slate-200 font-semibold">
-                  {task.suggested_activity}
-                </p>
-              </div>
-              <div className="flex gap-4">
+              {task.suggested_activity && (
                 <div>
-                  <p className="text-xs text-slate-400">Classification</p>
-                  <p
-                    className={`font-semibold ${getClassificationColor(task.suggested_classification || "")}`}>
-                    {task.suggested_classification}
+                  <p className="text-xs text-slate-400">Likely activity</p>
+                  <p className="text-slate-200 font-semibold">
+                    {task.suggested_activity}
                   </p>
                 </div>
+              )}
+              <div className="flex gap-4">
+                {task.suggested_classification && (
+                  <div>
+                    <p className="text-xs text-slate-400">Did you mean</p>
+                    <p
+                      className={`font-semibold ${getClassificationColor(task.suggested_classification || "")}`}>
+                      {task.suggested_classification}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs text-slate-400">Confidence</p>
                   <p className="text-slate-200 font-semibold">
