@@ -98,7 +98,7 @@ uvicorn main:app --host 0.0.0.0 --port 8012
 ### 2. Deploy Frontend (if needed)
 
 ```bash
-# Start frontend (port 3000)
+# Start frontend (Docker published port: 3000)
 docker-compose up frontend
 ```
 

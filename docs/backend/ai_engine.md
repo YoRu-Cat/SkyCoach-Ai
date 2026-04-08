@@ -1,59 +1,41 @@
-# AI Engine Module
+﻿# AI Engine
 
-**Location:** `services/ai_engine.py`
-
-## Current Runtime Update (April 2026)
-
-- Active task analysis flow is local and context-aware.
-- OpenAI is no longer used in task-analysis endpoints; only chat assistant uses OpenAI.
-- Current model confidence threshold is `0.62`.
-- Suggestion outputs include `suggested_activity`, `suggested_classification`, and `suggestion_confidence` where relevant.
+Location: `services/ai_engine.py`
 
 ## Purpose
 
-Analyzes activity tasks and classifies them as Indoor or Outdoor using keyword matching, optional OpenAI integration, and auto-judgment for incomplete inputs.
+Provide task analysis, clarification logic, and weather utilities used by API routes.
 
-## Key Functions
+## Active Behavior
 
-### `analyze_task_openai(text, api_key, model)`
+- `analyze_task_smart(...)` is the active analyzer used by API routes.
+- In current route usage, task-analysis endpoints call smart analysis with local mode.
+- OpenAI-based function exists but is not the active path for task classification endpoints.
 
-Uses OpenAI's GPT model to analyze and classify activities.  
-**Input:** Activity description text, OpenAI API key  
-**Output:** TaskAnalysis dataclass with activity, classification, confidence score
+## Relevant Functions
 
-### `analyze_task_fallback(text)`
+- `analyze_task_smart(text, use_openai, openai_api_key, model)`
+- `analyze_task_fallback(text)`
+- `analyze_task_openai(text, api_key, model)` (available, not primary in active task endpoints)
+- `get_weather(...)`
+- `get_demo_weather(...)`
+- `get_weather_by_city(...)`
 
-Keyword-based fallback when OpenAI is unavailable or disabled.  
-Uses predefined lists of outdoor and indoor keywords to classify activity.  
-**Output:** TaskAnalysis dataclass
+## Output Characteristics
 
-### `get_weather(lat, lon, api_key, units)`
+Task analysis output includes:
 
-Fetches real weather data from OpenWeatherMap API.  
-**Input:** Latitude, longitude, API key, units (metric/imperial)  
-**Output:** WeatherData dataclass
+- `activity`
+- `classification`
+- `confidence`
+- `reasoning`
+- `needs_clarification`
+- `issue`
+- `suggested_activity`
+- `suggested_classification`
+- `suggestion_confidence`
 
-### Helper Functions
+## Runtime Notes
 
-- `_count_keyword_matches()` - Counts whole-word phrase matches
-- `_detect_input_issue()` - Identifies incomplete or ambiguous inputs
-- `_stable_fallback_coords()` - Generates deterministic coordinates for demo mode
-- `_resolve_demo_city_coords()` - Resolves city names to coordinates
-- `_apply_auto_judge_resolution()` - Promotes high-confidence suggestions to confirmed activities
-
-## Keyword Lists
-
-- **Outdoor:** soccer, football, hiking, cycling, swimming, gardening, jogging, etc.
-- **Indoor:** cooking, reading, gaming, working, studying, homework, yoga, etc.
-
-## Confidence Thresholds
-
-- Auto-judge promotion threshold: 0.72 (72%)
-- Minimum confidence to avoid "needs clarification": 0.25 (25%)
-
-## Features
-
-- Multi-step detection: keyword matching → OpenAI (if available) → auto-judge
-- Graceful fallback to keyword-based analysis
-- Handles incomplete/misspelled activity descriptions
-- Built-in activity suggestion for common typos
+- Confidence threshold in `ml_system` config: 0.62
+- Suggestion fields are used for autocorrect-like UX when input is ambiguous

@@ -1,192 +1,55 @@
-# Installation & Setup Guide
+﻿# Installation Guide
 
-## Current Runtime Update (April 2026)
+## Prerequisites
 
-- Active backend command:
-  - `E:/Anaconda/Installed/python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8012`
-- Active frontend command:
-  - `npm.cmd run dev -- --host 127.0.0.1 --port 5173`
-- Frontend API URL recommended in `frontend/.env.local`:
-  - `VITE_API_URL=http://127.0.0.1:8012`
+- Python 3.10+
+- Node.js 18+
 
-## Prerequisites Check
+## Install Dependencies
 
-### Node.js & npm
-
-Node.js is **not currently installed** on this system. You'll need to install it to run the React frontend.
-
-**Download & Install:**
-
-1. Go to https://nodejs.org/
-2. Download the **LTS version** (18.x or newer)
-3. Run the installer
-4. During installation, ensure both Node.js and npm are checked
-5. Accept default settings
-6. Restart your terminal/PowerShell
-
-**Verify Installation:**
-
-After restart, run:
-
-```bash
-node --version
-npm --version
-```
-
-Should output version numbers like:
-
-```
-v18.16.0
-9.8.0
-```
-
-### Python Dependencies
-
-Python dependencies in `requirements.txt` are **installed**. Backend API is ready:
-
-```bash
-python -m uvicorn backend.main:app --reload
-```
-
-## Backend Setup (Python - Ready Now)
-
-The FastAPI backend is ready to run immediately:
-
-```bash
+```powershell
 cd "e:\Java\Project\Project Ai"
-python -m uvicorn backend.main:app --reload
+pip install -r requirements.txt
 ```
 
-Available at: http://localhost:8000
-
-### Verify Backend
-
-```bash
-curl http://localhost:8000/api/health
-```
-
-Or open: http://localhost:8000/docs
-
-## Frontend Setup (Node.js - After Installation)
-
-Once Node.js is installed:
-
-```bash
+```powershell
 cd "e:\Java\Project\Project Ai\frontend"
 npm install
-npm run dev
 ```
 
-Available at: http://localhost:3000
+## Frontend Environment
 
-## Complete Installation Order
+Create `frontend/.env.local`:
 
-1. **Install Node.js + npm** from nodejs.org
-2. **Start Backend**:
-   ```bash
-   cd "e:\Java\Project\Project Ai"
-   python -m uvicorn backend.main:app --reload
-   ```
-3. **Install Frontend** (in new terminal):
-   ```bash
-   cd "e:\Java\Project\Project Ai\frontend"
-   npm install
-   npm run dev
-   ```
-4. **Open Browser**: http://localhost:3000
-
-## Troubleshooting
-
-### Node.js not found after installation
-
-- Close and reopen PowerShell/Terminal
-- Try in Command Prompt (cmd.exe) instead
-- Check System Environment Variables (Path)
-
-### npm install is slow
-
-- Use `npm install --legacy-peer-deps` if dependency conflicts occur
-- Check internet connection
-- Try `npm cache clean --force`
-
-### Port 3000 already in use
-
-Edit `frontend/vite.config.ts`:
-
-```typescript
-server: {
-  port: 3001,  // Change to 3001
-}
+```env
+VITE_API_URL=http://127.0.0.1:8012
 ```
 
-### Port 8000 already in use
+## Run Services
 
-```bash
-python -m uvicorn backend.main:app --port 8001
+### Backend
+
+```powershell
+cd "e:\Java\Project\Project Ai"
+E:/Anaconda/Installed/python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8012
 ```
 
-## What's Already Set Up
+### Frontend
 
-✓ **Backend (FastAPI)**
-
-- Python dependencies installed
-- API routes configured
-- Auto-judge feature working
-- Health checks ready
-
-✓ **Frontend (React - Pending npm)**
-
-- All source files created
-- TypeScript configured
-- TailwindCSS configured
-- Vite config ready
-- Components written
-- Just needs: `npm install`
-
-## Development Environment
-
-After Node.js installation and `npm install`:
-
-```bash
-# Terminal 1: Backend
-python -m uvicorn backend.main:app --reload
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
-
-# Terminal 3 (Optional): Legacy Streamlit
-python -m streamlit run app.py
+```powershell
+cd "e:\Java\Project\Project Ai\frontend"
+npm.cmd run dev -- --host 127.0.0.1 --port 5173
 ```
 
-## System Check Script
+## Verify
 
-After Node.js installation, run this to verify everything:
-
-```bash
-echo "=== Python ==="
-python --version
-
-echo "=== Node.js ==="
-node --version && npm --version
-
-echo "=== Backend ==="
-echo "Checking if uvicorn installed..."
-python -m pip list | findstr fastapi
-
-echo "=== Frontend ==="
-echo "Checking if node_modules exist..."
-Test-Path "e:\Java\Project\Project Ai\frontend\node_modules"
+```powershell
+Invoke-WebRequest -Uri http://127.0.0.1:8012/api/health
+Invoke-WebRequest -Uri http://127.0.0.1:5173/index.html
 ```
 
-## Next Steps
+## Notes
 
-1. **Install Node.js** → https://nodejs.org/
-2. **Restart Terminal/PowerShell**
-3. **Run**: `npm install` in frontend directory
-4. **Start dev servers** (see above)
-5. **Open**: http://localhost:3000
-
----
-
-**Status**: Backend ready, Frontend waiting for Node.js
+- Task analysis is local-model based in active flow.
+- OpenAI is used for chat assistant flow only.
+- Current inference confidence threshold is 0.62.

@@ -1,225 +1,40 @@
-# Architecture Overview
+﻿# System Design
 
-## System Architecture
+## High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     SkyCoach AI System                          │
-└─────────────────────────────────────────────────────────────────┘
+- Frontend: React + TypeScript + Vite
+- Backend: FastAPI
+- ML runtime: unified `ml_system`
+- Supporting engines: auto-judge, weather, scoring
 
-┌─────────────────────┐         ┌──────────────────────────────────┐
-│   React Frontend    │         │     FastAPI Backend              │
-│  (Vite + TypeScript)│         │   (Python 3.11)                  │
-├─────────────────────┤         ├──────────────────────────────────┤
-│ - ActivityInput     │◄──────► │ - Task Analysis Engine           │
-│ - ScoreGauge        │  HTTPS/ │ - Auto-Judge (fuzzy matching)    │
-│ - WeatherCard       │   JSON  │ - Scoring Engine (decision matrix)│
-│ - AnalysisResult    │         │ - Weather Integration            │
-│ - WeatherBackground │         │ - Map Rendering                  │
-└─────────────────────┘         └──────────────────────────────────┘
-        │                                  │
-        │                                  │
-        ▼                                  ▼
-┌────────────────────────────────────────────────────────────────┐
-│                    External APIs                               │
-├────────────────────────────────────────────────────────────────┤
-│ - OpenAI (GPT-4o-mini) for LLM-based task analysis            │
-│ - OpenWeatherMap for real weather data                        │
-│ - OpenStreetMap/Folium for interactive maps                  │
-└────────────────────────────────────────────────────────────────┘
-```
+## Current Classification Path
 
-## Request-Response Flow
+1. Frontend submits activity text to `POST /api/analyze-task` or `POST /api/analyze`.
+2. Backend calls `analyze_task_smart(...)` with local analysis path active.
+3. Local ML prediction and dictionary/context signals are combined.
+4. Clarification and suggestions are returned when confidence is low or ambiguity is detected.
 
-```
-┌──────┐
-│ User │
-└──┬───┘
-   │
-   ▼
-┌─────────────────────────────────────────┐
-│ 1. Activity Input Form                  │
-│    - Activity description text          │
-│    - Location (city)                    │
-└─────────────┬───────────────────────────┘
-              │
-              ▼
-         ┌────────────────────┐
-         │ POST /api/analyze  │
-         └────────┬───────────┘
-                  │
-      ┌───────────┼───────────┐
-      ▼           ▼           ▼
-   ┌─────────────────────────────────────────┐
-   │ Backend Analysis Pipeline               │
-   ├─────────────────────────────────────────┤
-   │ 1. Tokenize & keyword match             │
-   │ 2. Classify (Indoor/Outdoor)            │
-   │ 3. Apply auto-judge (if needed)         │
-   │ 4. Fetch weather for city               │
-   │ 5. Calculate SkyScore                   │
-   │ 6. Generate recommendations             │
-   └────────────┬────────────────────────────┘
-                │
-                ▼
-    ┌─────────────────────────────────┐
-    │ JSON Response                   │
-    │ - Task analysis                 │
-    │ - Weather data                  │
-    │ - SkyScore (0-100)              │
-    │ - Alternative suggestions       │
-    └────────┬────────────────────────┘
-             │
-             ▼
-    ┌──────────────────────────────────┐
-    │ 2. Frontend Rendering            │
-    │ - TaskCard                       │
-    │ - WeatherCard + Map              │
-    │ - ScoreGauge (animated)          │
-    │ - AlternativesCard with buttons  │
-    └──────────┬───────────────────────┘
-               │
-               ▼
-            ┌──────┐
-            │ User │
-            └──────┘
-```
+## OpenAI Boundary
 
-## Component Relationships
+- OpenAI is not used in active task classification endpoints.
+- OpenAI is used in chat assistant endpoint flow.
 
-### Backend Services
+## Pipeline in `POST /api/analyze`
 
-```
-services/ai_engine.py
-├── analyze_task_openai() → TaskAnalysis
-├── analyze_task_fallback() → TaskAnalysis
-├── get_weather() → WeatherData
-└── Helper functions (_count_keyword_matches, etc.)
+1. Task analysis
+2. Weather retrieval (demo or live key)
+3. Score calculation
+4. Alternative activity generation
 
-services/auto_judge.py
-├── ACTIVITY_CORPUS (100+ activities)
-├── suggest_activity() → (activity, confidence, classification)
-└── auto_judge_input() → suggestion dict
+Response keys:
 
-core/scoring_engine.py
-├── calculate_sky_score() → SkyScoreResult
-├── decision matrix (rain/wind/temp penalties)
-└── get_alternative_activities() → [(emoji, description)]
+- `task`
+- `weather`
+- `score_result`
+- `alternatives`
 
-services/maps.py
-└── render_map() → folium.Map (interactive)
+## Runtime Defaults
 
-backend/api/routes.py
-├── /analyze-task POST
-├── /weather POST
-├── /analyze POST (composite)
-├── /alternatives GET
-├── /health GET
-└── / GET (root)
-```
-
-### Frontend Components
-
-```
-App.tsx
-├── Query client setup
-├── Health check gate
-└── Dashboard
-
-Dashboard.tsx
-├── WeatherBackground (animated)
-├── Header
-├── ActivityInput (left panel)
-└── AnalysisResult (right panel)
-    ├── TaskCard
-    ├── WeatherCard (+ map)
-    ├── ScoreCard
-    └── AlternativesCard
-
-Animations (via GSAP)
-├── Dashboard layout entrance
-├── ScoreGauge needle sweep
-├── AnalysisResult panel stagger
-└── WeatherBackground orbits
-```
-
-## Data Models
-
-```
-TaskAnalysis
-├── activity: str
-├── classification: "Indoor" | "Outdoor"
-├── confidence: 0.0-1.0
-├── needs_clarification: bool
-└── suggested_activity: str (optional)
-
-WeatherData
-├── city, country, coordinates
-├── temperature, humidity
-├── rain_1h, is_raining
-├── wind_speed, wind_mph
-├── condition (Clear/Rain/Snow/etc)
-└── description
-
-SkyScoreResult
-├── score: 0-100
-├── weather_factors: [str]
-├── bonuses: [(name, value, description)]
-├── penalties: [(name, value, description)]
-└── recommendation: str
-```
-
-## Deployment Architecture
-
-```
-Netlify (Frontend)                  Render (Backend)
-├── React SPA at root               ├── FastAPI server
-├── /api/* proxy redirect           ├── Port 8000
-│   └─► Render backend              ├── Environment vars:
-├── dist/ folder deployed           │   - ALLOWED_ORIGINS
-└── Client-side routing             │   - ALLOWED_ORIGIN_REGEX
-                                    └── Python 3.11 runtime
-
-Communication:
-Browser ──HTTPS──► Netlify /api redirect ──HTTPS──► Render
-         No CORS issues (server-side proxy)
-```
-
-## Decision Matrix (Scoring)
-
-```
-Activity: Indoor
-├── Rain detected         → +20 bonus
-├── Hot (>30°C)          → +10 bonus
-└── Otherwise            → Base 100
-
-Activity: Outdoor
-├── Rain detected        → -80 penalty
-├── High wind (>15mph)   → -30 penalty
-├── Otherwise            → Base 100
-└── Final score: 0-100
-```
-
-## Technology Stack
-
-**Frontend:**
-- React 18 + TypeScript
-- Vite (build tool)
-- TailwindCSS (styling)
-- GSAP (animations)
-- Axios (HTTP)
-- React Query (state management)
-
-**Backend:**
-- FastAPI (framework)
-- Pydantic (validation)
-- OpenAI API (LLM)
-- OpenWeatherMap API (weather)
-- Folium (maps)
-- geopy (geocoding)
-
-**Deployment:**
-- Docker (containerization)
-- Netlify (frontend hosting)
-- Render (backend hosting)
-- nginx (web server, SPA routing)
+- Backend: 127.0.0.1:8012
+- Frontend: 127.0.0.1:5173
+- Confidence threshold: 0.62
