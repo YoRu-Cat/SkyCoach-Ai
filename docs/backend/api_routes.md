@@ -2,6 +2,16 @@
 
 **Location:** `backend/api/routes.py`
 
+## Current Runtime Update (April 2026)
+
+- Active backend base URL in local dev: `http://127.0.0.1:8012`
+- Task analysis endpoints now use local analysis pipeline in active flow.
+- OpenAI is reserved for chat assistant endpoint behavior.
+- Learning endpoints available and active:
+  - `POST /api/predict`
+  - `POST /api/feedback`
+  - `GET /api/learning-status`
+
 ## Purpose
 
 Defines FastAPI endpoints for task analysis, weather retrieval, and activity scoring.

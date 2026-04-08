@@ -2,6 +2,13 @@
 
 Modern React 18 + TypeScript + Vite frontend for the SkyCoach AI weather-based activity advisor.
 
+## Current Runtime Update (April 2026)
+
+- Recommended local dev URL: `http://127.0.0.1:5173/index.html`
+- Recommended backend URL: `http://127.0.0.1:8012`
+- For task analysis, frontend should use local backend pipeline (no OpenAI requirement).
+- Chat assistant endpoint remains the OpenAI-backed interaction path.
+
 ## Setup
 
 1. Navigate to the frontend directory:

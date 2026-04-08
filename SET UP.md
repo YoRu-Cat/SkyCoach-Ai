@@ -1,5 +1,12 @@
 # SkyCoach AI - Full Stack Setup Guide
 
+## Current Runtime Update (April 2026)
+
+- Backend active local port: `8012`
+- Frontend active local port: `5173`
+- Task analysis uses local model path in active flow.
+- OpenAI is used in chat assistant flow only.
+
 ## Current Status ✓
 
 ### Backend (Python) - READY ✓

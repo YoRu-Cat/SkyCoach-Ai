@@ -2,6 +2,16 @@
 
 A sophisticated, AI-powered weather-aware activity planner that helps you schedule your week intelligently. SkyCoach automatically classifies your tasks (using OpenAI), fetches real-time weather data, and recommends the best times to do each activity based on weather suitability. Built with React, TypeScript, FastAPI, and OpenAI.
 
+## 🔔 Current Runtime Update (April 2026)
+
+- **Task analysis is local-first and OpenAI-free** in active app flows (`/api/analyze-task` and `/api/analyze`).
+- **OpenAI is used only by chat assistant** endpoints/features.
+- **Current local dev ports:** backend `127.0.0.1:8012`, frontend `127.0.0.1:5173`.
+- **Inference confidence threshold:** `0.62`.
+- **Context-aware suggestion handling** is enabled for typo/incomplete/ambiguous inputs.
+
+> Note: Historical sections below still describe earlier OpenAI-first behavior for architectural background.
+
 ![SkyCoach AI](https://img.shields.io/badge/SkyCoach-AI-6366f1?style=for-the-badge&logo=cloud&logoColor=white)
 ![React](https://img.shields.io/badge/React-18+-61dafb?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-3178c6?style=for-the-badge&logo=typescript&logoColor=white)

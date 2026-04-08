@@ -2,6 +2,15 @@
 
 Complete reference documentation for the SkyCoach AI system.
 
+## Current Runtime Update (April 2026)
+
+- Task analysis routes are local-model based in active flow.
+- OpenAI is used only in chat assistant flow.
+- Local dev defaults currently used:
+  - Backend: `http://127.0.0.1:8012`
+  - Frontend: `http://127.0.0.1:5173`
+- Current confidence threshold in runtime: `0.62`.
+
 ## 📖 Documentation Index
 
 ### [🏗️ Architecture](architecture/system_design.md)

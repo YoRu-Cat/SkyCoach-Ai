@@ -1,5 +1,23 @@
 # Full Stack Setup & Development Guide
 
+## Current Runtime Update (April 2026)
+
+- Recommended backend command/port now uses `127.0.0.1:8012`.
+- Recommended frontend dev command/port now uses `127.0.0.1:5173`.
+- Task-analysis API paths are local-model driven; OpenAI is chat-only.
+
+### Canonical run commands
+
+```powershell
+cd "e:\Java\Project\Project Ai"
+E:/Anaconda/Installed/python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8012
+```
+
+```powershell
+cd "e:\Java\Project\Project Ai\frontend"
+npm.cmd run dev -- --host 127.0.0.1 --port 5173
+```
+
 ## Quick Start (Both Frontend & Backend)
 
 ### Prerequisites

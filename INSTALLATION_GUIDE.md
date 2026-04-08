@@ -1,5 +1,14 @@
 # Installation & Setup Guide
 
+## Current Runtime Update (April 2026)
+
+- Active backend command:
+  - `E:/Anaconda/Installed/python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8012`
+- Active frontend command:
+  - `npm.cmd run dev -- --host 127.0.0.1 --port 5173`
+- Frontend API URL recommended in `frontend/.env.local`:
+  - `VITE_API_URL=http://127.0.0.1:8012`
+
 ## Prerequisites Check
 
 ### Node.js & npm

@@ -1,6 +1,14 @@
 """
 API Endpoint Documentation and Testing Guide
 
+## Current Runtime Update (April 2026)
+
+- Active backend URL: `http://127.0.0.1:8012`
+- Active docs URL: `http://127.0.0.1:8012/docs`
+- Task analysis routes (`/api/analyze-task`, `/api/analyze`) now run local analysis pipeline.
+- OpenAI is reserved for chat assistant flows only.
+- Inference confidence threshold in current model runtime: `0.62`.
+
 ## Running the Backend API
 
 Start the backend server with:

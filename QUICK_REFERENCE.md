@@ -1,5 +1,13 @@
 # SkyCoach AI - Developer Quick Reference
 
+## Current Runtime Update (April 2026)
+
+- Backend (active): `127.0.0.1:8012`
+- Frontend (active): `127.0.0.1:5173`
+- Task analysis routes are local-model based.
+- OpenAI is chat-assistant-only in active app flow.
+- Confidence threshold in current model runtime: `0.62`.
+
 ## Project Overview
 
 **Full-stack weather-based activity advisor** with:
