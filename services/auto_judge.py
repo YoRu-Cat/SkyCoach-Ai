@@ -104,6 +104,18 @@ STOPWORDS = {
     "plan", "doing", "do", "need", "some", "something",
 }
 
+ONLINE_HINTS = {"online", "delivery", "website", "app", "ecommerce"}
+PHYSICAL_STORE_HINTS = {
+    "shop",
+    "store",
+    "market",
+    "mall",
+    "supermarket",
+    "tobacco",
+    "pharmacy",
+    "kiosk",
+}
+
 
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9\s]", " ", text.lower())).strip()
@@ -231,6 +243,13 @@ def classify_with_dictionary(
     enriched_input = _normalize(f"{normalized_input} {runtime_context}")
     input_tokens = _tokenize(enriched_input)
     content_input_tokens = _content_tokens(enriched_input)
+    has_online_hint = len(input_tokens & ONLINE_HINTS) > 0
+    has_physical_store_hint = len(input_tokens & PHYSICAL_STORE_HINTS) > 0
+    errand_action_hints = {"go", "going", "get", "buy", "purchase", "from", "to", "pick", "pickup"}
+
+    if has_physical_store_hint and not has_online_hint and (input_tokens & errand_action_hints):
+        return "Outdoor", 0.88, "physical store errand"
+
     best_label = "Indoor"
     best_phrase: Optional[str] = None
     best_score = 0.0
@@ -265,6 +284,14 @@ def classify_with_dictionary(
                     environment_bonus += 0.04
 
                 score = token_overlap * 0.70 + char_similarity * 0.18 + starts_with_bonus + environment_bonus
+
+                # Do not let online-shopping phrases dominate physical errands.
+                if ("online" in phrase_tokens) and not has_online_hint:
+                    score *= 0.55
+
+                # Physical store errands are generally outside-home movement.
+                if has_physical_store_hint and not has_online_hint and label == "Outdoor":
+                    score += 0.10
 
                 # Prevent misleading matches driven mostly by character similarity
                 # (e.g. unrelated slang accidentally close to a corpus phrase).
@@ -302,6 +329,13 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
     cleaned = broken_input.strip().lower()
     input_content = _content_tokens(cleaned)
     input_tokens = _tokenize(cleaned)
+
+    has_online_hint = len(input_tokens & ONLINE_HINTS) > 0
+    has_physical_store_hint = len(input_tokens & PHYSICAL_STORE_HINTS) > 0
+    if has_physical_store_hint and not has_online_hint:
+        if "tobacco" in input_tokens or "cigarette" in input_tokens or "cigarettes" in input_tokens:
+            return ("going to tobacco shop", 0.86, "Outdoor")
+        return ("going to store", 0.82, "Outdoor")
 
     close_matches = get_close_matches(cleaned, ALL_ACTIVITIES, n=5, cutoff=0.52)
 

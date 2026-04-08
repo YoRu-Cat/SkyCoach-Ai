@@ -101,6 +101,16 @@ class Trainer:
             {"phrase": "romantic date at the park", "label": "Outdoor"},
             {"phrase": "going on a date outside", "label": "Outdoor"},
             {"phrase": "date at the beach", "label": "Outdoor"},
+            {"phrase": "going to get cigarettes from tobacco shop", "label": "Outdoor"},
+            {"phrase": "buying cigarettes from tobacco store", "label": "Outdoor"},
+            {"phrase": "going to tobacco shop", "label": "Outdoor"},
+            {"phrase": "going to buy from local store", "label": "Outdoor"},
+            {"phrase": "quick run to the grocery store", "label": "Outdoor"},
+            {"phrase": "shopping at local market", "label": "Outdoor"},
+            {"phrase": "buying cigarettes online", "label": "Indoor"},
+            {"phrase": "ordering cigarettes from app", "label": "Indoor"},
+            {"phrase": "shopping online", "label": "Indoor"},
+            {"phrase": "buy groceries online", "label": "Indoor"},
         ]
 
         x_train.extend(example["phrase"] for example in focus_examples)
