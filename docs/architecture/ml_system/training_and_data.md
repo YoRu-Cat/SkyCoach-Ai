@@ -76,7 +76,7 @@ Current behavior includes:
 
 - Text normalization
 - Word-level tokenization
-- Character n-gram feature expansion with cg_ prefix
+- Character n-gram feature expansion with cg\_ prefix
 
 Character n-grams are intended to improve resilience when users type:
 
