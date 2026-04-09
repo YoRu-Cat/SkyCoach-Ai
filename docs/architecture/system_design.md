@@ -1,5 +1,10 @@
 ﻿# System Design
 
+For full architecture, operational flow diagrams, and failure-mode guidance, see:
+
+- `docs/architecture/deep_dive.md`
+- `docs/architecture/ml_system/training_and_data.md`
+
 ## High-Level Architecture
 
 - Frontend: React + TypeScript + Vite

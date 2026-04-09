@@ -13,11 +13,13 @@ This documentation reflects the current SkyCoach architecture and runtime behavi
 ## Core Docs
 
 - `architecture/system_design.md`
+- `architecture/deep_dive.md`
 - `backend/ai_engine.md`
 - `backend/api_routes.md`
 - `architecture/ml_system/overview.md`
 - `architecture/ml_system/integration.md`
 - `architecture/ml_system/quick_reference.md`
+- `architecture/ml_system/training_and_data.md`
 - `frontend/components.md`
 - `frontend/services.md`
 - `frontend/hooks.md`
@@ -27,8 +29,10 @@ This documentation reflects the current SkyCoach architecture and runtime behavi
 ## Recommended Reading Order
 
 1. `architecture/system_design.md`
-2. `backend/api_routes.md`
-3. `backend/ai_engine.md`
-4. `architecture/ml_system/overview.md`
-5. `architecture/ml_system/integration.md`
-6. `architecture/ml_system/quick_reference.md`
+2. `architecture/deep_dive.md`
+3. `backend/api_routes.md`
+4. `backend/ai_engine.md`
+5. `architecture/ml_system/overview.md`
+6. `architecture/ml_system/integration.md`
+7. `architecture/ml_system/training_and_data.md`
+8. `architecture/ml_system/quick_reference.md`

@@ -1,0 +1,10 @@
+{
+  "per_label": 50000,
+  "total": 200000,
+  "splits": {
+    "train": 140000,
+    "val": 30000,
+    "test": 20000,
+    "hardset": 10000
+  }
+}

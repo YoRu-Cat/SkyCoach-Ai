@@ -99,8 +99,10 @@ Optional backend environment variables:
 
 - `docs/README.md`
 - `docs/architecture/system_design.md`
+- `docs/architecture/deep_dive.md`
 - `docs/backend/api_routes.md`
 - `docs/backend/ai_engine.md`
 - `docs/architecture/ml_system/overview.md`
 - `docs/architecture/ml_system/integration.md`
+- `docs/architecture/ml_system/training_and_data.md`
 - `docs/architecture/ml_system/quick_reference.md`

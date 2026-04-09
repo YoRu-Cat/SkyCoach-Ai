@@ -23,7 +23,7 @@ class MLSystemConfig:
     policies_dir: Path = Path("ml_system/policies")
     
     # Model configuration
-    tokenizer_max_vocab: int = 5000
+    tokenizer_max_vocab: int = 50000
     tokenizer_min_freq: int = 1
     
     # Training configuration
