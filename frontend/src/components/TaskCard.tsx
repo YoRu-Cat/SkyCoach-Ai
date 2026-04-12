@@ -6,6 +6,28 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
+  const buildSuggestionText = () => {
+    if (task.suggested_activity && task.suggested_activity.trim()) {
+      return task.suggested_activity.trim();
+    }
+
+    const base =
+      task.activity && task.activity !== "Needs clarification"
+        ? task.activity
+        : task.original_text;
+
+    if (task.suggested_classification === "Outdoor") {
+      return `${base} outside`;
+    }
+    if (task.suggested_classification === "Indoor") {
+      return `${base} indoors`;
+    }
+
+    return base;
+  };
+
+  const suggestionText = buildSuggestionText();
+
   const getClassificationColor = (classification: string) => {
     return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
   };
@@ -124,10 +146,7 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
               {onUseSuggestion && (
                 <button
                   type="button"
-                  onClick={() =>
-                    task.suggested_activity &&
-                    onUseSuggestion(task.suggested_activity)
-                  }
+                  onClick={() => onUseSuggestion(suggestionText)}
                   className="mt-2 px-3 py-1.5 text-xs rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30 transition-colors">
                   Use suggestion and re-analyze
                 </button>

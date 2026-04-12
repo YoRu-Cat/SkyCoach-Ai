@@ -26,7 +26,7 @@ export const API_BASE_URL = isNetlifyRuntime
   : import.meta.env.VITE_API_URL ||
     (import.meta.env.PROD
       ? "https://skycoach-ai.onrender.com"
-      : "http://localhost:8000");
+      : "http://127.0.0.1:8012");
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,

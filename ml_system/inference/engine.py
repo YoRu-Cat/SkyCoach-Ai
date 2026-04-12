@@ -63,6 +63,8 @@ class InferenceEngine:
         )
         
         self.confidence_threshold = confidence_threshold
+        self.min_confidence_floor = CONFIG.min_confidence_floor
+        self.ambiguity_margin = CONFIG.ambiguity_margin
         self.temperature = self.report.get("temperature", 1.0)
         self.model_name = self.report.get("champion_model", "unknown")
 
@@ -81,15 +83,32 @@ class InferenceEngine:
 
         calibrated = self._apply_temperature(all_scores)
 
-        top_label = max(calibrated.items(), key=lambda x: x[1])[0]
-        top_confidence = calibrated[top_label]
+        ranked = sorted(calibrated.items(), key=lambda x: x[1], reverse=True)
+        top_label, top_confidence = ranked[0]
+        runner_up_confidence = ranked[1][1] if len(ranked) > 1 else 0.0
+        margin = top_confidence - runner_up_confidence
 
-        if top_confidence < self.confidence_threshold:
+        if top_confidence < self.min_confidence_floor:
             final_label = "Unclear"
-            rationale = f"Confidence {top_confidence:.2f} below threshold {self.confidence_threshold}"
+            rationale = (
+                f"Confidence {top_confidence:.2f} below minimum floor "
+                f"{self.min_confidence_floor:.2f}"
+            )
+        elif top_confidence < self.confidence_threshold and margin < self.ambiguity_margin:
+            final_label = "Unclear"
+            rationale = (
+                f"Borderline confidence {top_confidence:.2f} with small class margin "
+                f"{margin:.2f}"
+            )
         else:
             final_label = top_label
-            rationale = f"Predicted with confidence {top_confidence:.2f}"
+            if top_confidence < self.confidence_threshold:
+                rationale = (
+                    f"Predicted with confidence {top_confidence:.2f}; accepted due to "
+                    f"clear margin {margin:.2f}"
+                )
+            else:
+                rationale = f"Predicted with confidence {top_confidence:.2f}"
 
         return PredictionResponse(
             label=final_label,

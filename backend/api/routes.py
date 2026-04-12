@@ -75,6 +75,39 @@ def convert_weather_to_response(weather: WeatherData) -> WeatherResponse:
     )
 
 
+def _enrich_task_with_ml_suggestions(task: TaskAnalysis, input_text: str) -> None:
+    """Attach robust suggestion fields from ML ranking without breaking primary analysis."""
+    try:
+        from ml_system.api import get_ml_system
+
+        ml_result = get_ml_system().predict(input_text)
+        suggestions = ml_result.get("suggestions", [])
+
+        if suggestions:
+            top = suggestions[0]
+            if not task.suggested_classification:
+                task.suggested_classification = top.get("label")
+            if not getattr(task, "suggestion_confidence", 0.0):
+                task.suggestion_confidence = float(top.get("confidence", 0.0))
+
+        # Always provide actionable text when we have any hint that a correction helps.
+        if not task.suggested_activity and (
+            suggestions
+            or task.needs_clarification
+            or task.confidence < 0.75
+        ):
+            base = task.activity if task.activity and task.activity != "Needs clarification" else input_text
+            if task.suggested_classification == "Outdoor":
+                task.suggested_activity = f"{base} outside"
+            elif task.suggested_classification == "Indoor":
+                task.suggested_activity = f"{base} indoors"
+            else:
+                task.suggested_activity = input_text
+    except Exception:
+        # Keep primary analysis response intact if ML fallback is unavailable.
+        pass
+
+
 @router.post("/analyze-task", response_model=TaskAnalysisResponse)
 async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
     try:
@@ -86,27 +119,7 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
             model=model_name,
         )
 
-        # ML fallback suggestions for autocorrect-like guidance in UI.
-        try:
-            from ml_system.api import get_ml_system
-
-            ml_result = get_ml_system().predict(request.text)
-            suggestions = ml_result.get("suggestions", [])
-
-            if suggestions and not task.suggested_classification:
-                top = suggestions[0]
-                task.suggested_classification = top.get("label")
-                task.suggestion_confidence = float(top.get("confidence", 0.0))
-
-            if (
-                suggestions
-                and not task.suggested_activity
-                and (task.needs_clarification or task.confidence < 0.75)
-            ):
-                task.suggested_activity = request.text
-        except Exception:
-            # Keep primary analysis response intact if ML fallback is unavailable.
-            pass
+        _enrich_task_with_ml_suggestions(task, request.text)
         
         return convert_task_to_response(task)
     except Exception as e:
@@ -229,6 +242,7 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
             openai_api_key=None,
             model=model_name,
         )
+        _enrich_task_with_ml_suggestions(task, request.activity_text)
         
         weather_api_key = request.weather_api_key or os.getenv("OPENWEATHER_API_KEY")
 

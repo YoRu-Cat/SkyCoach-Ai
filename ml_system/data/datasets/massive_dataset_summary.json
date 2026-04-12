@@ -1,10 +1,11 @@
 {
-  "per_label": 50000,
-  "total": 200000,
+  "per_label": 3000,
+  "total": 12000,
+  "unique_phrases": 12000,
   "splits": {
-    "train": 140000,
-    "val": 30000,
-    "test": 20000,
-    "hardset": 10000
+    "train": 8400,
+    "val": 1800,
+    "test": 1200,
+    "hardset": 600
   }
 }

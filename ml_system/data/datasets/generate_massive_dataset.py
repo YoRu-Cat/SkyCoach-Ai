@@ -27,45 +27,53 @@ INDOOR_VERBS = [
     "read", "study", "write", "work", "code", "draw", "paint", "cook", "bake",
     "clean", "organize", "practice", "watch", "listen", "meditate", "exercise",
     "meet", "present", "design", "review", "edit", "learn", "research", "assemble",
+    "prepare", "draft", "plan", "arrange", "debug", "revise", "analyze", "focus",
 ]
 
 OUTDOOR_VERBS = [
     "run", "walk", "hike", "cycle", "jog", "camp", "fish", "swim", "climb",
     "garden", "mow", "travel", "commute", "shop", "explore", "play", "race",
     "trek", "train", "surf", "kayak", "skate", "photograph", "patrol",
+    "stroll", "roam", "exercise", "practice", "visit", "move", "trail", "ride",
 ]
 
 MIXED_VERBS = [
     "commute", "transfer", "visit", "attend", "travel", "move", "switch", "work",
     "study", "shop", "tour", "coordinate", "manage", "plan",
+    "navigate", "schedule", "arrange", "handle",
 ]
 
 UNCLEAR_VERBS = [
     "think", "plan", "consider", "reflect", "pause", "wait", "decide", "review",
     "process", "start", "stop", "continue", "prepare", "arrange", "handle",
+    "maybe do", "figure out", "sort", "set up",
 ]
 
 INDOOR_OBJECTS = [
     "a report", "homework", "a coding task", "a design draft", "a recipe", "laundry",
     "documents", "a presentation", "a workshop", "a board game", "a puzzle", "emails",
     "a lesson", "music practice", "a budget sheet", "a project brief", "an article",
+    "a study session", "my tasks", "a work plan", "a meeting note", "an assignment",
 ]
 
 OUTDOOR_OBJECTS = [
     "a trail", "a park route", "the neighborhood", "the field", "the beach", "the road",
     "the market", "the tobacco shop", "a grocery store", "the stadium", "a campsite",
     "a mountain path", "a river route", "a cycling lane", "the courtyard",
+    "the town", "the block", "the riverside", "an outdoor court", "a walking track",
 ]
 
 MIXED_OBJECTS = [
     "an airport transfer", "a station commute", "a campus day", "a mall visit",
     "a hotel event", "a conference center", "a mixed-use complex", "a logistics run",
     "an indoor-outdoor event", "a venue tour", "a hub visit",
+    "a transit stop", "a work trip", "a city errand", "a business visit",
 ]
 
 UNCLEAR_OBJECTS = [
     "something important", "some task", "an activity", "a pending item", "a routine",
     "something productive", "a plan", "a personal thing", "an errand", "a future action",
+    "something I need to do", "whatever is next", "a possible plan", "an open task",
 ]
 
 TIME_CONTEXTS = [
@@ -76,6 +84,7 @@ TIME_CONTEXTS = [
 STYLE_PREFIXES = [
     "I need to", "I want to", "I am going to", "I am", "I'm", "Can we", "Let's",
     "We are", "Planning to", "Currently", "Today I will", "I just",
+    "Could you", "I should", "Maybe I should", "I might",
 ]
 
 LOCATION_HINTS_INDOOR = [
@@ -172,13 +181,34 @@ def expand_variants(base: str) -> List[str]:
 def generate_records(per_label: int) -> List[Dict[str, str]]:
     records: List[Dict[str, str]] = []
     labels = ["Indoor", "Outdoor", "Mixed", "Unclear"]
+    global_seen: set[str] = set()
 
     for label in labels:
         collected: List[str] = []
-        while len(collected) < per_label:
+        label_seen: set[str] = set()
+        attempts = 0
+        max_attempts = per_label * 200
+
+        while len(collected) < per_label and attempts < max_attempts:
+            attempts += 1
             base = make_base_phrase(label)
-            collected.extend(expand_variants(base))
-        for phrase in collected[:per_label]:
+            for phrase in expand_variants(base):
+                key = phrase.lower().strip()
+                if key in label_seen or key in global_seen:
+                    continue
+                label_seen.add(key)
+                global_seen.add(key)
+                collected.append(phrase)
+                if len(collected) >= per_label:
+                    break
+
+        if len(collected) < per_label:
+            raise RuntimeError(
+                f"Could not generate enough unique phrases for {label}: "
+                f"{len(collected)} / {per_label}"
+            )
+
+        for phrase in collected:
             records.append({"phrase": phrase, "label": label})
 
     RNG.shuffle(records)
@@ -236,6 +266,7 @@ def main() -> None:
     summary = {
         "per_label": args.per_label,
         "total": len(records),
+        "unique_phrases": len({row["phrase"].lower().strip() for row in records}),
         "splits": {k: len(v) for k, v in splits.items()},
     }
     summary_path = output_dir / "massive_dataset_summary.json"

@@ -34,6 +34,8 @@ class MLSystemConfig:
     
     # Inference configuration
     confidence_threshold: float = 0.62
+    min_confidence_floor: float = 0.55
+    ambiguity_margin: float = 0.08
     temperature_scaling: float = 0.50
     
     # Learning configuration

@@ -1,5 +1,5 @@
 {
-  "champion_model": "linear_softmax",
+  "champion_model": "naive_bayes",
   "labels": [
     "Indoor",
     "Mixed",
@@ -7,10 +7,10 @@
     "Unclear"
   ],
   "val": {
-    "macro_f1": 0.999333332148146
+    "macro_f1": 1.0
   },
   "test": {
-    "macro_f1": 0.996999987999952
+    "macro_f1": 1.0
   },
   "hardset": {
     "macro_f1": 1.0
