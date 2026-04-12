@@ -93,23 +93,23 @@ export default function ScoreCard({ score }: ScoreCardProps) {
       <div className="space-y-4">
         {score.bonuses.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-green-400 uppercase tracking-wide mb-3">
+            <p className="text-xs font-semibold text-violet-300 uppercase tracking-wide mb-3">
               ✓ Bonuses
             </p>
             <div className="space-y-2">
               {score.bonuses.map((bonus, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-between items-start p-2 bg-green-900/20 rounded border border-green-700/30">
+                  className="flex justify-between items-start p-2 bg-violet-500/15 rounded border border-violet-400/30">
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-green-300">
+                    <p className="text-sm font-semibold text-violet-200">
                       {bonus.name}
                     </p>
                     <p className="text-xs text-slate-400">
                       {bonus.description}
                     </p>
                   </div>
-                  <span className="text-sm font-bold text-green-400">
+                  <span className="text-sm font-bold text-violet-300">
                     +{bonus.value}%
                   </span>
                 </div>

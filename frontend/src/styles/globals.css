@@ -615,6 +615,50 @@
   color: #28154a !important;
 }
 
+:root[data-theme="light"] .theme-light .weather-card .text-slate-400 {
+  color: #5a368d !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-card .text-slate-500 {
+  color: #4a2a76 !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-card .text-slate-200 {
+  color: #2b1847 !important;
+}
+
+:root[data-theme="light"] .theme-light .task-classification-outdoor {
+  color: #8b5000 !important;
+}
+
+:root[data-theme="light"] .theme-light .task-classification-indoor {
+  color: #6a2ea8 !important;
+}
+
+:root[data-theme="dark"] .theme-dark .task-classification-outdoor {
+  color: #f4c16c !important;
+}
+
+:root[data-theme="dark"] .theme-dark .task-classification-indoor {
+  color: #d9b8ff !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-card .weather-metric-label {
+  color: #4f2f7d !important;
+}
+
+:root[data-theme="light"] .theme-light .weather-card .weather-metric-value {
+  color: #64309e !important;
+}
+
+:root[data-theme="dark"] .theme-dark .weather-card .weather-metric-label {
+  color: #cfadf4 !important;
+}
+
+:root[data-theme="dark"] .theme-dark .weather-card .weather-metric-value {
+  color: #e7cfff !important;
+}
+
 :root[data-theme="dark"] .theme-dark .home-stats-shell {
   border-color: rgba(124, 69, 184, 0.62) !important;
   background: linear-gradient(
@@ -733,6 +777,194 @@ body {
   box-shadow:
     0 0 30px rgba(6, 182, 212, 0.5),
     inset 0 0 20px rgba(6, 182, 212, 0.1);
+}
+
+/* Strict palette guard: force blue/green/cyan/emerald accents to purple in both themes. */
+:root[data-theme="light"] .theme-light .text-blue-200,
+:root[data-theme="light"] .theme-light .text-blue-300,
+:root[data-theme="light"] .theme-light .text-blue-400,
+:root[data-theme="light"] .theme-light .text-blue-500,
+:root[data-theme="light"] .theme-light .text-cyan-200,
+:root[data-theme="light"] .theme-light .text-cyan-300,
+:root[data-theme="light"] .theme-light .text-cyan-400,
+:root[data-theme="light"] .theme-light .text-green-300,
+:root[data-theme="light"] .theme-light .text-green-400,
+:root[data-theme="light"] .theme-light .text-emerald-200,
+:root[data-theme="light"] .theme-light .text-emerald-300,
+:root[data-theme="light"] .theme-light .text-emerald-400,
+:root[data-theme="light"] .theme-light .text-teal-300,
+:root[data-theme="light"] .theme-light .text-teal-400,
+:root[data-theme="dark"] .theme-dark .text-blue-200,
+:root[data-theme="dark"] .theme-dark .text-blue-300,
+:root[data-theme="dark"] .theme-dark .text-blue-400,
+:root[data-theme="dark"] .theme-dark .text-blue-500,
+:root[data-theme="dark"] .theme-dark .text-cyan-200,
+:root[data-theme="dark"] .theme-dark .text-cyan-300,
+:root[data-theme="dark"] .theme-dark .text-cyan-400,
+:root[data-theme="dark"] .theme-dark .text-cyan-500,
+:root[data-theme="dark"] .theme-dark .text-green-300,
+:root[data-theme="dark"] .theme-dark .text-green-400,
+:root[data-theme="dark"] .theme-dark .text-emerald-200,
+:root[data-theme="dark"] .theme-dark .text-emerald-300,
+:root[data-theme="dark"] .theme-dark .text-emerald-400,
+:root[data-theme="dark"] .theme-dark .text-teal-300,
+:root[data-theme="dark"] .theme-dark .text-teal-400 {
+  color: #4a2a76 !important;
+}
+
+:root[data-theme="dark"] .theme-dark .text-blue-200,
+:root[data-theme="dark"] .theme-dark .text-blue-300,
+:root[data-theme="dark"] .theme-dark .text-blue-400,
+:root[data-theme="dark"] .theme-dark .text-blue-500,
+:root[data-theme="dark"] .theme-dark .text-cyan-200,
+:root[data-theme="dark"] .theme-dark .text-cyan-300,
+:root[data-theme="dark"] .theme-dark .text-cyan-400,
+:root[data-theme="dark"] .theme-dark .text-cyan-500,
+:root[data-theme="dark"] .theme-dark .text-green-300,
+:root[data-theme="dark"] .theme-dark .text-green-400,
+:root[data-theme="dark"] .theme-dark .text-emerald-200,
+:root[data-theme="dark"] .theme-dark .text-emerald-300,
+:root[data-theme="dark"] .theme-dark .text-emerald-400,
+:root[data-theme="dark"] .theme-dark .text-teal-300,
+:root[data-theme="dark"] .theme-dark .text-teal-400 {
+  color: #d9b8ff !important;
+}
+
+:root[data-theme="light"] .theme-light .bg-blue-500\/10,
+:root[data-theme="light"] .theme-light .bg-blue-500\/15,
+:root[data-theme="light"] .theme-light .bg-blue-500\/20,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/5,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/10,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/15,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/20,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/30,
+:root[data-theme="light"] .theme-light .bg-green-500\/15,
+:root[data-theme="light"] .theme-light .bg-green-900\/20,
+:root[data-theme="light"] .theme-light .bg-emerald-500\/15,
+:root[data-theme="light"] .theme-light .bg-emerald-500\/30,
+:root[data-theme="dark"] .theme-dark .bg-blue-500\/10,
+:root[data-theme="dark"] .theme-dark .bg-blue-500\/15,
+:root[data-theme="dark"] .theme-dark .bg-blue-500\/20,
+:root[data-theme="dark"] .theme-dark .bg-cyan-500\/5,
+:root[data-theme="dark"] .theme-dark .bg-cyan-500\/10,
+:root[data-theme="dark"] .theme-dark .bg-cyan-500\/15,
+:root[data-theme="dark"] .theme-dark .bg-cyan-500\/20,
+:root[data-theme="dark"] .theme-dark .bg-cyan-500\/30,
+:root[data-theme="dark"] .theme-dark .bg-green-500\/15,
+:root[data-theme="dark"] .theme-dark .bg-green-900\/20,
+:root[data-theme="dark"] .theme-dark .bg-emerald-500\/15,
+:root[data-theme="dark"] .theme-dark .bg-emerald-500\/30 {
+  background-color: rgba(149, 5, 233, 0.22) !important;
+}
+
+:root[data-theme="light"] .theme-light .bg-blue-500\/10,
+:root[data-theme="light"] .theme-light .bg-blue-500\/15,
+:root[data-theme="light"] .theme-light .bg-blue-500\/20,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/5,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/10,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/15,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/20,
+:root[data-theme="light"] .theme-light .bg-cyan-500\/30,
+:root[data-theme="light"] .theme-light .bg-green-500\/15,
+:root[data-theme="light"] .theme-light .bg-green-900\/20,
+:root[data-theme="light"] .theme-light .bg-emerald-500\/15,
+:root[data-theme="light"] .theme-light .bg-emerald-500\/30 {
+  background-color: rgba(157, 119, 228, 0.18) !important;
+}
+
+:root[data-theme="light"] .theme-light .border-blue-300,
+:root[data-theme="light"] .theme-light .border-blue-400,
+:root[data-theme="light"] .theme-light .border-blue-400\/30,
+:root[data-theme="light"] .theme-light .border-cyan-400,
+:root[data-theme="light"] .theme-light .border-cyan-400\/30,
+:root[data-theme="light"] .theme-light .border-cyan-400\/40,
+:root[data-theme="light"] .theme-light .border-cyan-500\/30,
+:root[data-theme="light"] .theme-light .border-cyan-500\/40,
+:root[data-theme="light"] .theme-light .border-cyan-500\/50,
+:root[data-theme="light"] .theme-light .border-green-700\/30,
+:root[data-theme="light"] .theme-light .border-emerald-300,
+:root[data-theme="light"] .theme-light .border-emerald-400\/30,
+:root[data-theme="light"] .theme-light .border-emerald-400\/70,
+:root[data-theme="dark"] .theme-dark .border-blue-300,
+:root[data-theme="dark"] .theme-dark .border-blue-400,
+:root[data-theme="dark"] .theme-dark .border-blue-400\/30,
+:root[data-theme="dark"] .theme-dark .border-cyan-400,
+:root[data-theme="dark"] .theme-dark .border-cyan-400\/30,
+:root[data-theme="dark"] .theme-dark .border-cyan-400\/40,
+:root[data-theme="dark"] .theme-dark .border-cyan-500\/30,
+:root[data-theme="dark"] .theme-dark .border-cyan-500\/40,
+:root[data-theme="dark"] .theme-dark .border-cyan-500\/50,
+:root[data-theme="dark"] .theme-dark .border-green-700\/30,
+:root[data-theme="dark"] .theme-dark .border-emerald-300,
+:root[data-theme="dark"] .theme-dark .border-emerald-400\/30,
+:root[data-theme="dark"] .theme-dark .border-emerald-400\/70 {
+  border-color: rgba(187, 77, 251, 0.7) !important;
+}
+
+:root[data-theme="light"] .theme-light .border-blue-300,
+:root[data-theme="light"] .theme-light .border-blue-400,
+:root[data-theme="light"] .theme-light .border-blue-400\/30,
+:root[data-theme="light"] .theme-light .border-cyan-400,
+:root[data-theme="light"] .theme-light .border-cyan-400\/30,
+:root[data-theme="light"] .theme-light .border-cyan-400\/40,
+:root[data-theme="light"] .theme-light .border-cyan-500\/30,
+:root[data-theme="light"] .theme-light .border-cyan-500\/40,
+:root[data-theme="light"] .theme-light .border-cyan-500\/50,
+:root[data-theme="light"] .theme-light .border-green-700\/30,
+:root[data-theme="light"] .theme-light .border-emerald-300,
+:root[data-theme="light"] .theme-light .border-emerald-400\/30,
+:root[data-theme="light"] .theme-light .border-emerald-400\/70 {
+  border-color: rgba(138, 89, 213, 0.62) !important;
+}
+
+:root[data-theme="light"] .theme-light .hover\:border-cyan-500\/50:hover,
+:root[data-theme="light"] .theme-light .hover\:border-cyan-500\/60:hover,
+:root[data-theme="light"] .theme-light .hover\:border-cyan-600:hover,
+:root[data-theme="light"] .theme-light .hover\:border-emerald-400\/55:hover,
+:root[data-theme="light"] .theme-light .hover\:border-emerald-400\/70:hover,
+:root[data-theme="dark"] .theme-dark .hover\:border-cyan-500\/50:hover,
+:root[data-theme="dark"] .theme-dark .hover\:border-cyan-500\/60:hover,
+:root[data-theme="dark"] .theme-dark .hover\:border-cyan-600:hover,
+:root[data-theme="dark"] .theme-dark .hover\:border-emerald-400\/55:hover,
+:root[data-theme="dark"] .theme-dark .hover\:border-emerald-400\/70:hover {
+  border-color: rgba(196, 104, 255, 0.88) !important;
+}
+
+:root[data-theme="light"] .theme-light .focus\:border-cyan-500:focus,
+:root[data-theme="light"] .theme-light .focus\:border-emerald-400:focus,
+:root[data-theme="dark"] .theme-dark .focus\:border-cyan-500:focus,
+:root[data-theme="dark"] .theme-dark .focus\:border-emerald-400:focus {
+  border-color: rgba(187, 77, 251, 0.9) !important;
+}
+
+:root[data-theme="light"] .theme-light .focus\:ring-cyan-500:focus,
+:root[data-theme="light"] .theme-light .focus\:ring-emerald-400:focus,
+:root[data-theme="dark"] .theme-dark .focus\:ring-cyan-500:focus,
+:root[data-theme="dark"] .theme-dark .focus\:ring-emerald-400:focus {
+  --tw-ring-color: rgba(187, 77, 251, 0.35) !important;
+}
+
+:root[data-theme="light"] .theme-light [class*="from-cyan-"],
+:root[data-theme="light"] .theme-light [class*="from-blue-"],
+:root[data-theme="light"] .theme-light [class*="from-sky-"],
+:root[data-theme="light"] .theme-light [class*="from-emerald-"],
+:root[data-theme="dark"] .theme-dark [class*="from-cyan-"],
+:root[data-theme="dark"] .theme-dark [class*="from-blue-"],
+:root[data-theme="dark"] .theme-dark [class*="from-sky-"],
+:root[data-theme="dark"] .theme-dark [class*="from-emerald-"] {
+  --tw-gradient-from: rgba(149, 5, 233, 0.42) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(149, 5, 233, 0) var(--tw-gradient-to-position) !important;
+}
+
+:root[data-theme="light"] .theme-light [class*="to-cyan-"],
+:root[data-theme="light"] .theme-light [class*="to-blue-"],
+:root[data-theme="light"] .theme-light [class*="to-sky-"],
+:root[data-theme="light"] .theme-light [class*="to-emerald-"],
+:root[data-theme="dark"] .theme-dark [class*="to-cyan-"],
+:root[data-theme="dark"] .theme-dark [class*="to-blue-"],
+:root[data-theme="dark"] .theme-dark [class*="to-sky-"],
+:root[data-theme="dark"] .theme-dark [class*="to-emerald-"] {
+  --tw-gradient-to: rgba(92, 3, 144, 0.08) var(--tw-gradient-to-position) !important;
 }
 
 /* Typography */
@@ -956,8 +1188,8 @@ button {
 }
 
 .score-meter__segment.is-active {
-  background: linear-gradient(90deg, #22d3ee 0%, #38bdf8 100%);
-  box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+  background: linear-gradient(90deg, #9505e9 0%, #bb4dfb 100%);
+  box-shadow: 0 0 12px rgba(149, 5, 233, 0.42);
   transform: scaleY(1.12);
 }
 
@@ -1025,8 +1257,8 @@ button {
 }
 
 .gauge-segment.is-active {
-  background: linear-gradient(180deg, #22d3ee 0%, #4ade80 100%);
-  box-shadow: 0 0 14px rgba(34, 211, 238, 0.5);
+  background: linear-gradient(180deg, #bb4dfb 0%, #9505e9 100%);
+  box-shadow: 0 0 14px rgba(149, 5, 233, 0.5);
 }
 
 .chat-readable {
@@ -1229,13 +1461,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .weather-map-shell {
   box-shadow:
-    inset 0 0 0 1px rgba(158, 196, 223, 0.2),
+    inset 0 0 0 1px rgba(157, 119, 228, 0.22),
     0 14px 34px rgba(4, 13, 24, 0.45),
-    0 0 28px rgba(94, 143, 180, 0.3);
+    0 0 28px rgba(149, 5, 233, 0.24);
 }
 
 .weather-map-frame {
-  background: #d8ecfb;
+  background: #f4eefb;
 }
 
 .weather-leaflet-map {
@@ -1247,22 +1479,22 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .weather-leaflet-map .leaflet-control-zoom a {
-  background: rgba(10, 24, 48, 0.92);
-  color: #eef7ff;
-  border: 1px solid rgba(126, 177, 212, 0.55);
+  background: rgba(34, 1, 53, 0.92);
+  color: #f3e8ff;
+  border: 1px solid rgba(187, 77, 251, 0.5);
 }
 
 .weather-leaflet-map .leaflet-control-zoom a:hover {
-  background: rgba(26, 56, 94, 0.95);
+  background: rgba(47, 7, 72, 0.95);
 }
 
 .weather-leaflet-map .leaflet-control-attribution {
-  background: rgba(8, 21, 40, 0.82);
-  color: #d6ebfb;
+  background: rgba(34, 1, 53, 0.82);
+  color: #ecd9ff;
 }
 
 .weather-leaflet-map .leaflet-control-attribution a {
-  color: #8fd1ff;
+  color: #d9b8ff;
 }
 
 .weather-leaflet-map .leaflet-tooltip {
@@ -1283,15 +1515,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background:
     linear-gradient(
       180deg,
-      rgba(87, 154, 205, 0.03) 0%,
-      rgba(87, 154, 205, 0.06) 100%
+      rgba(149, 5, 233, 0.03) 0%,
+      rgba(149, 5, 233, 0.06) 100%
     ),
     radial-gradient(
       circle at 24% 12%,
-      rgba(219, 240, 255, 0.08),
+      rgba(221, 166, 253, 0.08),
       transparent 44%
     );
-  box-shadow: inset 0 0 0 1px rgba(198, 226, 245, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(187, 77, 251, 0.2);
 }
 
 .weather-map-credit {
@@ -1301,9 +1533,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   z-index: 450;
   padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(126, 177, 212, 0.5);
-  background: rgba(15, 51, 86, 0.86);
-  color: #ffffff;
+  border: 1px solid rgba(187, 77, 251, 0.5);
+  background: rgba(34, 1, 53, 0.86);
+  color: #f3e8ff;
   font-size: 10px;
   letter-spacing: 0.02em;
   text-transform: uppercase;

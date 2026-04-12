@@ -29,7 +29,9 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   const suggestionText = buildSuggestionText();
 
   const getClassificationColor = (classification: string) => {
-    return classification === "Outdoor" ? "text-amber-400" : "text-blue-400";
+    return classification === "Outdoor"
+      ? "task-classification task-classification-outdoor"
+      : "task-classification task-classification-indoor";
   };
 
   const confidenceSegments = 20;
@@ -38,7 +40,7 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   );
 
   return (
-    <div className="card space-y-4 glow-cyan">
+    <div className="card space-y-4">
       <div className="flex items-start justify-between mb-4 gap-3">
         <h3 className="text-lg font-bold text-slate-100">
           🧠 Activity Analysis
@@ -113,8 +115,8 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
 
       {(task.suggested_activity || task.suggested_classification) && (
         <div className="pt-4 border-t border-slate-700">
-          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
-            <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wide mb-2">
+          <div className="bg-fuchsia-500/10 border border-fuchsia-400/30 rounded-lg p-3">
+            <p className="text-xs font-semibold text-fuchsia-300 uppercase tracking-wide mb-2">
               💡 Auto-Judge Suggestion
             </p>
             <div className="space-y-2">
@@ -147,7 +149,7 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
                 <button
                   type="button"
                   onClick={() => onUseSuggestion(suggestionText)}
-                  className="mt-2 px-3 py-1.5 text-xs rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30 transition-colors">
+                  className="mt-2 px-3 py-1.5 text-xs rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-fuchsia-200 hover:bg-fuchsia-500/30 transition-colors">
                   Use suggestion and re-analyze
                 </button>
               )}
@@ -158,8 +160,8 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
 
       {(task.best_date || task.best_time) && (
         <div className="pt-4 border-t border-slate-700">
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
-            <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">
+          <div className="bg-violet-500/10 border border-violet-400/30 rounded-lg p-3">
+            <p className="text-xs font-semibold text-violet-300 uppercase tracking-wide mb-2">
               🗓️ Best Time Suggestion
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
