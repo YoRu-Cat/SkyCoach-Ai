@@ -155,6 +155,39 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
           </div>
         </div>
       )}
+
+      {(task.best_date || task.best_time) && (
+        <div className="pt-4 border-t border-slate-700">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+            <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">
+              🗓️ Best Time Suggestion
+            </p>
+            <div className="flex flex-wrap gap-4 text-sm">
+              {task.best_date && (
+                <div>
+                  <p className="text-xs text-slate-400">Date</p>
+                  <p className="text-slate-200 font-semibold">
+                    {task.best_date}
+                  </p>
+                </div>
+              )}
+              {task.best_time && (
+                <div>
+                  <p className="text-xs text-slate-400">Time</p>
+                  <p className="text-slate-200 font-semibold">
+                    {task.best_time}
+                  </p>
+                </div>
+              )}
+            </div>
+            {task.best_datetime_reason && (
+              <p className="text-xs text-slate-300 mt-2">
+                {task.best_datetime_reason}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

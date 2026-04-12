@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from datetime import datetime, timedelta
 from models.data_classes import TaskAnalysis, WeatherData, SkyScoreResult, Config
 
 
@@ -124,3 +125,140 @@ def get_alternative_activities(classification: str, weather: WeatherData) -> Lis
         suggestions.extend(outdoor_activities[:2])
     
     return suggestions[:4]
+
+
+def _score_slot_for_task(task: TaskAnalysis, slot: dict) -> tuple[float, str]:
+    is_outdoor = task.classification == "Outdoor"
+    confidence = float(getattr(task, "confidence", 0.0) or 0.0)
+
+    temp_c = float(slot.get("temp_c", 24.0))
+    wind_mph = float(slot.get("wind_mph", 5.0))
+    rain_1h = float(slot.get("rain_1h", 0.0))
+    is_raining = bool(slot.get("is_raining", False))
+
+    score = 100.0
+    reasons: list[str] = []
+
+    if is_outdoor:
+        if is_raining or rain_1h > 0.2:
+            score -= 45
+            reasons.append("rain risk")
+        if wind_mph > 18:
+            score -= 18
+            reasons.append("strong wind")
+        if temp_c >= 34:
+            score -= 22
+            reasons.append("high heat")
+        elif temp_c <= 7:
+            score -= 12
+            reasons.append("cold conditions")
+        else:
+            reasons.append("comfortable outdoor conditions")
+    else:
+        # Indoor tasks tolerate weather, but bad outdoor weather can be a positive.
+        if is_raining or rain_1h > 0.2:
+            score += 8
+            reasons.append("rain favors indoor focus")
+        if temp_c >= 33:
+            score += 6
+            reasons.append("heat favors indoor timing")
+        if confidence < 0.65:
+            score -= 8
+            reasons.append("intent ambiguity, keep slot flexible")
+        if not reasons:
+            reasons.append("stable indoor slot")
+
+    score = max(0.0, min(100.0, score))
+    return score, ", ".join(reasons)
+
+
+def recommend_best_schedule(
+    task: TaskAnalysis,
+    weather: WeatherData,
+    forecast_slots: Optional[list[dict]] = None,
+) -> tuple[str, str, str]:
+    """Recommend best date/time slot for a task from current weather context.
+
+    Heuristic-based recommendation designed to avoid overly strict blocking while
+    still respecting key weather constraints for indoor/outdoor activities.
+    """
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+
+    temp_c = weather.temp_celsius if hasattr(weather, "temp_celsius") else weather.temperature
+    is_outdoor = task.classification == "Outdoor"
+    confidence = float(getattr(task, "confidence", 0.0) or 0.0)
+
+    if forecast_slots:
+        best = None
+        best_score = -1.0
+        best_reason = ""
+        for slot in forecast_slots:
+            score, reason = _score_slot_for_task(task, slot)
+            if score > best_score:
+                best = slot
+                best_score = score
+                best_reason = reason
+
+        if best is not None:
+            return (
+                str(best.get("date", today.isoformat())),
+                str(best.get("time_range", "09:00-11:00")),
+                f"Best slot selected from multi-day forecast ({best_reason}).",
+            )
+
+    if is_outdoor:
+        if weather.is_raining or weather.rain_1h > 0.2:
+            return (
+                tomorrow.isoformat(),
+                "08:00-10:00",
+                "Rain is active now; next morning is safer for outdoor plans.",
+            )
+        if weather.wind_mph > 18:
+            return (
+                today.isoformat(),
+                "16:30-18:30",
+                "Wind is currently strong; later daylight hours are likely more comfortable.",
+            )
+        if temp_c >= 33:
+            return (
+                today.isoformat(),
+                "06:30-08:30",
+                "Heat is high; early morning minimizes thermal stress outdoors.",
+            )
+        if temp_c <= 8:
+            return (
+                today.isoformat(),
+                "11:00-13:00",
+                "Cool conditions favor a late-morning outdoor slot.",
+            )
+        return (
+            today.isoformat(),
+            "07:30-09:30",
+            "Current weather is suitable for an outdoor session this morning.",
+        )
+
+    # Indoor: allow flexibility, but leverage bad weather/high heat as strong positives.
+    if weather.is_raining or weather.rain_1h > 0.2:
+        return (
+            today.isoformat(),
+            "18:00-20:00",
+            "Rainy weather pairs well with indoor tasks in the evening.",
+        )
+    if temp_c >= 33:
+        return (
+            today.isoformat(),
+            "13:00-15:00",
+            "Peak heat hours are optimal for staying indoors.",
+        )
+    if confidence < 0.65:
+        return (
+            today.isoformat(),
+            "17:00-18:00",
+            "Task intent is somewhat ambiguous; a flexible early-evening slot is recommended.",
+        )
+    return (
+        today.isoformat(),
+        "10:00-12:00",
+        "Stable conditions and indoor classification support a productive mid-morning slot.",
+    )

@@ -11,12 +11,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from services.ai_engine import (
     analyze_task_smart,
     get_demo_weather,
+    get_demo_weather_forecast,
     get_weather,
     get_weather_by_city,
+    get_weather_forecast,
+    get_weather_forecast_by_city,
 )
 from services.maps import render_map
 from services.chat_assistant import chat_assistant_reply
-from core.scoring_engine import calculate_sky_score, get_alternative_activities
+from core.scoring_engine import (
+    calculate_sky_score,
+    get_alternative_activities,
+    recommend_best_schedule,
+)
 from models.data_classes import Config, TaskAnalysis, WeatherData
 from backend.schemas.models import (
     TaskAnalysisRequest,
@@ -51,6 +58,9 @@ def convert_task_to_response(task: TaskAnalysis) -> TaskAnalysisResponse:
         suggested_activity=getattr(task, "suggested_activity", None),
         suggested_classification=getattr(task, "suggested_classification", None),
         suggestion_confidence=getattr(task, "suggestion_confidence", 0.0),
+        best_date=getattr(task, "best_date", None),
+        best_time=getattr(task, "best_time", None),
+        best_datetime_reason=getattr(task, "best_datetime_reason", None),
     )
 
 
@@ -247,6 +257,7 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
         weather_api_key = request.weather_api_key or os.getenv("OPENWEATHER_API_KEY")
 
         has_coordinates = request.latitude is not None and request.longitude is not None
+        forecast_slots = []
 
         if request.use_demo_weather or not weather_api_key:
             weather = get_demo_weather(
@@ -254,14 +265,29 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
                 latitude=request.latitude if has_coordinates else None,
                 longitude=request.longitude if has_coordinates else None,
             )
+            forecast_slots = get_demo_weather_forecast(request.city)
         else:
             if has_coordinates:
                 weather = get_weather(request.latitude, request.longitude, weather_api_key)
+                forecast_slots = get_weather_forecast(
+                    request.latitude,
+                    request.longitude,
+                    weather_api_key,
+                )
             else:
                 weather = get_weather_by_city(request.city, weather_api_key)
+                forecast_slots = get_weather_forecast_by_city(request.city, weather_api_key)
         
         config = Config()
         score_result = calculate_sky_score(task, weather, config)
+        best_date, best_time, best_reason = recommend_best_schedule(
+            task,
+            weather,
+            forecast_slots=forecast_slots,
+        )
+        task.best_date = best_date
+        task.best_time = best_time
+        task.best_datetime_reason = best_reason
         alternatives = get_alternative_activities(task.classification, weather)
         
         return AnalysisResponse(

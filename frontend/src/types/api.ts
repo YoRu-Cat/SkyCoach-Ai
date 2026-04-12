@@ -10,6 +10,9 @@ export interface TaskAnalysis {
   suggested_activity?: string;
   suggested_classification?: string;
   suggestion_confidence: number;
+  best_date?: string;
+  best_time?: string;
+  best_datetime_reason?: string;
 }
 
 export interface WeatherData {

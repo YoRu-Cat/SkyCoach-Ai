@@ -32,6 +32,9 @@ class TaskAnalysis:
     suggested_activity: Optional[str] = None
     suggested_classification: Optional[str] = None
     suggestion_confidence: float = 0.0
+    best_date: Optional[str] = None
+    best_time: Optional[str] = None
+    best_datetime_reason: Optional[str] = None
 
 
 @dataclass

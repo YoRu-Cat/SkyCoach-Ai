@@ -3,6 +3,7 @@ import os
 import re
 import requests
 import json
+from datetime import datetime, timedelta
 from typing import Optional
 from models.data_classes import WeatherData, TaskAnalysis, Config
 from services.auto_judge import auto_judge_input, classify_with_dictionary
@@ -554,6 +555,116 @@ def get_weather_by_city(city: str, api_key: str, units: str = "metric") -> Weath
         icon_code=weather.get("icon", "01d"),
         units=units
     )
+
+
+def _format_slot_time_range(dt_obj: datetime) -> str:
+    end = dt_obj + timedelta(hours=2)
+    return f"{dt_obj.strftime('%H:%M')}-{end.strftime('%H:%M')}"
+
+
+def get_weather_forecast(lat: float, lon: float, api_key: str, units: str = "metric") -> list[dict]:
+    """Fetch 5-day / 3-hour forecast and return normalized slots."""
+    url = "https://api.openweathermap.org/data/2.5/forecast"
+    params = {"lat": lat, "lon": lon, "appid": api_key, "units": units}
+    response = requests.get(url, params=params, timeout=12)
+    response.raise_for_status()
+    data = response.json()
+
+    slots: list[dict] = []
+    for item in data.get("list", [])[:32]:
+        dt_txt = item.get("dt_txt")
+        if not dt_txt:
+            continue
+        dt_obj = datetime.strptime(dt_txt, "%Y-%m-%d %H:%M:%S")
+        rain_1h = float(item.get("rain", {}).get("3h", 0.0) or 0.0) / 3.0
+        weather = (item.get("weather") or [{}])[0]
+        wind_speed = float(item.get("wind", {}).get("speed", 0.0) or 0.0)
+        wind_mph = wind_speed * 2.237 if units == "metric" else wind_speed
+        temp = float(item.get("main", {}).get("temp", 0.0) or 0.0)
+        temp_c = ((temp - 32) * 5 / 9) if units == "imperial" else temp
+
+        slots.append(
+            {
+                "date": dt_obj.date().isoformat(),
+                "time_range": _format_slot_time_range(dt_obj),
+                "temp_c": round(temp_c, 1),
+                "wind_mph": round(wind_mph, 1),
+                "rain_1h": round(rain_1h, 2),
+                "is_raining": rain_1h > 0.0 or weather.get("main") in ["Rain", "Drizzle", "Thunderstorm"],
+                "condition": weather.get("main", "Unknown"),
+            }
+        )
+
+    return slots
+
+
+def get_weather_forecast_by_city(city: str, api_key: str, units: str = "metric") -> list[dict]:
+    """Fetch city forecast and return normalized slots."""
+    url = "https://api.openweathermap.org/data/2.5/forecast"
+    params = {"q": city, "appid": api_key, "units": units}
+    response = requests.get(url, params=params, timeout=12)
+    response.raise_for_status()
+    data = response.json()
+
+    slots: list[dict] = []
+    for item in data.get("list", [])[:32]:
+        dt_txt = item.get("dt_txt")
+        if not dt_txt:
+            continue
+        dt_obj = datetime.strptime(dt_txt, "%Y-%m-%d %H:%M:%S")
+        rain_1h = float(item.get("rain", {}).get("3h", 0.0) or 0.0) / 3.0
+        weather = (item.get("weather") or [{}])[0]
+        wind_speed = float(item.get("wind", {}).get("speed", 0.0) or 0.0)
+        wind_mph = wind_speed * 2.237 if units == "metric" else wind_speed
+        temp = float(item.get("main", {}).get("temp", 0.0) or 0.0)
+        temp_c = ((temp - 32) * 5 / 9) if units == "imperial" else temp
+
+        slots.append(
+            {
+                "date": dt_obj.date().isoformat(),
+                "time_range": _format_slot_time_range(dt_obj),
+                "temp_c": round(temp_c, 1),
+                "wind_mph": round(wind_mph, 1),
+                "rain_1h": round(rain_1h, 2),
+                "is_raining": rain_1h > 0.0 or weather.get("main") in ["Rain", "Drizzle", "Thunderstorm"],
+                "condition": weather.get("main", "Unknown"),
+            }
+        )
+
+    return slots
+
+
+def get_demo_weather_forecast(city: str = "New York") -> list[dict]:
+    """Deterministic demo forecast slots (5 days x 3 slots/day)."""
+    city_hash = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
+    base_temp = 18 + (city_hash % 12)
+    today = datetime.now().date()
+
+    slots: list[dict] = []
+    anchors = [8, 13, 18]
+    for d in range(5):
+        day = today + timedelta(days=d)
+        for idx, hour in enumerate(anchors):
+            seed = city_hash + d * 17 + idx * 31
+            rain_1h = 0.0 if seed % 5 else round((seed % 7) * 0.3, 2)
+            is_raining = rain_1h > 0.0
+            wind_mph = round(4 + (seed % 14), 1)
+            temp_c = round(base_temp + (idx - 1) * 2 + ((seed % 9) - 4) * 0.4, 1)
+            start = datetime(day.year, day.month, day.day, hour, 0)
+            condition = "Rain" if is_raining else "Clear"
+            slots.append(
+                {
+                    "date": day.isoformat(),
+                    "time_range": _format_slot_time_range(start),
+                    "temp_c": temp_c,
+                    "wind_mph": wind_mph,
+                    "rain_1h": rain_1h,
+                    "is_raining": is_raining,
+                    "condition": condition,
+                }
+            )
+
+    return slots
 
 
 def get_demo_weather(
