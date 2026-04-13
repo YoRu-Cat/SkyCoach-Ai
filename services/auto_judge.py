@@ -177,6 +177,7 @@ def _build_token_priors() -> dict[str, dict[str, float]]:
 
 
 TOKEN_PRIORS = _build_token_priors()
+KNOWN_ACTIVITY_TOKENS = set(TOKEN_PRIORS.keys())
 
 
 @lru_cache(maxsize=256)
@@ -322,20 +323,41 @@ def extract_words(text: str) -> list[str]:
     return re.findall(r'\b[a-z]+\b', text.lower())
 
 
+def _looks_broken_for_suggestion(text: str) -> bool:
+    """Return True only when text appears typo/incomplete enough to justify correction."""
+    normalized = _normalize(text)
+    if not normalized or len(normalized) < 3:
+        return True
+
+    content_tokens = [t for t in _content_tokens(normalized) if len(t) >= 3]
+    if not content_tokens:
+        return True
+
+    known = sum(1 for t in content_tokens if t in KNOWN_ACTIVITY_TOKENS)
+    known_ratio = known / max(1, len(content_tokens))
+
+    # If most content tokens are already known activity tokens,
+    # treat the input as valid and avoid rewriting it.
+    if len(content_tokens) >= 2 and known_ratio >= 0.6:
+        return False
+
+    # Single token inputs are often shorthand; only correct when unknown.
+    if len(content_tokens) == 1:
+        return content_tokens[0] not in KNOWN_ACTIVITY_TOKENS
+
+    return True
+
+
 def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
     if not broken_input or len(broken_input.strip()) < 3:
+        return None
+
+    if not _looks_broken_for_suggestion(broken_input):
         return None
 
     cleaned = broken_input.strip().lower()
     input_content = _content_tokens(cleaned)
     input_tokens = _tokenize(cleaned)
-
-    has_online_hint = len(input_tokens & ONLINE_HINTS) > 0
-    has_physical_store_hint = len(input_tokens & PHYSICAL_STORE_HINTS) > 0
-    if has_physical_store_hint and not has_online_hint:
-        if "tobacco" in input_tokens or "cigarette" in input_tokens or "cigarettes" in input_tokens:
-            return ("going to tobacco shop", 0.86, "Outdoor")
-        return ("going to store", 0.82, "Outdoor")
 
     close_matches = get_close_matches(cleaned, ALL_ACTIVITIES, n=5, cutoff=0.52)
 

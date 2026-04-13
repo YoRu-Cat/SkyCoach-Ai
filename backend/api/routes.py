@@ -99,20 +99,6 @@ def _enrich_task_with_ml_suggestions(task: TaskAnalysis, input_text: str) -> Non
                 task.suggested_classification = top.get("label")
             if not getattr(task, "suggestion_confidence", 0.0):
                 task.suggestion_confidence = float(top.get("confidence", 0.0))
-
-        # Always provide actionable text when we have any hint that a correction helps.
-        if not task.suggested_activity and (
-            suggestions
-            or task.needs_clarification
-            or task.confidence < 0.75
-        ):
-            base = task.activity if task.activity and task.activity != "Needs clarification" else input_text
-            if task.suggested_classification == "Outdoor":
-                task.suggested_activity = f"{base} outside"
-            elif task.suggested_classification == "Indoor":
-                task.suggested_activity = f"{base} indoors"
-            else:
-                task.suggested_activity = input_text
     except Exception:
         # Keep primary analysis response intact if ML fallback is unavailable.
         pass
