@@ -10,6 +10,109 @@ from services.auto_judge import auto_judge_input, classify_with_dictionary
 from services.task_classifier_ml import predict_task_label
 
 
+SEMANTIC_STOPWORDS = {
+    "i", "me", "my", "we", "our", "you", "your", "the", "a", "an", "to", "for",
+    "of", "on", "in", "at", "with", "and", "or", "but", "is", "are", "am", "be",
+    "this", "that", "today", "tonight", "now", "soon", "later",
+}
+
+INDOOR_TOKEN_WEIGHTS = {
+    "office": 1.25, "class": 1.05, "school": 1.05, "study": 1.1, "homework": 1.1,
+    "library": 1.0, "room": 0.9, "inside": 1.0, "indoors": 1.15, "kitchen": 0.95,
+    "meeting": 0.9, "presentation": 1.0, "coding": 1.2, "work": 1.0, "restaurant": 0.85,
+    "cafe": 0.8, "cinema": 0.85, "mall": 0.75, "gym": 0.7,
+}
+
+OUTDOOR_TOKEN_WEIGHTS = {
+    "outside": 1.2, "outdoors": 1.25, "park": 1.05, "road": 0.95, "street": 0.95,
+    "jog": 1.15, "run": 1.15, "walk": 1.05, "hike": 1.2, "cycle": 1.15,
+    "cycling": 1.15, "ride": 1.0, "trail": 1.15, "beach": 1.1, "market": 0.8,
+    "shop": 0.7, "travel": 0.85, "commute": 0.9, "station": 0.85, "airport": 0.85,
+    "field": 1.0, "ground": 0.95, "soccer": 1.1, "football": 1.1,
+}
+
+INDOOR_PHRASE_WEIGHTS = {
+    "work at office": 1.45,
+    "at the office": 1.35,
+    "in office": 1.25,
+    "at home": 1.1,
+    "inside room": 1.15,
+}
+
+OUTDOOR_PHRASE_WEIGHTS = {
+    "go to office": 1.05,
+    "going to office": 1.15,
+    "travel to office": 1.2,
+    "running in park": 1.35,
+    "playing soccer": 1.25,
+    "walking outside": 1.25,
+    "go for walk": 1.15,
+}
+
+
+def _extract_word_units(text: str) -> tuple[list[str], list[str]]:
+    normalized = re.sub(r"[^a-zA-Z0-9\s']", " ", text.lower())
+    tokens = [t for t in re.split(r"\s+", normalized.strip()) if t]
+    phrases: list[str] = []
+    for n in (2, 3):
+        for i in range(0, max(0, len(tokens) - n + 1)):
+            phrases.append(" ".join(tokens[i : i + n]))
+    return tokens, phrases
+
+
+def _token_semantic_analysis(text: str) -> dict:
+    tokens, phrases = _extract_word_units(text)
+
+    indoor_score = 0.0
+    outdoor_score = 0.0
+    indoor_hits: list[str] = []
+    outdoor_hits: list[str] = []
+
+    for token in tokens:
+        if token in INDOOR_TOKEN_WEIGHTS:
+            indoor_score += INDOOR_TOKEN_WEIGHTS[token]
+            indoor_hits.append(token)
+        if token in OUTDOOR_TOKEN_WEIGHTS:
+            outdoor_score += OUTDOOR_TOKEN_WEIGHTS[token]
+            outdoor_hits.append(token)
+
+    for phrase in phrases:
+        if phrase in INDOOR_PHRASE_WEIGHTS:
+            indoor_score += INDOOR_PHRASE_WEIGHTS[phrase]
+            indoor_hits.append(phrase)
+        if phrase in OUTDOOR_PHRASE_WEIGHTS:
+            outdoor_score += OUTDOOR_PHRASE_WEIGHTS[phrase]
+            outdoor_hits.append(phrase)
+
+    label = "Indoor" if indoor_score >= outdoor_score else "Outdoor"
+    total = max(0.01, indoor_score + outdoor_score)
+    confidence = max(indoor_score, outdoor_score) / total
+
+    salient = [
+        t for t in tokens
+        if t not in SEMANTIC_STOPWORDS and len(t) >= 3
+    ]
+    reconstructed_activity = " ".join(salient[:8]).strip() or text.strip()
+
+    rationale_parts = [
+        f"token indoor score={indoor_score:.2f}",
+        f"token outdoor score={outdoor_score:.2f}",
+    ]
+    if indoor_hits:
+        rationale_parts.append(f"indoor cues: {', '.join(indoor_hits[:5])}")
+    if outdoor_hits:
+        rationale_parts.append(f"outdoor cues: {', '.join(outdoor_hits[:5])}")
+
+    return {
+        "label": label,
+        "confidence": min(0.99, max(0.5, confidence)),
+        "rationale": "; ".join(rationale_parts),
+        "reconstructed_activity": reconstructed_activity,
+        "indoor_score": indoor_score,
+        "outdoor_score": outdoor_score,
+    }
+
+
 def _stable_fallback_coords(city: str) -> tuple[float, float]:
     digest = hashlib.md5(city.lower().encode()).hexdigest()
     lat_bucket = int(digest[:6], 16) / 0xFFFFFF
@@ -348,7 +451,8 @@ Keep intent unchanged. Do not classify."""
 
 def analyze_task_fallback(text: str) -> TaskAnalysis:
     compact_text = re.sub(r"\s+", " ", text.strip())
-    activity = compact_text[:60]
+    token_signal = _token_semantic_analysis(compact_text)
+    activity = token_signal["reconstructed_activity"][:60]
 
     ml_label = None
     ml_confidence = 0.0
@@ -359,14 +463,14 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     try:
         from ml_system.api import get_ml_system
 
-        ml_result = get_ml_system().predict(text)
+        ml_result = get_ml_system().predict(compact_text)
         ml_label = ml_result.get("label")
         ml_confidence = float(ml_result.get("confidence", 0.0) or 0.0)
         ml_rationale = str(ml_result.get("rationale", ""))
         ml_suggestions = ml_result.get("suggestions", []) or []
     except Exception:
         # Safety fallback for environments where unified model files are unavailable.
-        legacy_prediction = predict_task_label(text)
+        legacy_prediction = predict_task_label(compact_text)
         ml_label = legacy_prediction.classification
         ml_confidence = legacy_prediction.confidence
         ml_rationale = (
@@ -375,12 +479,12 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         )
 
     dict_label, dict_confidence, dict_match = classify_with_dictionary(
-        text,
+        compact_text,
         use_web_enrichment=False,
     )
     if dict_confidence < 0.62:
         enriched_label, enriched_confidence, enriched_match = classify_with_dictionary(
-            text,
+            compact_text,
             use_web_enrichment=True,
         )
         if enriched_confidence > dict_confidence:
@@ -390,13 +494,16 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
                 enriched_match,
             )
 
-    # Prefer calibrated ML output when confident; otherwise rely on dictionary evidence.
-    if ml_label in {"Indoor", "Outdoor"}:
-        classification = ml_label
-        confidence = ml_confidence
-    else:
-        classification = dict_label if dict_confidence >= 0.52 else "Indoor"
-        confidence = max(ml_confidence, dict_confidence * 0.9)
+    vote_scores = {"Indoor": 0.0, "Outdoor": 0.0}
+    if ml_label in vote_scores:
+        vote_scores[ml_label] += ml_confidence * 0.58
+    if dict_label in vote_scores:
+        vote_scores[dict_label] += dict_confidence * 0.27
+    vote_scores[token_signal["label"]] += float(token_signal["confidence"]) * 0.35
+
+    classification = max(vote_scores.items(), key=lambda x: x[1])[0]
+    confidence = max(vote_scores.values())
+    confidence = min(0.98, max(0.52, confidence))
 
     disagreement_override = False
     if (
@@ -432,7 +539,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
             classification = dict_label
             confidence = min(0.7, max(dict_confidence, ml_confidence))
 
-    suggestion = auto_judge_input(text)
+    suggestion = auto_judge_input(compact_text)
     if suggestion["is_broken"] and suggestion["suggestion"]:
         suggested_activity = suggestion["suggestion"]
         if suggestion.get("classification"):
@@ -442,7 +549,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
             float(suggestion.get("confidence", 0.0) or 0.0),
         )
 
-        if suggestion_confidence >= 0.82 and _has_word_overlap(text, suggested_activity):
+        if suggestion_confidence >= 0.82 and _has_word_overlap(compact_text, suggested_activity):
             activity = suggested_activity
             classification = suggested_classification or classification
             confidence = max(confidence, min(0.94, suggestion_confidence))
@@ -452,6 +559,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     reasoning_parts = []
     if ml_rationale:
         reasoning_parts.append(f"ML: {ml_rationale}")
+    reasoning_parts.append(f"Token semantics: {token_signal['rationale']}")
     if dict_match and dict_confidence >= 0.52:
         reasoning_parts.append(f"Dictionary match: '{dict_match}' ({dict_confidence:.2f})")
     if disagreement_override:
@@ -463,7 +571,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
 
     return TaskAnalysis(
         original_text=text,
-        cleaned_text=text.title(),
+        cleaned_text=compact_text,
         activity=activity,
         classification=classification,
         confidence=confidence,
