@@ -6,27 +6,11 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
-  const buildSuggestionText = () => {
-    if (task.suggested_activity && task.suggested_activity.trim()) {
-      return task.suggested_activity.trim();
-    }
-
-    const base =
-      task.activity && task.activity !== "Needs clarification"
-        ? task.activity
-        : task.original_text;
-
-    if (task.suggested_classification === "Outdoor") {
-      return `${base} outside`;
-    }
-    if (task.suggested_classification === "Indoor") {
-      return `${base} indoors`;
-    }
-
-    return base;
-  };
-
-  const suggestionText = buildSuggestionText();
+  const suggestionText = task.suggested_activity?.trim() || "";
+  const hasActionableSuggestion =
+    suggestionText.length > 0 &&
+    suggestionText.toLowerCase() !== task.activity.toLowerCase() &&
+    suggestionText.toLowerCase() !== task.original_text.toLowerCase();
 
   const getClassificationColor = (classification: string) => {
     return classification === "Outdoor"
@@ -145,7 +129,7 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
                   </p>
                 </div>
               </div>
-              {onUseSuggestion && (
+              {onUseSuggestion && hasActionableSuggestion && (
                 <button
                   type="button"
                   onClick={() => onUseSuggestion(suggestionText)}

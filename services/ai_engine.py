@@ -62,13 +62,15 @@ def _extract_word_units(text: str) -> tuple[list[str], list[str]]:
 
 def _token_semantic_analysis(text: str) -> dict:
     tokens, phrases = _extract_word_units(text)
+    unique_tokens = list(dict.fromkeys(tokens))
+    unique_phrases = list(dict.fromkeys(phrases))
 
     indoor_score = 0.0
     outdoor_score = 0.0
     indoor_hits: list[str] = []
     outdoor_hits: list[str] = []
 
-    for token in tokens:
+    for token in unique_tokens:
         if token in INDOOR_TOKEN_WEIGHTS:
             indoor_score += INDOOR_TOKEN_WEIGHTS[token]
             indoor_hits.append(token)
@@ -76,7 +78,7 @@ def _token_semantic_analysis(text: str) -> dict:
             outdoor_score += OUTDOOR_TOKEN_WEIGHTS[token]
             outdoor_hits.append(token)
 
-    for phrase in phrases:
+    for phrase in unique_phrases:
         if phrase in INDOOR_PHRASE_WEIGHTS:
             indoor_score += INDOOR_PHRASE_WEIGHTS[phrase]
             indoor_hits.append(phrase)
@@ -89,7 +91,7 @@ def _token_semantic_analysis(text: str) -> dict:
     confidence = max(indoor_score, outdoor_score) / total
 
     salient = [
-        t for t in tokens
+        t for t in unique_tokens
         if t not in SEMANTIC_STOPWORDS and len(t) >= 3
     ]
     reconstructed_activity = " ".join(salient[:8]).strip() or text.strip()
