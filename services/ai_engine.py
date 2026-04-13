@@ -494,16 +494,23 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
                 enriched_match,
             )
 
-    vote_scores = {"Indoor": 0.0, "Outdoor": 0.0}
+    vote_scores = {"Indoor": 0.0, "Outdoor": 0.0, "Mixed": 0.0, "Unclear": 0.0}
     if ml_label in vote_scores:
         vote_scores[ml_label] += ml_confidence * 0.58
     if dict_label in vote_scores:
         vote_scores[dict_label] += dict_confidence * 0.27
-    vote_scores[token_signal["label"]] += float(token_signal["confidence"]) * 0.35
+    if token_signal["label"] in {"Indoor", "Outdoor"}:
+        vote_scores[token_signal["label"]] += float(token_signal["confidence"]) * 0.35
 
     classification = max(vote_scores.items(), key=lambda x: x[1])[0]
     confidence = max(vote_scores.values())
     confidence = min(0.98, max(0.52, confidence))
+
+    # If token and dictionary signals are weak, trust the calibrated ML class directly.
+    if token_signal["indoor_score"] == 0 and token_signal["outdoor_score"] == 0 and dict_confidence < 0.52:
+        if ml_label in vote_scores:
+            classification = ml_label
+            confidence = min(0.92, max(0.52, ml_confidence))
 
     disagreement_override = False
     if (
