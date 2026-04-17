@@ -17,7 +17,7 @@ class TaskAnalysisResponse(BaseModel):
     original_text: str
     cleaned_text: str
     activity: str
-    classification: Literal["Indoor", "Outdoor"]
+    classification: Literal["Indoor", "Outdoor", "Mixed", "Unclear"]
     confidence: float
     reasoning: str
     needs_clarification: bool = False

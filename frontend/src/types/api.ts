@@ -2,7 +2,7 @@ export interface TaskAnalysis {
   original_text: string;
   cleaned_text: string;
   activity: string;
-  classification: "Indoor" | "Outdoor";
+  classification: "Indoor" | "Outdoor" | "Mixed" | "Unclear";
   confidence: number;
   reasoning: string;
   needs_clarification: boolean;
@@ -36,7 +36,7 @@ export interface WeatherData {
 
 export interface SkyScoreResult {
   score: number;
-  classification: "Indoor" | "Outdoor";
+  classification: "Indoor" | "Outdoor" | "Mixed" | "Unclear";
   weather_factors: string[];
   bonuses: FactorDetail[];
   penalties: FactorDetail[];

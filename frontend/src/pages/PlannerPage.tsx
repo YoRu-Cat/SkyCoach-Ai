@@ -4,7 +4,8 @@ import type { WeatherData } from "@app-types/api";
 import type { TaskCategory, UserTask, WeekForecastDay } from "@app-types/tasks";
 import { useGetWeather } from "@hooks/useApi";
 import { usePreferredCity } from "@hooks/usePreferredCity";
-import { analyzeTask } from "@services/api";
+import { fullAnalysis } from "@services/api";
+import { buildLocalScheduledAt } from "@utils/taskScheduling";
 
 interface PlannerPageProps {
   tasks: UserTask[];
@@ -140,31 +141,63 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
     [tasks],
   );
 
+  const parseBestStartTime = (value?: string): string => {
+    if (!value) return "09:00";
+    const match = value.match(/\b(\d{1,2}:\d{2})\b/);
+    return match?.[1] ?? "09:00";
+  };
+
+  const classificationToCategory = (
+    classification?: string,
+    fallback?: TaskCategory,
+  ): TaskCategory => {
+    const normalized = classification?.toLowerCase();
+    if (normalized === "outdoor") return "outdoor";
+    if (normalized === "indoor") return "indoor";
+    return fallback ?? "indoor";
+  };
+
   const { data: aiJudgedTasks, isFetching: isJudgingTasks } = useQuery(
     [
       "ai-task-judgements",
+      requestedCity,
       activeTasks.map((task) => `${task.id}:${task.title}`),
     ],
     async () => {
       const entries = await Promise.all(
         activeTasks.map(async (task) => {
           try {
-            const result = await analyzeTask(task.title);
-            const normalized = result.classification.toLowerCase();
-            const category: TaskCategory =
-              normalized === "outdoor" ? "outdoor" : "indoor";
+            const result = await fullAnalysis({
+              activityText: task.title,
+              city: requestedCity || defaultCity,
+            });
+            const category = classificationToCategory(
+              result.task.classification,
+              task.category,
+            );
 
             return {
               taskId: task.id,
               category,
-              reasoning: result.reasoning,
-              confidence: Math.round(result.confidence * 100),
+              confidence: Math.round(
+                result.score_result.score * 0.7 +
+                  result.task.confidence * 100 * 0.3,
+              ),
+              classification: result.task.classification,
+              reasoning:
+                result.task.best_datetime_reason || result.task.reasoning,
+              recommendedDate: result.task.best_date,
+              recommendedTime: parseBestStartTime(result.task.best_time),
             };
           } catch {
             return {
               taskId: task.id,
               category: task.category ?? "indoor",
-              reasoning: "Using persisted classification",
+              classification: "Unclear",
+              recommendedDate: undefined,
+              recommendedTime: "09:00",
+              reasoning:
+                "Using persisted classification due to temporary analysis fallback",
               confidence: 60,
             };
           }
@@ -177,8 +210,11 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         string,
         {
           category: TaskCategory;
+          classification: string;
           reasoning: string;
           confidence: number;
+          recommendedDate?: string;
+          recommendedTime: string;
         }
       >;
     },
@@ -200,25 +236,31 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
           .map((day) => ({ day, ...scoreTaskForDay(category, day) }))
           .sort((a, b) => b.score - a.score);
 
-        const best = ranked[0];
+        const fallbackBest = ranked[0];
+        const recommendedDate =
+          judged?.recommendedDate || fallbackBest.day.date;
         return {
           taskId: task.id,
           title: task.title,
           category,
-          recommendedDate: best.day.date,
-          confidence: Math.round(
-            best.score * 0.75 + (judged?.confidence ?? 60) * 0.25,
-          ),
-          reason: `${best.reason} • ${judged?.reasoning ?? "Fallback local classifier"}`,
+          recommendedDate,
+          recommendedTime: judged?.recommendedTime || "09:00",
+          confidence: judged?.confidence ?? Math.round(fallbackBest.score),
+          reason:
+            judged?.reasoning ||
+            `${fallbackBest.reason} • Fallback local weather heuristic`,
+          classification: judged?.classification || "Unclear",
         };
       })
       .sort((a, b) => b.confidence - a.confidence);
   }, [activeTasks, aiJudgedTasks, forecast]);
 
   const applyRecommendations = () => {
-    sequenced.forEach((item, index) => {
-      const hour = 9 + (index % 9);
-      const slot = `${item.recommendedDate}T${String(hour).padStart(2, "0")}:00:00`;
+    sequenced.forEach((item) => {
+      const slot = buildLocalScheduledAt(
+        item.recommendedDate,
+        item.recommendedTime,
+      );
       updateTask(item.taskId, { scheduledAt: slot });
     });
   };
@@ -239,8 +281,8 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
         <p className="text-xs text-emerald-300">
           Task judging:{" "}
           {isJudgingTasks
-            ? "OpenAI judging in progress..."
-            : "OpenAI rephrase + indoor/outdoor suitability"}
+            ? "Core model analysis in progress..."
+            : "Using same full-analysis model as SkyCoach Core"}
         </p>
         <div className="max-w-sm">
           <label
@@ -306,11 +348,13 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
                 Category: {item.category}
               </p>
               <p className="text-sm text-cyan-300 mt-1">
-                Best day: {item.recommendedDate}
+                Best slot: {item.recommendedDate} at {item.recommendedTime}
               </p>
               <p className="text-xs text-slate-400">
-                Confidence: {item.confidence}% • {item.reason}
+                Confidence: {item.confidence}% • Model class:{" "}
+                {item.classification}
               </p>
+              <p className="text-xs text-slate-400">{item.reason}</p>
             </div>
           ))
         )}

@@ -103,7 +103,7 @@ export default function TimetablePage({ tasks, updateTask }: TaskStore) {
                     onClick={() =>
                       updateTask(task.id, { scheduledAt: undefined })
                     }
-                    className="px-3 py-2 border border-slate-600 rounded-lg text-sm text-slate-200 bg-slate-800/70 hover:border-cyan-500/50 transition-colors">
+                    className="px-3 py-2 border border-violet-300/70 rounded-lg text-sm text-violet-50 bg-violet-500/35 hover:bg-violet-500/55 hover:border-violet-200 transition-colors">
                     Clear Slot
                   </button>
                 </div>
