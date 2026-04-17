@@ -3,6 +3,8 @@ import type { TaskCategory, UserTask } from "@app-types/tasks";
 import {
   reserveNextAvailableSlot,
   parseScheduledAt,
+  formatScheduledDate,
+  formatScheduledTime,
 } from "@utils/taskScheduling";
 
 const STORAGE_KEY = "skycoach_tasks_v1";
@@ -175,6 +177,7 @@ const loadTasks = (): UserTask[] => {
 
 export const useTaskStore = () => {
   const [tasks, setTasks] = useState<UserTask[]>(() => loadTasks());
+  const [pendingDueTaskIds, setPendingDueTaskIds] = useState<string[]>([]);
   const [notificationPermission, setNotificationPermission] = useState<
     NotificationPermission | "unsupported"
   >(() => {
@@ -214,6 +217,47 @@ export const useTaskStore = () => {
       didPlay,
       permission,
     };
+  };
+
+  const buildRescheduleTarget = (task: UserTask): string => {
+    const now = new Date();
+    const current = parseScheduledAt(task.scheduledAt) || now;
+    const nextDaySameTime = new Date(current.getTime());
+    nextDaySameTime.setDate(nextDaySameTime.getDate() + 1);
+    nextDaySameTime.setSeconds(0, 0);
+
+    let candidate = nextDaySameTime;
+    if (candidate.getTime() <= now.getTime()) {
+      candidate = new Date(now.getTime());
+      const minutes = candidate.getMinutes();
+      const delta = minutes % 30 === 0 ? 30 : 30 - (minutes % 30);
+      candidate.setMinutes(minutes + delta, 0, 0);
+    }
+
+    return `${formatScheduledDate(candidate)}T${formatScheduledTime(candidate)}:00`;
+  };
+
+  const completeDueTask = (taskId: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+    setPendingDueTaskIds((prev) => prev.filter((id) => id !== taskId));
+  };
+
+  const rescheduleDueTask = (taskId: string) => {
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (task.id !== taskId) return task;
+        const target = buildRescheduleTarget(task);
+        const resolved =
+          reserveNextAvailableSlot(prev, target, taskId) || target;
+        return {
+          ...task,
+          completed: false,
+          scheduledAt: resolved,
+          remindedAt: undefined,
+        };
+      }),
+    );
+    setPendingDueTaskIds((prev) => prev.filter((id) => id !== taskId));
   };
 
   useEffect(() => {
@@ -288,6 +332,11 @@ export const useTaskStore = () => {
               dueIds.has(task.id) ? { ...task, remindedAt } : task,
             ),
           );
+          setPendingDueTaskIds((prev) => {
+            const merged = new Set(prev);
+            dueIds.forEach((id) => merged.add(id));
+            return Array.from(merged);
+          });
         }
 
         scheduleNextReminderCheck();
@@ -329,6 +378,11 @@ export const useTaskStore = () => {
           dueIds.has(task.id) ? { ...task, remindedAt } : task,
         ),
       );
+      setPendingDueTaskIds((prev) => {
+        const merged = new Set(prev);
+        dueIds.forEach((id) => merged.add(id));
+        return Array.from(merged);
+      });
 
       scheduleNextReminderCheck();
     };
@@ -415,6 +469,13 @@ export const useTaskStore = () => {
     setTasks((prev) => prev.filter((task) => !task.completed));
   };
 
+  useEffect(() => {
+    const validIds = new Set(
+      tasks.filter((task) => !task.completed).map((task) => task.id),
+    );
+    setPendingDueTaskIds((prev) => prev.filter((id) => validIds.has(id)));
+  }, [tasks]);
+
   const stats = useMemo(() => {
     const completed = tasks.filter((task) => task.completed).length;
     const scheduled = tasks.filter((task) => !!task.scheduledAt).length;
@@ -430,8 +491,11 @@ export const useTaskStore = () => {
     tasks,
     stats,
     notificationPermission,
+    pendingDueTaskIds,
     enableNotifications,
     testReminder,
+    completeDueTask,
+    rescheduleDueTask,
     addTask,
     updateTask,
     removeTask,
