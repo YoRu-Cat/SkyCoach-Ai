@@ -104,16 +104,42 @@ export default function TodoPage({
                   }`}>
                   {task.completed ? <Check className="w-4 h-4" /> : null}
                 </button>
-                <div>
-                  <p
-                    className={`${task.completed ? "line-through text-slate-500" : "text-slate-100"}`}>
-                    {task.title}
-                  </p>
-                  {task.notes ? (
-                    <p className="text-xs text-slate-400 mt-1">{task.notes}</p>
-                  ) : null}
+                <div className="space-y-2 w-full">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wide text-slate-500">
+                      Event
+                    </label>
+                    <input
+                      value={task.title}
+                      onChange={(e) =>
+                        updateTask(task.id, { title: e.target.value })
+                      }
+                      placeholder="Event title"
+                      title={`Edit event title for ${task.title}`}
+                      className={`mt-1 w-full rounded-md border bg-slate-900/60 px-3 py-2 text-sm outline-none transition-colors ${
+                        task.completed
+                          ? "border-slate-700 text-slate-500"
+                          : "border-slate-700 text-slate-100 focus:border-cyan-500"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-wide text-slate-500">
+                      Notes
+                    </label>
+                    <input
+                      value={task.notes || ""}
+                      onChange={(e) =>
+                        updateTask(task.id, {
+                          notes: e.target.value || undefined,
+                        })
+                      }
+                      placeholder="Optional notes"
+                      className="mt-1 w-full rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-cyan-500"
+                    />
+                  </div>
                   {task.scheduledAt ? (
-                    <p className="text-xs text-cyan-300 mt-1">
+                    <p className="text-xs text-cyan-300">
                       Scheduled: {new Date(task.scheduledAt).toLocaleString()}
                     </p>
                   ) : null}

@@ -3,9 +3,25 @@ import type { TaskAnalysis } from "@app-types/api";
 interface TaskCardProps {
   task: TaskAnalysis;
   onUseSuggestion?: (value: string) => void;
+  onAddToTodo?: (payload: {
+    title: string;
+    notes?: string;
+    scheduledAt?: string;
+    category?: "indoor" | "outdoor";
+  }) => void;
 }
 
-export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  onUseSuggestion,
+  onAddToTodo,
+}: TaskCardProps) {
+  const extractScheduleTime = (value?: string) => {
+    if (!value) return undefined;
+    const match = value.match(/\b(\d{1,2}:\d{2})\b/);
+    return match?.[1];
+  };
+
   const suggestionText = task.suggested_activity?.trim() || "";
   const hasActionableSuggestion =
     suggestionText.length > 0 &&
@@ -22,6 +38,14 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
   const filledConfidenceSegments = Math.round(
     task.confidence * confidenceSegments,
   );
+  const bestScheduledAt =
+    task.best_date && extractScheduleTime(task.best_time)
+      ? `${task.best_date}T${extractScheduleTime(task.best_time)}:00`
+      : undefined;
+  const todoTitle =
+    task.suggested_activity?.trim() || task.activity || task.original_text;
+  const todoCategory = task.classification === "Outdoor" ? "outdoor" : "indoor";
+  const todoNotes = task.best_datetime_reason || task.reasoning;
 
   return (
     <div className="card space-y-4">
@@ -170,6 +194,21 @@ export default function TaskCard({ task, onUseSuggestion }: TaskCardProps) {
               <p className="text-xs text-slate-300 mt-2">
                 {task.best_datetime_reason}
               </p>
+            )}
+            {onAddToTodo && bestScheduledAt && (
+              <button
+                type="button"
+                onClick={() =>
+                  onAddToTodo({
+                    title: todoTitle,
+                    notes: todoNotes,
+                    scheduledAt: bestScheduledAt,
+                    category: todoCategory,
+                  })
+                }
+                className="mt-3 px-3 py-1.5 text-xs rounded-lg bg-violet-500/20 border border-violet-400/40 text-violet-100 hover:bg-violet-500/30 transition-colors">
+                Add best plan to Todo List
+              </button>
             )}
           </div>
         </div>

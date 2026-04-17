@@ -121,7 +121,7 @@ export default function AppShell() {
         );
       case "dashboard":
       default:
-        return <Dashboard embedded />;
+        return <Dashboard embedded taskStore={taskStore} />;
     }
   };
 

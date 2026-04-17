@@ -7,6 +7,7 @@ import Header from "@components/Header";
 import WeatherBackground from "@components/WeatherBackground";
 import { usePreferredCity } from "@hooks/usePreferredCity";
 import type { AnalysisResponse } from "@app-types/api";
+import type { TaskStore } from "@hooks/useTaskStore";
 
 interface AnalyzeInput {
   activity: string;
@@ -17,9 +18,13 @@ interface AnalyzeInput {
 
 interface DashboardProps {
   embedded?: boolean;
+  taskStore?: TaskStore;
 }
 
-export default function Dashboard({ embedded = false }: DashboardProps) {
+export default function Dashboard({
+  embedded = false,
+  taskStore,
+}: DashboardProps) {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const { mutate: runAnalysis, isLoading } = useFullAnalysis();
   const { setCity } = usePreferredCity();
@@ -91,6 +96,22 @@ export default function Dashboard({ embedded = false }: DashboardProps) {
     );
   };
 
+  const handleAddToTodo = (payload: {
+    title: string;
+    notes?: string;
+    scheduledAt?: string;
+    category?: "indoor" | "outdoor";
+  }) => {
+    if (!taskStore) return;
+
+    taskStore.addTask(
+      payload.title,
+      payload.notes,
+      payload.scheduledAt,
+      payload.category,
+    );
+  };
+
   return (
     <div
       className={
@@ -129,6 +150,7 @@ export default function Dashboard({ embedded = false }: DashboardProps) {
               <AnalysisResult
                 data={analysis}
                 onUseSuggestion={handleUseSuggestion}
+                onAddToTodo={handleAddToTodo}
               />
             ) : (
               <div className="card text-center py-12 text-slate-300 animated-card-border floating-panel">

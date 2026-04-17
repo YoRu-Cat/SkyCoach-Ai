@@ -9,11 +9,18 @@ import AlternativesCard from "./AlternativesCard";
 interface AnalysisResultProps {
   data: AnalysisResponse;
   onUseSuggestion?: (value: string) => void;
+  onAddToTodo?: (payload: {
+    title: string;
+    notes?: string;
+    scheduledAt?: string;
+    category?: "indoor" | "outdoor";
+  }) => void;
 }
 
 export default function AnalysisResult({
   data,
   onUseSuggestion,
+  onAddToTodo,
 }: AnalysisResultProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +47,11 @@ export default function AnalysisResult({
     <div ref={containerRef} className="space-y-6">
       {/* Task Analysis */}
       <div className="analysis-panel">
-        <TaskCard task={data.task} onUseSuggestion={onUseSuggestion} />
+        <TaskCard
+          task={data.task}
+          onUseSuggestion={onUseSuggestion}
+          onAddToTodo={onAddToTodo}
+        />
       </div>
 
       {/* Weather Information */}

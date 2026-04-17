@@ -6,6 +6,7 @@ export interface UserTask {
   createdAt: string;
   completed: boolean;
   scheduledAt?: string;
+  remindedAt?: string;
 }
 
 export type TaskCategory = "indoor" | "outdoor";

@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { TaskCategory, UserTask } from "@app-types/tasks";
-import { analyzeTask } from "@services/api";
+import {
+  reserveNextAvailableSlot,
+  parseScheduledAt,
+} from "@utils/taskScheduling";
 
 const STORAGE_KEY = "skycoach_tasks_v1";
 
@@ -29,79 +32,127 @@ const loadTasks = (): UserTask[] => {
 
 export const useTaskStore = () => {
   const [tasks, setTasks] = useState<UserTask[]>(() => loadTasks());
-
-  const relabelSignature = useMemo(
-    () =>
-      tasks
-        .map((task) => `${task.id}:${task.title}`)
-        .sort()
-        .join("|"),
-    [tasks],
-  );
+  const tasksRef = useRef<UserTask[]>(tasks);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
 
   useEffect(() => {
-    if (!tasks.length) return;
+    tasksRef.current = tasks;
+  }, [tasks]);
 
-    let cancelled = false;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-    const relabelTasks = async () => {
-      const updates = await Promise.all(
-        tasks.map(async (task) => {
-          try {
-            const result = await analyzeTask(task.title);
-            const normalized = result.classification.toLowerCase();
-            const category: TaskCategory =
-              normalized === "outdoor" ? "outdoor" : "indoor";
+    const notifyDueTask = (task: UserTask) => {
+      const title = task.title.trim() || "Scheduled task";
+      const when = task.scheduledAt
+        ? new Date(task.scheduledAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "now";
 
-            if (task.category === category) {
-              return null;
-            }
-
-            return { id: task.id, category };
-          } catch {
-            return null;
-          }
-        }),
-      );
-
-      if (cancelled) return;
-
-      const updateMap = new Map(
-        updates
-          .filter((entry): entry is { id: string; category: TaskCategory } =>
-            Boolean(entry),
-          )
-          .map((entry) => [entry.id, entry.category]),
-      );
-
-      if (!updateMap.size) {
-        return;
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("SkyCoach reminder", {
+          body: `${title} is due ${when}`,
+        });
       }
 
+      try {
+        const AudioContextCtor =
+          window.AudioContext ||
+          (
+            window as typeof window & {
+              webkitAudioContext?: typeof AudioContext;
+            }
+          ).webkitAudioContext;
+        if (AudioContextCtor) {
+          const audio = new AudioContextCtor();
+          const oscillator = audio.createOscillator();
+          const gain = audio.createGain();
+          oscillator.type = "sine";
+          oscillator.frequency.value = 880;
+          gain.gain.value = 0.05;
+          oscillator.connect(gain);
+          gain.connect(audio.destination);
+          oscillator.start();
+          setTimeout(() => {
+            oscillator.stop();
+            audio.close().catch(() => undefined);
+          }, 900);
+        }
+      } catch {
+        // Ignore audio failures when the browser blocks autoplay.
+      }
+    };
+
+    const requestNotificationPermission = async () => {
+      if (!("Notification" in window)) return;
+      if (Notification.permission === "default") {
+        try {
+          await Notification.requestPermission();
+        } catch {
+          // Ignore permission prompt failures.
+        }
+      }
+    };
+
+    const checkReminders = () => {
+      const now = Date.now();
+      const currentTasks = tasksRef.current;
+      const dueTasks = currentTasks.filter((task) => {
+        if (!task.scheduledAt || task.completed || task.remindedAt)
+          return false;
+        const dueTime = parseScheduledAt(task.scheduledAt);
+        return !!dueTime && dueTime.getTime() <= now;
+      });
+
+      if (!dueTasks.length) return;
+
+      void requestNotificationPermission();
+
+      dueTasks.forEach((task) => notifyDueTask(task));
+
       setTasks((prev) =>
-        prev
-          .map((task) => {
-            const category = updateMap.get(task.id);
-            return category ? { ...task, category } : task;
-          })
-          .sort(byCreatedDesc),
+        prev.map((task) =>
+          dueTasks.some((due) => due.id === task.id)
+            ? { ...task, remindedAt: new Date().toISOString() }
+            : task,
+        ),
       );
     };
 
-    void relabelTasks();
+    checkReminders();
+    const intervalId = window.setInterval(checkReminders, 30000);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        checkReminders();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      cancelled = true;
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [relabelSignature]);
+  }, []);
 
-  const addTask = (title: string, notes?: string): string | null => {
+  const addTask = (
+    title: string,
+    notes?: string,
+    scheduledAt?: string,
+    category?: TaskCategory,
+  ): string | null => {
     const trimmed = title.trim();
     if (!trimmed) return null;
+
+    const resolvedScheduledAt = scheduledAt
+      ? reserveNextAvailableSlot(tasksRef.current, scheduledAt)
+      : undefined;
 
     const next: UserTask = {
       id: crypto.randomUUID(),
@@ -109,6 +160,8 @@ export const useTaskStore = () => {
       notes: notes?.trim() || undefined,
       createdAt: new Date().toISOString(),
       completed: false,
+      category,
+      scheduledAt: resolvedScheduledAt,
     };
 
     setTasks((prev) => [next, ...prev].sort(byCreatedDesc));
@@ -117,7 +170,24 @@ export const useTaskStore = () => {
 
   const updateTask = (id: string, patch: Partial<UserTask>) => {
     setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, ...patch } : task)),
+      prev.map((task) => {
+        if (task.id !== id) return task;
+
+        const nextPatch: Partial<UserTask> = { ...patch };
+
+        if (Object.prototype.hasOwnProperty.call(nextPatch, "scheduledAt")) {
+          nextPatch.scheduledAt = nextPatch.scheduledAt
+            ? reserveNextAvailableSlot(prev, nextPatch.scheduledAt, id)
+            : undefined;
+          nextPatch.remindedAt = undefined;
+        }
+
+        if (Object.prototype.hasOwnProperty.call(nextPatch, "title")) {
+          nextPatch.remindedAt = undefined;
+        }
+
+        return { ...task, ...nextPatch };
+      }),
     );
   };
 
