@@ -221,12 +221,17 @@ export default function TodoPage({
                   onClick={() =>
                     updateTask(task.id, { completed: !task.completed })
                   }
-                  className={`mt-0.5 w-6 h-6 rounded-md border flex items-center justify-center ${
+                  aria-label={
                     task.completed
-                      ? "bg-violet-500/35 border-violet-300"
-                      : "border-slate-500"
+                      ? `Mark task ${task.title} as not completed`
+                      : `Mark task ${task.title} as completed`
+                  }
+                  className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-transparent ${
+                    task.completed
+                      ? "border-violet-200 bg-violet-500/80 text-white shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_0_14px_rgba(168,85,247,0.25)]"
+                      : "border-violet-200/80 bg-[rgba(62,16,101,0.96)] text-violet-100 shadow-[0_0_0_1px_rgba(168,85,247,0.18)] hover:bg-violet-500/25 hover:border-violet-100"
                   }`}>
-                  {task.completed ? <Check className="w-4 h-4" /> : null}
+                  {task.completed ? <Check className="h-4 w-4" /> : null}
                 </button>
                 <div className="space-y-2 w-full">
                   <div>
