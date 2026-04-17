@@ -6,6 +6,149 @@ import {
 } from "@utils/taskScheduling";
 
 const STORAGE_KEY = "skycoach_tasks_v1";
+const SAFETY_POLL_MS = 10_000;
+const MAX_TIMER_DELAY_MS = 2_147_483_000;
+
+export type RingtonePreset = "bell" | "chime" | "alarm";
+
+const getAudioContext = () => {
+  if (typeof window === "undefined") return null;
+  const AudioContextCtor =
+    window.AudioContext ||
+    (
+      window as typeof window & {
+        webkitAudioContext?: typeof AudioContext;
+      }
+    ).webkitAudioContext;
+  if (!AudioContextCtor) return null;
+  return new AudioContextCtor();
+};
+
+const scheduleBellNote = (
+  audio: AudioContext,
+  at: number,
+  frequency: number,
+  duration: number,
+  volume: number,
+) => {
+  const partials = [1, 2.01, 2.98];
+  partials.forEach((partial, index) => {
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency * partial, at);
+
+    const weightedVolume =
+      volume * (index === 0 ? 1 : index === 1 ? 0.35 : 0.2);
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.linearRampToValueAtTime(weightedVolume, at + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+    oscillator.start(at);
+    oscillator.stop(at + duration + 0.04);
+  });
+};
+
+const playRingtonePreset = (preset: RingtonePreset) => {
+  try {
+    const audio = getAudioContext();
+    if (!audio) return false;
+
+    const now = audio.currentTime + 0.05;
+    const patterns: Record<
+      RingtonePreset,
+      {
+        tones: number[];
+        gap: number;
+        repeats: number;
+        duration: number;
+        volume: number;
+      }
+    > = {
+      bell: {
+        tones: [1046.5, 1318.5, 1568],
+        gap: 0.35,
+        repeats: 3,
+        duration: 0.9,
+        volume: 0.08,
+      },
+      chime: {
+        tones: [783.99, 987.77, 1174.66, 1568],
+        gap: 0.28,
+        repeats: 2,
+        duration: 0.7,
+        volume: 0.075,
+      },
+      alarm: {
+        tones: [880, 698.46, 880, 698.46],
+        gap: 0.22,
+        repeats: 4,
+        duration: 0.45,
+        volume: 0.09,
+      },
+    };
+
+    const pattern = patterns[preset];
+    let cursor = now;
+
+    for (let repeat = 0; repeat < pattern.repeats; repeat += 1) {
+      pattern.tones.forEach((tone) => {
+        scheduleBellNote(audio, cursor, tone, pattern.duration, pattern.volume);
+        cursor += pattern.gap;
+      });
+      cursor += 0.15;
+    }
+
+    const closeDelayMs = Math.max(1500, Math.ceil((cursor - now + 0.3) * 1000));
+    window.setTimeout(() => {
+      audio.close().catch(() => undefined);
+    }, closeDelayMs);
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const requestNotificationPermission = async () => {
+  if (typeof window === "undefined") return "unsupported" as const;
+  if (!("Notification" in window)) return "unsupported" as const;
+  if (Notification.permission === "default") {
+    try {
+      const permission = await Notification.requestPermission();
+      return permission;
+    } catch {
+      return Notification.permission;
+    }
+  }
+  return Notification.permission;
+};
+
+const sendBrowserNotification = (title: string, body: string, tag: string) => {
+  if (typeof window === "undefined") return;
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  new Notification(title, {
+    body,
+    tag,
+    requireInteraction: true,
+    renotify: true,
+  });
+};
+
+const vibrateDevice = () => {
+  if (typeof navigator === "undefined") return;
+  try {
+    if ("vibrate" in navigator) {
+      navigator.vibrate([300, 150, 300, 150, 650]);
+    }
+  } catch {
+    // Ignore vibration failures.
+  }
+};
 
 const byCreatedDesc = (a: UserTask, b: UserTask): number =>
   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -32,7 +175,46 @@ const loadTasks = (): UserTask[] => {
 
 export const useTaskStore = () => {
   const [tasks, setTasks] = useState<UserTask[]>(() => loadTasks());
+  const [notificationPermission, setNotificationPermission] = useState<
+    NotificationPermission | "unsupported"
+  >(() => {
+    if (typeof window === "undefined") return "unsupported";
+    if (!("Notification" in window)) return "unsupported";
+    return Notification.permission;
+  });
   const tasksRef = useRef<UserTask[]>(tasks);
+  const reminderTimeoutRef = useRef<number | null>(null);
+
+  const chooseRingtonePreset = (task: UserTask): RingtonePreset => {
+    if (task.category === "outdoor") return "alarm";
+    if (task.category === "indoor") return "chime";
+    return "bell";
+  };
+
+  const enableNotifications = async () => {
+    const permission = await requestNotificationPermission();
+    setNotificationPermission(permission);
+    return permission;
+  };
+
+  const testReminder = async (preset: RingtonePreset = "bell") => {
+    const permission = await enableNotifications();
+    const didPlay = playRingtonePreset(preset);
+    vibrateDevice();
+
+    if (permission === "granted") {
+      sendBrowserNotification(
+        "SkyCoach Reminder Test",
+        `Test ${preset} ringtone is active.`,
+        "skycoach-reminder-test",
+      );
+    }
+
+    return {
+      didPlay,
+      permission,
+    };
+  };
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -45,101 +227,135 @@ export const useTaskStore = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const notifyDueTask = (task: UserTask) => {
-      const title = task.title.trim() || "Scheduled task";
-      const when = task.scheduledAt
-        ? new Date(task.scheduledAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "now";
-
-      if ("Notification" in window && Notification.permission === "granted") {
-        new Notification("SkyCoach reminder", {
-          body: `${title} is due ${when}`,
-        });
-      }
-
-      try {
-        const AudioContextCtor =
-          window.AudioContext ||
-          (
-            window as typeof window & {
-              webkitAudioContext?: typeof AudioContext;
-            }
-          ).webkitAudioContext;
-        if (AudioContextCtor) {
-          const audio = new AudioContextCtor();
-          const oscillator = audio.createOscillator();
-          const gain = audio.createGain();
-          oscillator.type = "sine";
-          oscillator.frequency.value = 880;
-          gain.gain.value = 0.05;
-          oscillator.connect(gain);
-          gain.connect(audio.destination);
-          oscillator.start();
-          setTimeout(() => {
-            oscillator.stop();
-            audio.close().catch(() => undefined);
-          }, 900);
-        }
-      } catch {
-        // Ignore audio failures when the browser blocks autoplay.
+    const clearReminderTimeout = () => {
+      if (reminderTimeoutRef.current !== null) {
+        window.clearTimeout(reminderTimeoutRef.current);
+        reminderTimeoutRef.current = null;
       }
     };
 
-    const requestNotificationPermission = async () => {
-      if (!("Notification" in window)) return;
-      if (Notification.permission === "default") {
-        try {
-          await Notification.requestPermission();
-        } catch {
-          // Ignore permission prompt failures.
-        }
-      }
-    };
-
-    const checkReminders = () => {
-      const now = Date.now();
-      const currentTasks = tasksRef.current;
-      const dueTasks = currentTasks.filter((task) => {
-        if (!task.scheduledAt || task.completed || task.remindedAt)
+    const dueTasksAt = (now: number) =>
+      tasksRef.current.filter((task) => {
+        if (!task.scheduledAt || task.completed || task.remindedAt) {
           return false;
+        }
+
         const dueTime = parseScheduledAt(task.scheduledAt);
         return !!dueTime && dueTime.getTime() <= now;
       });
 
-      if (!dueTasks.length) return;
+    const scheduleNextReminderCheck = () => {
+      clearReminderTimeout();
 
-      void requestNotificationPermission();
+      const now = Date.now();
+      const nextDueAt = tasksRef.current
+        .filter(
+          (task) => task.scheduledAt && !task.completed && !task.remindedAt,
+        )
+        .map((task) => parseScheduledAt(task.scheduledAt))
+        .filter((value): value is Date => Boolean(value))
+        .map((date) => date.getTime())
+        .sort((a, b) => a - b)[0];
 
-      dueTasks.forEach((task) => notifyDueTask(task));
+      if (!nextDueAt) return;
 
-      setTasks((prev) =>
-        prev.map((task) =>
-          dueTasks.some((due) => due.id === task.id)
-            ? { ...task, remindedAt: new Date().toISOString() }
-            : task,
-        ),
-      );
+      const delay = Math.max(0, Math.min(nextDueAt - now, MAX_TIMER_DELAY_MS));
+      reminderTimeoutRef.current = window.setTimeout(() => {
+        const due = dueTasksAt(Date.now());
+        if (due.length) {
+          void enableNotifications();
+
+          due.forEach((task) => {
+            const when = task.scheduledAt
+              ? new Date(task.scheduledAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "now";
+            sendBrowserNotification(
+              "SkyCoach Reminder",
+              `${task.title.trim() || "Scheduled task"} is due at ${when}`,
+              `skycoach-task-${task.id}`,
+            );
+            playRingtonePreset(chooseRingtonePreset(task));
+            vibrateDevice();
+          });
+
+          const remindedAt = new Date().toISOString();
+          const dueIds = new Set(due.map((task) => task.id));
+          setTasks((prev) =>
+            prev.map((task) =>
+              dueIds.has(task.id) ? { ...task, remindedAt } : task,
+            ),
+          );
+        }
+
+        scheduleNextReminderCheck();
+      }, delay + 30);
     };
 
-    checkReminders();
-    const intervalId = window.setInterval(checkReminders, 30000);
+    // Prompting once on startup gives browser notifications a chance to work.
+    void enableNotifications();
+
+    const checkRemindersNow = () => {
+      const due = dueTasksAt(Date.now());
+      if (!due.length) {
+        scheduleNextReminderCheck();
+        return;
+      }
+
+      void enableNotifications();
+
+      due.forEach((task) => {
+        const when = task.scheduledAt
+          ? new Date(task.scheduledAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "now";
+        sendBrowserNotification(
+          "SkyCoach Reminder",
+          `${task.title.trim() || "Scheduled task"} is due at ${when}`,
+          `skycoach-task-${task.id}`,
+        );
+        playRingtonePreset(chooseRingtonePreset(task));
+        vibrateDevice();
+      });
+
+      const remindedAt = new Date().toISOString();
+      const dueIds = new Set(due.map((task) => task.id));
+      setTasks((prev) =>
+        prev.map((task) =>
+          dueIds.has(task.id) ? { ...task, remindedAt } : task,
+        ),
+      );
+
+      scheduleNextReminderCheck();
+    };
+
+    checkRemindersNow();
+    const intervalId = window.setInterval(checkRemindersNow, SAFETY_POLL_MS);
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        checkReminders();
+        checkRemindersNow();
       }
     };
 
+    const onWindowFocus = () => {
+      checkRemindersNow();
+    };
+
     document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onWindowFocus);
 
     return () => {
+      clearReminderTimeout();
       window.clearInterval(intervalId);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onWindowFocus);
     };
-  }, []);
+  }, [tasks]);
 
   const addTask = (
     title: string,
@@ -213,6 +429,9 @@ export const useTaskStore = () => {
   return {
     tasks,
     stats,
+    notificationPermission,
+    enableNotifications,
+    testReminder,
     addTask,
     updateTask,
     removeTask,
