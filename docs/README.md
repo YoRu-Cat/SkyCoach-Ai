@@ -4,11 +4,27 @@ This documentation reflects the current SkyCoach architecture and runtime behavi
 
 ## Current Runtime Facts
 
-- Local dev backend: http://127.0.0.1:8012
-- Local dev frontend: http://127.0.0.1:5173/index.html
-- Task analysis flow: local model + auto-judge + scoring pipeline
-- OpenAI usage: chat assistant flow only
+- Local dev backend: <http://127.0.0.1:8012>
+- Local dev frontend: <http://127.0.0.1:5173/index.html>
+- Task analysis flow: hybrid smart analyzer (local by default, OpenAI optional per request)
+- Reminder flow: due detection + prompt + complete or reschedule
 - Inference confidence threshold: 0.62
+
+## Architecture Map
+
+```mermaid
+flowchart TD
+  A[Frontend Pages] --> B[API Routes]
+  B --> C[Task Analysis]
+  C --> D[ML System]
+  C --> E[Auto Judge Signals]
+  B --> F[Weather Demo/Live]
+  B --> G[Scoring Engine]
+  G --> H[Alternatives + Recommendation]
+  A --> I[Task Store]
+  I --> J[Reminder Scheduler]
+  J --> K[Notification + Ringtone + Vibration]
+```
 
 ## Core Docs
 

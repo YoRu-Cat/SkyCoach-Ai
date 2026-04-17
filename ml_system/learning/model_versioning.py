@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class ModelVersionRegistry:
@@ -29,7 +29,7 @@ class ModelVersionRegistry:
             "version_id": version_id,
             "model_path": model_path,
             "tokenizer_path": tokenizer_path,
-            "created_at": datetime.utcnow().isoformat() + "Z",
+            "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "training_data_size": training_data_size,
             "val_macro_f1": val_macro_f1,
             "test_macro_f1": test_macro_f1,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from ml_system.config.settings import CONFIG
@@ -47,7 +47,7 @@ class ContinuousLearningEngine:
             predicted_label=predicted_label,
             predicted_confidence=predicted_confidence,
             corrected_label=corrected_label,
-            feedback_timestamp=datetime.utcnow().isoformat() + "Z",
+            feedback_timestamp=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             feedback_source=source,
         )
         self.feedback_store.record_feedback(feedback)
@@ -67,7 +67,7 @@ class ContinuousLearningEngine:
                 predicted_label=predicted_label,
                 confidence=confidence,
                 all_scores=all_scores,
-                flagged_timestamp=datetime.utcnow().isoformat() + "Z",
+                flagged_timestamp=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 confidence_threshold=threshold,
             )
             self.feedback_store.record_uncertain_prediction(pred)
@@ -131,10 +131,11 @@ class ContinuousLearningEngine:
         )
 
     def promote_model_version(self, version_id: str) -> None:
+        now_utc = datetime.now(timezone.utc)
         event = {
-            "event_id": f"promote_{version_id}_{datetime.utcnow().timestamp()}",
+            "event_id": f"promote_{version_id}_{now_utc.timestamp()}",
             "event_type": "model_promotion",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": now_utc.isoformat().replace("+00:00", "Z"),
             "description": f"Promoted model version {version_id} to active",
             "version_id": version_id,
         }

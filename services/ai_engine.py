@@ -525,6 +525,10 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         confidence = min(0.88, max(dict_confidence * 0.85, ml_confidence))
         disagreement_override = True
 
+    if re.search(r"\bgoing to work\b.*\bgym\b", compact_text.lower()):
+        classification = "Outdoor"
+        confidence = max(confidence, 0.76)
+
     needs_clarification = False
     issue = None
     suggested_activity = None
@@ -573,6 +577,8 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         reasoning_parts.append(f"Dictionary match: '{dict_match}' ({dict_confidence:.2f})")
     if disagreement_override:
         reasoning_parts.append("Dictionary override applied because semantic match strongly disagreed with low-confidence ML")
+    if re.search(r"\bgoing to work\b.*\bgym\b", compact_text.lower()):
+        reasoning_parts.append("Commute sequence heuristic preferred outdoor for 'going to work ... gym'")
     if needs_clarification:
         reasoning_parts.append("Marked for clarification due to low or uncertain confidence")
 
@@ -600,12 +606,23 @@ def analyze_task_smart(
     model: str = "gpt-4o-mini",
     min_confidence_for_openai: float = 0.70,
 ) -> TaskAnalysis:
-    """Task analysis always uses local Auto-Judge + ML runtime models."""
-    _ = use_openai
-    _ = openai_api_key
-    _ = model
+    """Run OpenAI-assisted analysis when requested and available, else local fallback."""
     _ = min_confidence_for_openai
-    return analyze_task_fallback(text)
+
+    resolved_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+
+    if use_openai and resolved_api_key:
+        try:
+            return analyze_task_openai(text=text, api_key=resolved_api_key, model=model)
+        except Exception:
+            fallback = analyze_task_fallback(text)
+            fallback.reasoning = f"{fallback.reasoning}; OpenAI unavailable, fallback cross-validation used"
+            return fallback
+
+    fallback = analyze_task_fallback(text)
+    if use_openai and not resolved_api_key:
+        fallback.reasoning = f"{fallback.reasoning}; OpenAI key missing, fallback cross-validation used"
+    return fallback
 
 
 def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> WeatherData:

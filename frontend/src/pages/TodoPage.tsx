@@ -214,7 +214,7 @@ export default function TodoPage({
           orderedTasks.map((task) => (
             <div
               key={task.id}
-              className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg flex items-start justify-between gap-3">
+              className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg space-y-3">
               <div className="flex items-start gap-3">
                 <button
                   type="button"
@@ -233,14 +233,15 @@ export default function TodoPage({
                     <label className="text-[11px] uppercase tracking-wide text-slate-500">
                       Event
                     </label>
-                    <input
+                    <textarea
                       value={task.title}
                       onChange={(e) =>
                         updateTask(task.id, { title: e.target.value })
                       }
                       placeholder="Event title"
                       title={`Edit event title for ${task.title}`}
-                      className={`mt-1 w-full rounded-md border bg-[rgba(33,5,50,0.9)] px-3 py-2 text-sm outline-none transition-colors ${
+                      rows={2}
+                      className={`mt-1 w-full resize-y rounded-md border bg-[var(--color-glass-bg)] px-3 py-2 text-sm outline-none transition-colors ${
                         task.completed
                           ? "border-slate-700 text-slate-500"
                           : "border-slate-700 text-slate-100 focus:border-violet-300"
@@ -251,7 +252,7 @@ export default function TodoPage({
                     <label className="text-[11px] uppercase tracking-wide text-slate-500">
                       Notes
                     </label>
-                    <input
+                    <textarea
                       value={task.notes || ""}
                       onChange={(e) =>
                         updateTask(task.id, {
@@ -259,7 +260,8 @@ export default function TodoPage({
                         })
                       }
                       placeholder="Optional notes"
-                      className="mt-1 w-full rounded-md border border-slate-700 bg-[rgba(33,5,50,0.9)] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-violet-300"
+                      rows={3}
+                      className="mt-1 w-full resize-y rounded-md border border-slate-700 bg-[var(--color-glass-bg)] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-violet-300"
                     />
                   </div>
                   {task.scheduledAt ? (
@@ -268,15 +270,15 @@ export default function TodoPage({
                     </p>
                   ) : null}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => removeTask(task.id)}
+                  aria-label={`Delete task ${task.title}`}
+                  title={`Delete task ${task.title}`}
+                  className="p-2 rounded-lg border border-slate-700 hover:border-violet-300/70 text-violet-200 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => removeTask(task.id)}
-                aria-label={`Delete task ${task.title}`}
-                title={`Delete task ${task.title}`}
-                className="p-2 rounded-lg border border-slate-700 hover:border-violet-300/70 text-violet-200 transition-colors">
-                <Trash2 className="w-4 h-4" />
-              </button>
             </div>
           ))
         )}

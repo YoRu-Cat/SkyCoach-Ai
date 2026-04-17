@@ -137,7 +137,6 @@ const sendBrowserNotification = (title: string, body: string, tag: string) => {
     body,
     tag,
     requireInteraction: true,
-    renotify: true,
   });
 };
 

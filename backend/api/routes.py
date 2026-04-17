@@ -1,10 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from typing import List, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 import sys
 import os
 import shlex
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -110,8 +108,8 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.text,
-            use_openai=False,
-            openai_api_key=None,
+            use_openai=request.use_openai,
+            openai_api_key=request.openai_api_key,
             model=model_name,
         )
 
@@ -234,8 +232,8 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.activity_text,
-            use_openai=False,
-            openai_api_key=None,
+            use_openai=request.use_openai,
+            openai_api_key=request.openai_api_key,
             model=model_name,
         )
         _enrich_task_with_ml_suggestions(task, request.activity_text)
@@ -255,14 +253,20 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
         else:
             if has_coordinates:
                 weather = get_weather(request.latitude, request.longitude, weather_api_key)
-                forecast_slots = get_weather_forecast(
-                    request.latitude,
-                    request.longitude,
-                    weather_api_key,
-                )
+                try:
+                    forecast_slots = get_weather_forecast(
+                        request.latitude,
+                        request.longitude,
+                        weather_api_key,
+                    )
+                except Exception:
+                    forecast_slots = []
             else:
                 weather = get_weather_by_city(request.city, weather_api_key)
-                forecast_slots = get_weather_forecast_by_city(request.city, weather_api_key)
+                try:
+                    forecast_slots = get_weather_forecast_by_city(request.city, weather_api_key)
+                except Exception:
+                    forecast_slots = []
         
         config = Config()
         score_result = calculate_sky_score(task, weather, config)
@@ -449,7 +453,7 @@ async def backend_cli(request: BackendCliRequest) -> BackendCliResponse:
         raise HTTPException(status_code=400, detail="Command is empty")
 
     primary = parts[0].lower()
-    now_iso = datetime.utcnow().isoformat() + "Z"
+    now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     help_text = "\n".join(
         [
