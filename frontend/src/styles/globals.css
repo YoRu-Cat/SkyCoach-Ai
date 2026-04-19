@@ -762,21 +762,21 @@ body {
 
 .glass-hover:hover {
   background: rgba(10, 15, 30, 0.58);
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.15);
+  border-color: rgba(149, 5, 233, 0.42);
+  box-shadow: 0 8px 32px rgba(149, 5, 233, 0.16);
 }
 
 /* Glowing elements */
 .glow-cyan {
   box-shadow:
-    0 0 20px rgba(6, 182, 212, 0.3),
-    inset 0 0 20px rgba(6, 182, 212, 0.05);
+    0 0 20px rgba(149, 5, 233, 0.32),
+    inset 0 0 20px rgba(149, 5, 233, 0.08);
 }
 
 .glow-cyan:hover {
   box-shadow:
-    0 0 30px rgba(6, 182, 212, 0.5),
-    inset 0 0 20px rgba(6, 182, 212, 0.1);
+    0 0 30px rgba(187, 77, 251, 0.46),
+    inset 0 0 20px rgba(149, 5, 233, 0.14);
 }
 
 /* Strict palette guard: force blue/green/cyan/emerald accents to purple in both themes. */
@@ -956,6 +956,17 @@ body {
   --tw-gradient-to: rgba(149, 5, 233, 0) var(--tw-gradient-to-position) !important;
 }
 
+:root[data-theme="light"] .theme-light [class*="via-cyan-"],
+:root[data-theme="light"] .theme-light [class*="via-blue-"],
+:root[data-theme="light"] .theme-light [class*="via-sky-"],
+:root[data-theme="light"] .theme-light [class*="via-emerald-"],
+:root[data-theme="dark"] .theme-dark [class*="via-cyan-"],
+:root[data-theme="dark"] .theme-dark [class*="via-blue-"],
+:root[data-theme="dark"] .theme-dark [class*="via-sky-"],
+:root[data-theme="dark"] .theme-dark [class*="via-emerald-"] {
+  --tw-gradient-via: rgba(124, 69, 184, 0.3) var(--tw-gradient-via-position) !important;
+}
+
 :root[data-theme="light"] .theme-light [class*="to-cyan-"],
 :root[data-theme="light"] .theme-light [class*="to-blue-"],
 :root[data-theme="light"] .theme-light [class*="to-sky-"],
@@ -1020,7 +1031,7 @@ button {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 8px 24px rgba(149, 5, 233, 0.28);
 }
 
 .btn-secondary {
@@ -1030,7 +1041,7 @@ button {
 }
 
 .btn-secondary:hover {
-  background: rgba(6, 182, 212, 0.15);
+  background: rgba(149, 5, 233, 0.14);
 }
 
 /* Card styles */
@@ -1155,10 +1166,10 @@ button {
 .score-needle {
   background: linear-gradient(
     180deg,
-    rgba(34, 211, 238, 0.95),
-    rgba(6, 182, 212, 0.2)
+    rgba(187, 77, 251, 0.95),
+    rgba(149, 5, 233, 0.2)
   );
-  box-shadow: 0 0 14px rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 14px rgba(187, 77, 251, 0.55);
   transition: transform 0.25s ease-out;
 }
 
@@ -1317,21 +1328,21 @@ button {
 @keyframes cardBorderSweep {
   0% {
     box-shadow:
-      0 0 0 1px rgba(6, 182, 212, 0.15),
-      0 0 18px rgba(6, 182, 212, 0.15),
-      inset 0 0 0 1px rgba(56, 189, 248, 0.1);
+      0 0 0 1px rgba(149, 5, 233, 0.18),
+      0 0 18px rgba(149, 5, 233, 0.18),
+      inset 0 0 0 1px rgba(187, 77, 251, 0.12);
   }
   50% {
     box-shadow:
-      0 0 0 1px rgba(56, 189, 248, 0.35),
-      0 0 30px rgba(6, 182, 212, 0.28),
-      inset 0 0 0 1px rgba(6, 182, 212, 0.2);
+      0 0 0 1px rgba(187, 77, 251, 0.35),
+      0 0 30px rgba(149, 5, 233, 0.3),
+      inset 0 0 0 1px rgba(149, 5, 233, 0.22);
   }
   100% {
     box-shadow:
-      0 0 0 1px rgba(6, 182, 212, 0.15),
-      0 0 18px rgba(6, 182, 212, 0.15),
-      inset 0 0 0 1px rgba(56, 189, 248, 0.1);
+      0 0 0 1px rgba(149, 5, 233, 0.18),
+      0 0 18px rgba(149, 5, 233, 0.18),
+      inset 0 0 0 1px rgba(187, 77, 251, 0.12);
   }
 }
 
