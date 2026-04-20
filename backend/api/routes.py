@@ -98,7 +98,6 @@ def _enrich_task_with_ml_suggestions(task: TaskAnalysis, input_text: str) -> Non
             if not getattr(task, "suggestion_confidence", 0.0):
                 task.suggestion_confidence = float(top.get("confidence", 0.0))
     except Exception:
-        # Keep primary analysis response intact if ML fallback is unavailable.
         pass
 
 
@@ -320,7 +319,6 @@ async def predict_activity_type(request: dict) -> dict:
         ml_system = get_ml_system()
         result = ml_system.predict(phrase)
 
-        # Backward-compatible aliases for clients expecting legacy field names.
         return {
             **result,
             "predicted_label": result.get("label"),

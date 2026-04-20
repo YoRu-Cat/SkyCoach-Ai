@@ -5,13 +5,11 @@ import os
 import sys
 from pathlib import Path
 
-# Add project to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 print("\nValidating ML System Structure...\n")
 print("="*70)
 
-# Test 1: Check directories
 print("\n1. CHECKING DIRECTORIES")
 print("-"*70)
 
@@ -37,7 +35,6 @@ for d in required_dirs:
     if not exists:
         all_dirs_ok = False
 
-# Test 2: Check Python modules
 print("\n2. CHECKING PYTHON MODULES")
 print("-"*70)
 
@@ -63,7 +60,6 @@ for module_name in modules_to_check:
         print(f"  {module_name:40} FAILED: {str(e)[:30]}")
         all_imports_ok = False
 
-# Test 3: Check main API
 print("\n3. CHECKING API")
 print("-"*70)
 
@@ -74,7 +70,6 @@ try:
     print(f"  get_ml_system()                      OK")
     print(f"  MLSystem instance created            OK")
     
-    # Check methods exist
     methods = ['predict', 'submit_feedback', 'get_status', 'train']
     for method in methods:
         if hasattr(ml, method):
@@ -87,7 +82,6 @@ try:
 except Exception as e:
     print(f"  API check failed: {e}")
 
-# Test 4: Check config
 print("\n4. CHECKING CONFIG")
 print("-"*70)
 
@@ -110,7 +104,6 @@ try:
 except Exception as e:
     print(f"  Config check failed: {e}")
 
-# Summary
 print("\n" + "="*70)
 print("SUMMARY")
 print("="*70)

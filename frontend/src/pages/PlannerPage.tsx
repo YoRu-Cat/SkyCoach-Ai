@@ -116,11 +116,9 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             setCity(resolvedCity);
           }
         } catch {
-          // Keep existing city if reverse geocoding fails.
         }
       },
       () => {
-        // Keep existing city if geolocation is denied.
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 },
     );

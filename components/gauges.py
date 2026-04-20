@@ -5,7 +5,6 @@ from components.ui import card_start, card_end, badge, separator
 def render_score_gauge(score: int, classification: str):
     """Render animated SkyScore gauge."""
 
-    # Determine color and status based on score
     if score >= 80:
         color = "#10b981"
         status = "Excellent"
@@ -22,7 +21,6 @@ def render_score_gauge(score: int, classification: str):
         color = "#ef4444"
         status = "Risky"
 
-    # Needle rotation for half-circle gauge face
     needle_rotation = -90 + (score * 1.8)
 
     card_start("SkyScore", "Advanced weather suitability index", "✨")

@@ -12,7 +12,6 @@ from pathlib import Path
 class MLSystemConfig:
     """Central configuration for the ML system."""
     
-    # System paths
     base_dir: Path = Path("ml_system")
     data_dir: Path = Path("ml_system/data")
     models_dir: Path = Path("ml_system/models")
@@ -22,28 +21,23 @@ class MLSystemConfig:
     pipelines_dir: Path = Path("ml_system/pipelines")
     policies_dir: Path = Path("ml_system/policies")
     
-    # Model configuration
     tokenizer_max_vocab: int = 50000
     tokenizer_min_freq: int = 1
     
-    # Training configuration
     epochs: int = 30
     learning_rate: float = 0.05
     l2_regularization: float = 1e-4
     laplace_alpha: float = 1.0
     
-    # Inference configuration
     confidence_threshold: float = 0.62
     min_confidence_floor: float = 0.55
     ambiguity_margin: float = 0.08
     temperature_scaling: float = 0.50
     
-    # Learning configuration
     min_feedback_for_retraining: int = 20
     improvement_threshold: float = 0.02
     drift_confidence_drop_threshold: float = 0.05
     
-    # Labels
     labels: list[str] = None
     
     def __post_init__(self):
@@ -57,5 +51,4 @@ class MLSystemConfig:
         return self.models_dir / "versions"
 
 
-# Global config instance
 CONFIG = MLSystemConfig()

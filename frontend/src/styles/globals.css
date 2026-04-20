@@ -32,7 +32,6 @@
   --scrollbar-thumb-hover: rgba(114, 69, 184, 0.68);
 }
 
-/* Light mode text remap: avoid white text on bright backgrounds. */
 :root[data-theme="light"] .theme-light .text-alabaster_grey-900,
 :root[data-theme="light"] .theme-light .text-slate-100,
 :root[data-theme="light"] .theme-light .text-slate-200,
@@ -50,7 +49,6 @@
   color: #3b2360;
 }
 
-/* Light mode surface remap: replace leftover dark utilities with theme tones. */
 :root[data-theme="light"] .theme-light .card {
   background: rgba(240, 234, 250, 0.78);
   border-color: rgba(181, 150, 229, 0.35);
@@ -105,7 +103,6 @@
   color: #6a47a8;
 }
 
-/* Light mode date/time controls: force dark readable text, not white. */
 :root[data-theme="light"] .theme-light input[type="date"],
 :root[data-theme="light"] .theme-light input[type="time"],
 :root[data-theme="light"] .theme-light .timetable-input {
@@ -164,7 +161,6 @@
   -webkit-text-fill-color: #2b1847 !important;
 }
 
-/* Remove blue/cyan accents on core page in light mode. */
 :root[data-theme="light"] .theme-light .text-blue-200,
 :root[data-theme="light"] .theme-light .text-blue-300,
 :root[data-theme="light"] .theme-light .text-blue-400,
@@ -240,7 +236,6 @@
   background: #f6f2fc !important;
 }
 
-/* Home backend logs box in light mode */
 :root[data-theme="light"] .theme-light .backend-logs-shell {
   background: rgba(240, 234, 250, 0.9) !important;
   border-color: rgba(157, 119, 228, 0.62) !important;
@@ -315,7 +310,6 @@
   color: #311a53 !important;
 }
 
-/* Dark mode remap: remove blue/cyan accents and use amethyst/violet palette. */
 :root[data-theme="dark"] .theme-dark .text-blue-200,
 :root[data-theme="dark"] .theme-dark .text-blue-300,
 :root[data-theme="dark"] .theme-dark .text-blue-400,
@@ -560,7 +554,6 @@
   background: rgba(34, 1, 53, 0.48) !important;
 }
 
-/* Home stats strip polish */
 :root[data-theme="light"] .theme-light .home-stats-shell {
   background: linear-gradient(
     135deg,
@@ -747,7 +740,6 @@ body {
   border-radius: 999px;
 }
 
-/* Glassmorphism base */
 .glass {
   background: var(--color-glass-bg);
   -webkit-backdrop-filter: blur(32px);
@@ -766,7 +758,6 @@ body {
   box-shadow: 0 8px 32px rgba(149, 5, 233, 0.16);
 }
 
-/* Glowing elements */
 .glow-cyan {
   box-shadow:
     0 0 20px rgba(149, 5, 233, 0.32),
@@ -779,7 +770,6 @@ body {
     inset 0 0 20px rgba(149, 5, 233, 0.14);
 }
 
-/* Strict palette guard: force blue/green/cyan/emerald accents to purple in both themes. */
 :root[data-theme="light"] .theme-light .text-blue-200,
 :root[data-theme="light"] .theme-light .text-blue-300,
 :root[data-theme="light"] .theme-light .text-blue-400,
@@ -978,7 +968,6 @@ body {
   --tw-gradient-to: rgba(92, 3, 144, 0.08) var(--tw-gradient-to-position) !important;
 }
 
-/* Typography */
 h1,
 h2,
 h3,
@@ -1005,7 +994,6 @@ h3 {
   line-height: 1.4;
 }
 
-/* Buttons */
 button {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   border: none;
@@ -1044,7 +1032,6 @@ button {
   background: rgba(149, 5, 233, 0.14);
 }
 
-/* Card styles */
 .card {
   padding: 1.5rem;
   border-radius: 16px;
@@ -1054,7 +1041,6 @@ button {
   backdrop-filter: blur(32px);
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1385,7 +1371,6 @@ button {
   overflow: hidden;
 }
 
-/* Ensure native date/time picker icons are visible on dark inputs */
 input[type="date"],
 input[type="time"] {
   color-scheme: dark;
@@ -1455,7 +1440,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   animation: shimmerSlide 2.4s ease-in-out infinite;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

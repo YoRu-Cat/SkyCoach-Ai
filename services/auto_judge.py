@@ -286,16 +286,12 @@ def classify_with_dictionary(
 
                 score = token_overlap * 0.70 + char_similarity * 0.18 + starts_with_bonus + environment_bonus
 
-                # Do not let online-shopping phrases dominate physical errands.
                 if ("online" in phrase_tokens) and not has_online_hint:
                     score *= 0.55
 
-                # Physical store errands are generally outside-home movement.
                 if has_physical_store_hint and not has_online_hint and label == "Outdoor":
                     score += 0.10
 
-                # Prevent misleading matches driven mostly by character similarity
-                # (e.g. unrelated slang accidentally close to a corpus phrase).
                 if token_overlap == 0.0 and starts_with_bonus == 0.0:
                     score = min(score, 0.34)
 
@@ -304,7 +300,6 @@ def classify_with_dictionary(
                     best_label = label
                     best_phrase = phrase
 
-    # Blend phrase matching with corpus-derived token priors for less rigid behavior.
     if prior_confidence >= 0.58 and prior_confidence > best_score:
         best_label = prior_label
         best_score = min(0.99, prior_confidence)
@@ -336,12 +331,9 @@ def _looks_broken_for_suggestion(text: str) -> bool:
     known = sum(1 for t in content_tokens if t in KNOWN_ACTIVITY_TOKENS)
     known_ratio = known / max(1, len(content_tokens))
 
-    # If most content tokens are already known activity tokens,
-    # treat the input as valid and avoid rewriting it.
     if len(content_tokens) >= 2 and known_ratio >= 0.6:
         return False
 
-    # Single token inputs are often shorthand; only correct when unknown.
     if len(content_tokens) == 1:
         return content_tokens[0] not in KNOWN_ACTIVITY_TOKENS
 
@@ -415,7 +407,6 @@ def suggest_activity(broken_input: str) -> Optional[Tuple[str, float, str]]:
     if not classification:
         classification = "Indoor"
 
-    # Avoid low-quality hints from unrelated phrases.
     if confidence < 0.58:
         return None
 

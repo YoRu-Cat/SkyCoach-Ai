@@ -12,13 +12,10 @@ import streamlit as st
 import time
 from datetime import datetime
 
-# Models & Config
 from models.data_classes import Config, HistoryEntry
 
-# Themes & Styles
 from themes.styles import inject_global_styles, inject_component_styles
 
-# Components
 from components.gauges import render_hero, render_input_section, render_score_gauge
 from components.cards import (
     render_weather_card, 
@@ -29,7 +26,6 @@ from components.cards import (
 )
 from components.layout import render_sidebar
 
-# Services (Business Logic)
 from services.ai_engine import (
     analyze_task_openai,
     analyze_task_fallback,
@@ -38,13 +34,9 @@ from services.ai_engine import (
 )
 from services.maps import display_map_section
 
-# Core Engine
 from core.scoring_engine import calculate_sky_score, get_alternative_activities
 
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
 
 @dataclass
 class Config:
@@ -54,21 +46,16 @@ class Config:
     openai_model: str = "gpt-4o-mini"
     weather_units: str = "metric"
     
-    # Scoring thresholds
     rain_threshold: float = 0.0
     wind_threshold_mph: float = 15.0
     heat_threshold_c: float = 30.0
     
-    # Scoring weights
     outdoor_rain_penalty: int = -80
     outdoor_wind_penalty: int = -30
     indoor_rain_bonus: int = 20
     indoor_heat_bonus: int = 10
 
 
-# ============================================================================
-# DATA CLASSES
-# ============================================================================
 
 @dataclass
 class TaskAnalysis:
@@ -141,9 +128,6 @@ class SkyScoreResult:
     recommendation: str
 
 
-# ============================================================================
-# LANGUAGE ENGINE
-# ============================================================================
 
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     """Use OpenAI to analyze and classify the task."""
@@ -216,9 +200,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     )
 
 
-# ============================================================================
-# WEATHER ENGINE  
-# ============================================================================
 
 def get_weather(lat: float, lon: float, api_key: str, units: str = "metric") -> WeatherData:
     """Fetch weather from OpenWeatherMap API."""
@@ -290,10 +271,8 @@ def get_weather_by_city(city: str, api_key: str, units: str = "metric") -> Weath
 
 def get_demo_weather(city: str = "New York") -> WeatherData:
     """Demo weather data for testing without API - deterministic based on city."""
-    # Create deterministic "random" based on city name for consistency
     city_hash = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
     
-    # Predefined weather scenarios
     scenarios = [
         ("Clear", "clear sky", "01d", False, 0.0, 26.0),
         ("Clouds", "scattered clouds", "03d", False, 0.0, 22.0),
@@ -302,16 +281,13 @@ def get_demo_weather(city: str = "New York") -> WeatherData:
         ("Clear", "sunny", "01d", False, 0.0, 32.0),  # Hot day
     ]
     
-    # Select scenario based on city hash
     scenario_idx = city_hash % len(scenarios)
     condition, desc, icon, is_rain, rain_amt, base_temp = scenarios[scenario_idx]
     
-    # Slight variations based on hash
     temp_var = (city_hash % 10) - 5  # -5 to +4
     wind_base = 3 + (city_hash % 15)  # 3 to 17 m/s
     humidity = 40 + (city_hash % 40)  # 40-79%
     
-    # City coordinates (approximate)
     city_coords = {
         "new york": (40.7128, -74.0060),
         "london": (51.5074, -0.1278),
@@ -347,9 +323,6 @@ def get_demo_weather(city: str = "New York") -> WeatherData:
     )
 
 
-# ============================================================================
-# SCORING ENGINE
-# ============================================================================
 
 def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config) -> SkyScoreResult:
     """
@@ -366,7 +339,6 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
     penalties = []
     factors = []
     
-    # Check rain
     if weather.is_raining or weather.rain_1h > config.rain_threshold:
         factors.append(f"🌧️ Rain: {weather.rain_1h:.1f}mm/h")
         if task.classification == "Outdoor":
@@ -376,14 +348,12 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
             score += config.indoor_rain_bonus
             bonuses.append(("Perfect rain weather", config.indoor_rain_bonus, "Great time for indoor activities!"))
     
-    # Check wind
     if weather.wind_mph > config.wind_threshold_mph:
         factors.append(f"💨 Wind: {weather.wind_mph:.1f} mph")
         if task.classification == "Outdoor":
             score += config.outdoor_wind_penalty
             penalties.append(("High winds", config.outdoor_wind_penalty, "Wind may affect outdoor activities"))
     
-    # Check temperature
     temp_c = weather.temp_celsius if hasattr(weather, 'temp_celsius') else weather.temperature
     if temp_c > config.heat_threshold_c:
         factors.append(f"🌡️ Hot: {weather.temperature:.1f}{weather.temp_unit}")
@@ -391,16 +361,13 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
             score += config.indoor_heat_bonus
             bonuses.append(("Hot outside", config.indoor_heat_bonus, "Good choice staying indoors with AC"))
     
-    # Add neutral weather factors
     if not weather.is_raining and weather.rain_1h <= 0:
         factors.append(f"☀️ No rain")
     if weather.wind_mph <= config.wind_threshold_mph:
         factors.append(f"🍃 Light wind: {weather.wind_mph:.1f} mph")
     
-    # Clamp score
     score = max(0, min(100, score))
     
-    # Generate recommendation
     if score >= 80:
         recommendation = "🎉 Perfect conditions! Go ahead with your activity."
     elif score >= 60:
@@ -422,9 +389,6 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
     )
 
 
-# ============================================================================
-# STREAMLIT UI - STYLES & ANIMATIONS
-# ============================================================================
 
 def inject_custom_css():
     """Inject beautiful custom CSS with glassmorphism and animations."""
@@ -790,8 +754,6 @@ def inject_custom_css():
 
 def inject_gsap_animations():
     """Inject CSS-only animations (more reliable than GSAP in Streamlit)."""
-    # GSAP doesn't work reliably in Streamlit due to how it renders
-    # Using pure CSS animations instead
     st.markdown("""
     <style>
     /* Entry animations using CSS */
@@ -838,9 +800,6 @@ def inject_gsap_animations():
     """, unsafe_allow_html=True)
 
 
-# ============================================================================
-# UI COMPONENTS
-# ============================================================================
 
 def render_hero():
     """Render the hero section."""
@@ -855,7 +814,6 @@ def render_hero():
 def render_score_gauge(score: int, classification: str):
     """Render the animated SkyScore gauge."""
     
-    # Determine color based on score
     if score >= 80:
         color = "#10b981"  # Green
     elif score >= 60:
@@ -946,10 +904,8 @@ def render_analysis_card(task: TaskAnalysis):
 
 def render_factors_card(result: SkyScoreResult):
     """Render the scoring factors card."""
-    # Build all HTML content first
     factors_html = ""
     
-    # Weather factors
     for factor in result.weather_factors:
         factors_html += f'''
         <div class="factor-card">
@@ -957,7 +913,6 @@ def render_factors_card(result: SkyScoreResult):
         </div>
         '''
     
-    # Bonuses
     for name, value, desc in result.bonuses:
         factors_html += f'''
         <div class="factor-card bonus-card">
@@ -969,7 +924,6 @@ def render_factors_card(result: SkyScoreResult):
         </div>
         '''
     
-    # Penalties
     for name, value, desc in result.penalties:
         factors_html += f'''
         <div class="factor-card penalty-card">
@@ -981,7 +935,6 @@ def render_factors_card(result: SkyScoreResult):
         </div>
         '''
     
-    # Complete card with recommendation
     st.markdown(f"""
     <div class="glass-card">
         <h3 style="color: white; margin-bottom: 1rem;">📊 Scoring Factors</h3>
@@ -996,14 +949,12 @@ def render_factors_card(result: SkyScoreResult):
 def render_map(lat: float, lon: float, city: str, weather: WeatherData):
     """Render interactive Folium map with weather overlay."""
     
-    # Create map centered on location
     m = folium.Map(
         location=[lat, lon],
         zoom_start=10,
         tiles="CartoDB dark_matter"
     )
     
-    # Add weather marker
     popup_html = f"""
     <div style="font-family: 'Inter', sans-serif; padding: 10px;">
         <h4 style="margin: 0 0 10px 0;">{weather.get_emoji()} {city}</h4>
@@ -1014,7 +965,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData):
     </div>
     """
     
-    # Custom icon color based on weather
     if weather.is_raining:
         icon_color = "blue"
     elif weather.condition == "Clear":
@@ -1029,7 +979,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData):
         icon=folium.Icon(color=icon_color, icon="cloud", prefix="fa")
     ).add_to(m)
     
-    # Add circle for visual effect
     folium.Circle(
         [lat, lon],
         radius=5000,
@@ -1052,7 +1001,6 @@ def render_sidebar():
         
         st.markdown("---")
         
-        # API Keys section
         st.markdown("### 🔑 API Keys")
         
         openai_key = st.text_input(
@@ -1069,7 +1017,6 @@ def render_sidebar():
             help="Get your free key at openweathermap.org"
         )
         
-        # Save to session state
         if openai_key:
             st.session_state.openai_api_key = openai_key
         if weather_key:
@@ -1077,7 +1024,6 @@ def render_sidebar():
         
         st.markdown("---")
         
-        # Location section
         st.markdown("### 📍 Location")
         
         city = st.text_input(
@@ -1089,7 +1035,6 @@ def render_sidebar():
         
         st.markdown("---")
         
-        # Demo mode toggle
         demo_mode = st.toggle(
             "🎮 Demo Mode",
             value=st.session_state.get("demo_mode", True),
@@ -1102,7 +1047,6 @@ def render_sidebar():
         
         st.markdown("---")
         
-        # Info section
         st.markdown("""
         <div style="padding: 1rem; background: rgba(99, 102, 241, 0.1); border-radius: 12px; margin-top: 1rem;">
             <h4 style="color: white; margin: 0 0 0.5rem 0;">ℹ️ About</h4>
@@ -1112,7 +1056,6 @@ def render_sidebar():
         </div>
         """, unsafe_allow_html=True)
         
-        # History section
         st.markdown("---")
         st.markdown("### 📜 Recent History")
         
@@ -1183,7 +1126,6 @@ def get_alternative_activities(classification: str, weather: WeatherData) -> lis
     elif classification == "Indoor" and not weather.is_raining and weather.temp_celsius < 28:
         suggestions.extend(outdoor_activities[:3])
     else:
-        # Mix of both
         suggestions.extend(indoor_activities[:2])
         suggestions.extend(outdoor_activities[:2])
     
@@ -1217,10 +1159,8 @@ def render_alternatives(classification: str, weather: WeatherData):
 
 def render_mini_forecast(city: str, demo_mode: bool = True):
     """Render a mini weather forecast preview."""
-    # In demo mode, generate fake forecast
     hours = ["Now", "+3h", "+6h", "+9h", "+12h"]
     
-    # Generate consistent forecast based on city
     city_hash = int(hashlib.md5(city.lower().encode()).hexdigest()[:8], 16)
     
     conditions = [
@@ -1256,14 +1196,10 @@ def render_mini_forecast(city: str, demo_mode: bool = True):
     st.markdown(forecast_html + "</div></div>", unsafe_allow_html=True)
 
 
-# ============================================================================
-# MAIN APP
-# ============================================================================
 
 def main():
     """Main Streamlit application."""
     
-    # Page config
     st.set_page_config(
         page_title="SkyCoach AI",
         page_icon="🌤️",
@@ -1271,23 +1207,18 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    # Inject custom styles
     inject_custom_css()
     inject_gsap_animations()
     
-    # Initialize session state
     if "analyzed" not in st.session_state:
         st.session_state.analyzed = False
     if "demo_mode" not in st.session_state:
         st.session_state.demo_mode = True
     
-    # Render sidebar
     render_sidebar()
     
-    # Main content
     render_hero()
     
-    # Input section
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("""
@@ -1306,12 +1237,10 @@ def main():
         
         st.markdown("</div>", unsafe_allow_html=True)
     
-    # Process and display results
     if analyze_btn and user_input:
         with st.spinner("🔮 Analyzing your activity..."):
             config = Config()
             
-            # Step 1: Analyze task
             demo_mode = st.session_state.get("demo_mode", True)
             openai_key = st.session_state.get("openai_api_key", "")
             weather_key = st.session_state.get("openweather_api_key", "")
@@ -1328,7 +1257,6 @@ def main():
             
             time.sleep(0.5)  # Brief pause for effect
             
-            # Step 2: Get weather
             if demo_mode or not weather_key:
                 weather = get_demo_weather(city)
             else:
@@ -1340,10 +1268,8 @@ def main():
             
             time.sleep(0.3)
             
-            # Step 3: Calculate score
             result = calculate_sky_score(task, weather, config)
             
-            # Step 4: Save to history
             if "history" not in st.session_state:
                 st.session_state.history = []
             
@@ -1357,17 +1283,14 @@ def main():
             )
             st.session_state.history.append(history_entry)
             
-            # Keep only last 10 entries
             if len(st.session_state.history) > 10:
                 st.session_state.history = st.session_state.history[-10:]
             
-            # Store in session state
             st.session_state.task = task
             st.session_state.weather = weather
             st.session_state.result = result
             st.session_state.analyzed = True
     
-    # Display results if we have them
     if st.session_state.get("analyzed"):
         task = st.session_state.task
         weather = st.session_state.weather
@@ -1375,27 +1298,20 @@ def main():
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Results layout
         col1, col2 = st.columns([1, 1])
         
         with col1:
-            # Score gauge
             render_score_gauge(result.score, result.classification)
             
-            # Weather card
             render_weather_card(weather)
         
         with col2:
-            # Analysis card
             render_analysis_card(task)
             
-            # Factors card
             render_factors_card(result)
         
-        # Map section
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Two column layout for map and forecast
         map_col, forecast_col = st.columns([2, 1])
         
         with map_col:
@@ -1405,16 +1321,13 @@ def main():
             </div>
             """, unsafe_allow_html=True)
             
-            # Render map
             weather_map = render_map(weather.latitude, weather.longitude, weather.city, weather)
             st_folium(weather_map, width=None, height=350, use_container_width=True)
         
         with forecast_col:
-            # Mini forecast
             city = st.session_state.get("city", "New York")
             render_mini_forecast(city, st.session_state.get("demo_mode", True))
             
-            # Alternative activities
             st.markdown("<br>", unsafe_allow_html=True)
             render_alternatives(result.classification, weather)
 

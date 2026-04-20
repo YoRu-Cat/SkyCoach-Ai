@@ -32,7 +32,6 @@ class GeoLocation:
         return f"{flag} {self.city}, {self.country}  ({source_label})"
 
 
-# ── IP-based geolocation (free, no API key) ────────────────────────────────
 
 def detect_location_by_ip() -> Optional[GeoLocation]:
     """
@@ -69,7 +68,6 @@ def detect_location_by_ip() -> Optional[GeoLocation]:
         return None
 
 
-# ── Reverse geocode coordinates → city  ────────────────────────────────────
 
 def reverse_geocode(lat: float, lon: float) -> Optional[GeoLocation]:
     """
@@ -105,7 +103,6 @@ def reverse_geocode(lat: float, lon: float) -> Optional[GeoLocation]:
             accuracy="high",
         )
     except Exception:
-        # If reverse geocode fails, still return a location with coords
         return GeoLocation(
             city=f"{lat:.2f}, {lon:.2f}",
             country="",
@@ -116,7 +113,6 @@ def reverse_geocode(lat: float, lon: float) -> Optional[GeoLocation]:
         )
 
 
-# ── Browser Geolocation JavaScript ─────────────────────────────────────────
 
 BROWSER_GEO_JS = """
 (async () => {
@@ -145,7 +141,6 @@ def get_browser_location_js() -> str:
     return BROWSER_GEO_JS
 
 
-# ── Main auto-detect orchestrator ──────────────────────────────────────────
 
 DEFAULT_LOCATION = GeoLocation(
     city="New York",

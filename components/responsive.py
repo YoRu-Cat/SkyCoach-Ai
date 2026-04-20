@@ -83,8 +83,6 @@ def get_responsive_columns(desktop: list, tablet: list, mobile: list) -> list:
     Returns:
         Column ratios to use with st.columns()
     """
-    # Streamlit doesn't expose screen width directly, but we can use CSS injection
-    # For now, return desktop by default - client-side JS will handle responsive adjustments
     return desktop
 
 

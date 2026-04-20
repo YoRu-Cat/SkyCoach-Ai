@@ -1,12 +1,7 @@
 #!/usr/bin/env node
-/**
- * SkyCoach AI - Full Stack Setup Diagnostic
- * Run this to verify both backend and frontend are working
- */
 
 const http = require("http");
 
-// Colors for terminal output
 const colors = {
   reset: "\x1b[0m",
   green: "\x1b[32m",
@@ -65,19 +60,16 @@ async function runDiagnostics() {
     `${colors.blue}╚══════════════════════════════════════════╝${colors.reset}\n`,
   );
 
-  // Test backend
   const backendHealthy = await checkServer(
     "http://localhost:8000/health",
     "Backend API",
   );
 
-  // Test backend API endpoint
   const backendApi = await checkServer(
     "http://localhost:8000/api/health",
     "Backend API Endpoint",
   );
 
-  // Test frontend (gets 404 because Vite serves SPA)
   const frontendHealthy = await checkServer(
     "http://localhost:3000/",
     "Frontend Dev Server",

@@ -46,7 +46,6 @@ class InferenceEngine:
         report_path: str | Path = None,
         confidence_threshold: float = CONFIG.confidence_threshold,
     ) -> None:
-        # Use defaults from current model directory if not provided
         current_dir = CONFIG.get_current_model_path()
         
         self.tokenizer = load_tokenizer_from_json(

@@ -31,7 +31,6 @@ default_dev_origins = [
 origins_env = os.getenv("ALLOWED_ORIGINS", "")
 origins = _parse_origins(origins_env) if origins_env else default_dev_origins
 
-# Optional: set this for Netlify preview URLs, e.g. r"https://.*--your-site\.netlify\.app"
 origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX")
 
 app.add_middleware(

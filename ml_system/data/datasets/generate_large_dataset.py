@@ -9,7 +9,6 @@ import random
 from pathlib import Path
 from collections import defaultdict
 
-# Core activity words with inherent location bias
 INDOOR_ACTIVITIES = [
     "reading", "cooking", "working", "watching", "studying", "exercising on treadmill",
     "swimming in pool", "playing chess", "painting", "sculpting", "writing", "typing",
@@ -134,7 +133,6 @@ UNCLEAR_ACTIVITIES = [
     "passing through", "stopping by", "popping in",
 ]
 
-# Location-indicating context words
 INDOOR_CONTEXT = [
     "inside", "in the building", "indoors", "under roof", "in the house",
     "at home", "in room", "in office", "in workplace", "at work",
@@ -164,7 +162,6 @@ def generate_activity_descriptions(count_per_label=2500):
     """Generate contextually rich activity descriptions"""
     descriptions = defaultdict(list)
     
-    # Generate Indoor activities
     for _ in range(count_per_label):
         activity = random.choice(INDOOR_ACTIVITIES)
         context = random.choice(INDOOR_CONTEXT + [""])
@@ -192,7 +189,6 @@ def generate_activity_descriptions(count_per_label=2500):
             description = description
         descriptions["Indoor"].append(description)
     
-    # Generate Outdoor activities
     for _ in range(count_per_label):
         activity = random.choice(OUTDOOR_ACTIVITIES)
         context = random.choice(OUTDOOR_CONTEXT + [""])
@@ -218,7 +214,6 @@ def generate_activity_descriptions(count_per_label=2500):
         description = random.choice(templates).strip()
         descriptions["Outdoor"].append(description)
     
-    # Generate Mixed location activities
     for _ in range(count_per_label):
         activity = random.choice(MIXED_ACTIVITIES)
         
@@ -243,7 +238,6 @@ def generate_activity_descriptions(count_per_label=2500):
         description = random.choice(templates).strip()
         descriptions["Mixed"].append(description)
     
-    # Generate Unclear/Ambiguous activities
     for _ in range(count_per_label):
         activity = random.choice(UNCLEAR_ACTIVITIES)
         
@@ -276,7 +270,6 @@ def create_balanced_splits(all_descriptions, train_ratio=0.7, val_ratio=0.15, te
     splits = {"train": [], "val": [], "test": [], "hardset": []}
     
     for label, descriptions in all_descriptions.items():
-        # Shuffle descriptions
         random.shuffle(descriptions)
         
         train_count = int(len(descriptions) * train_ratio)
@@ -284,7 +277,6 @@ def create_balanced_splits(all_descriptions, train_ratio=0.7, val_ratio=0.15, te
         test_count = int(len(descriptions) * test_ratio)
         hardset_count = len(descriptions) - train_count - val_count - test_count
         
-        # Distribute
         for i, desc in enumerate(descriptions):
             record = {"phrase": desc, "label": label}
             
@@ -297,7 +289,6 @@ def create_balanced_splits(all_descriptions, train_ratio=0.7, val_ratio=0.15, te
             else:
                 splits["hardset"].append(record)
     
-    # Shuffle each split
     for split_name in splits:
         random.shuffle(splits[split_name])
     
@@ -344,19 +335,15 @@ if __name__ == "__main__":
     print("Using English dictionary-based activity descriptions")
     print("Generating 2,500 balanced examples per label...")
     
-    # Generate descriptions
     all_descriptions = generate_activity_descriptions(count_per_label=2500)
     
     print(f"\nTotal descriptions generated: {sum(len(v) for v in all_descriptions.values()):,}")
     
-    # Create balanced splits
     splits = create_balanced_splits(all_descriptions)
     
-    # Save to JSONL
     output_dir = Path(__file__).parent
     save_splits_to_jsonl(splits, output_dir)
     
-    # Print summary
     print_dataset_summary(splits)
     
     print(f"\n✓ All files saved to: {output_dir}")

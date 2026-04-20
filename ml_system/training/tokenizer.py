@@ -36,7 +36,6 @@ class Tokenizer:
         if not self.use_char_ngrams:
             return base_tokens
 
-        # Character n-grams help model misspellings and inflections robustly.
         ngram_tokens: list[str] = []
         for token in base_tokens:
             if not token.isalpha() or len(token) < self.char_ngram_min:

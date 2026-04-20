@@ -36,7 +36,6 @@ def _render_location_section(initial_city: str) -> str:
 
     auto_loc: GeoLocation = st.session_state.get("auto_location")
 
-    # --- Show current detected location ---
     if auto_loc and not st.session_state.get("location_manual_override", False):
         source_badge = {
             "gps": ("🛰️", "GPS · High Accuracy", "#10b981"),
@@ -71,7 +70,6 @@ def _render_location_section(initial_city: str) -> str:
             unsafe_allow_html=True,
         )
 
-    # --- GPS Precision Button ---
     if st.button("🛰️ Use Precise Location (GPS)", use_container_width=True, key="gps_btn"):
         try:
             from streamlit_js_eval import streamlit_js_eval
@@ -99,7 +97,6 @@ def _render_location_section(initial_city: str) -> str:
         except Exception:
             st.warning("Could not get GPS location. Using auto-detected location.")
 
-    # --- Re-detect via IP button ---
     if st.button("🔄 Re-detect Location", use_container_width=True, key="redetect_btn"):
         detected = auto_detect_location()
         st.session_state.auto_location = detected
@@ -110,7 +107,6 @@ def _render_location_section(initial_city: str) -> str:
         st.session_state.location_manual_override = False
         st.rerun()
 
-    # --- Manual Override Toggle ---
     manual_override = st.toggle(
         "✏️ Enter city manually",
         value=st.session_state.get("location_manual_override", False),
@@ -169,7 +165,6 @@ def render_sidebar(
 
         separator()
 
-        # ── Smart Location Section ──
         city = _render_location_section(initial_city)
 
         separator()

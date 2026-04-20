@@ -45,7 +45,6 @@ export default function AnalysisResult({
 
   return (
     <div ref={containerRef} className="space-y-6">
-      {/* Task Analysis */}
       <div className="analysis-panel">
         <TaskCard
           task={data.task}
@@ -54,17 +53,14 @@ export default function AnalysisResult({
         />
       </div>
 
-      {/* Weather Information */}
       <div className="analysis-panel">
         <WeatherCard weather={data.weather} />
       </div>
 
-      {/* Core Score */}
       <div className="analysis-panel">
         <ScoreCard score={data.score_result} />
       </div>
 
-      {/* Alternatives */}
       {data.alternatives && data.alternatives.length > 0 && (
         <div className="analysis-panel">
           <AlternativesCard

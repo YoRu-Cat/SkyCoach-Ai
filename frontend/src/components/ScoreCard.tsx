@@ -146,7 +146,6 @@ export default function ScoreCard({ score }: ScoreCardProps) {
         )}
       </div>
 
-      {/* Weather Factors */}
       {score.weather_factors.length > 0 && (
         <div className="pt-4 border-t border-slate-700">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">

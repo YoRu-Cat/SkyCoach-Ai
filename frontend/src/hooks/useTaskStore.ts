@@ -147,7 +147,6 @@ const vibrateDevice = () => {
       navigator.vibrate([300, 150, 300, 150, 650]);
     }
   } catch {
-    // Ignore vibration failures.
   }
 };
 
@@ -342,7 +341,6 @@ export const useTaskStore = () => {
       }, delay + 30);
     };
 
-    // Prompting once on startup gives browser notifications a chance to work.
     void enableNotifications();
 
     const checkRemindersNow = () => {

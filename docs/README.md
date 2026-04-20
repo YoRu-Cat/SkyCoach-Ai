@@ -28,6 +28,7 @@ flowchart TD
 
 ## Core Docs
 
+- `codebase_file_reference.md` (file-by-file responsibilities, symbols, routes, and dependencies)
 - `architecture/system_design.md`
 - `architecture/deep_dive.md`
 - `backend/ai_engine.md`
@@ -44,11 +45,12 @@ flowchart TD
 
 ## Recommended Reading Order
 
-1. `architecture/system_design.md`
-2. `architecture/deep_dive.md`
-3. `backend/api_routes.md`
-4. `backend/ai_engine.md`
-5. `architecture/ml_system/overview.md`
-6. `architecture/ml_system/integration.md`
-7. `architecture/ml_system/training_and_data.md`
-8. `architecture/ml_system/quick_reference.md`
+1. `codebase_file_reference.md`
+2. `architecture/system_design.md`
+3. `architecture/deep_dive.md`
+4. `backend/api_routes.md`
+5. `backend/ai_engine.md`
+6. `architecture/ml_system/overview.md`
+7. `architecture/ml_system/integration.md`
+8. `architecture/ml_system/training_and_data.md`
+9. `architecture/ml_system/quick_reference.md`

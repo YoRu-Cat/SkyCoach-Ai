@@ -204,7 +204,6 @@ export default function AppShell() {
         }
       })
       .catch(() => {
-        // Keep native scrolling if locomotive fails to load.
       });
 
     const onWindowScroll = () => updatePanelByScroll();

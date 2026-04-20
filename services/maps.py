@@ -14,17 +14,14 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
         prefer_canvas=True,
     )
 
-    # Base layers
     folium.TileLayer("CartoDB dark_matter", name="Dark", control=True).add_to(m)
     folium.TileLayer("CartoDB positron", name="Light", control=True).add_to(m)
     folium.TileLayer("OpenStreetMap", name="Street", control=True).add_to(m)
 
-    # Map controls
     Fullscreen(position="topright", title="Fullscreen", title_cancel="Exit").add_to(m)
     MiniMap(toggle_display=True, position="bottomright").add_to(m)
     MousePosition(position="topright", separator=" | ", prefix="Coords").add_to(m)
     
-    # Weather popup with HTML
     popup_html = f"""
     <div style="font-family: 'Inter', sans-serif; padding: 10px;">
         <h4 style="margin: 0 0 10px 0;">{weather.get_emoji()} {city}</h4>
@@ -35,7 +32,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
     </div>
     """
     
-    # Icon color based on weather
     if weather.is_raining:
         icon_color = "blue"
     elif weather.condition == "Clear":
@@ -43,7 +39,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
     else:
         icon_color = "gray"
 
-    # Weather intensity ring radius
     intensity = min(1.0, (weather.rain_1h / 5.0) + (weather.wind_mph / 40.0))
     ring_radius = 2500 + int(intensity * 9000)
     ring_color = "#06b6d4" if not weather.is_raining else "#3b82f6"
@@ -55,7 +50,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
         icon=folium.Icon(color=icon_color, icon="cloud", prefix="fa")
     ).add_to(m)
 
-    # Weather intensity ring
     folium.Circle(
         [lat, lon],
         radius=ring_radius,
@@ -66,7 +60,6 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
         tooltip=f"Influence radius: {ring_radius/1000:.1f} km",
     ).add_to(m)
 
-    # Inner focus ring
     folium.Circle(
         [lat, lon],
         radius=max(1000, ring_radius // 3),

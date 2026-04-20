@@ -175,8 +175,6 @@ def _detect_input_issue(text: str, outdoor_score: float, indoor_score: float) ->
 
     if outdoor_score == 0 and indoor_score == 0:
         content_words = [w for w in words if w not in filler_words and len(w) >= 3]
-        # A single concrete content word can still be a valid intent phrase,
-        # e.g. "going to gym" or "going to work".
         if len(content_words) >= 1:
             return False, None
         if any(word in filler_words for word in words):
@@ -461,7 +459,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     ml_rationale = ""
     ml_suggestions: list[dict] = []
 
-    # Primary runtime classifier: trained ML system model on disk.
     try:
         from ml_system.api import get_ml_system
 
@@ -471,7 +468,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         ml_rationale = str(ml_result.get("rationale", ""))
         ml_suggestions = ml_result.get("suggestions", []) or []
     except Exception:
-        # Safety fallback for environments where unified model files are unavailable.
         legacy_prediction = predict_task_label(compact_text)
         ml_label = legacy_prediction.classification
         ml_confidence = legacy_prediction.confidence
@@ -508,7 +504,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     confidence = max(vote_scores.values())
     confidence = min(0.98, max(0.52, confidence))
 
-    # If token and dictionary signals are weak, trust the calibrated ML class directly.
     if token_signal["indoor_score"] == 0 and token_signal["outdoor_score"] == 0 and dict_confidence < 0.52:
         if ml_label in vote_scores:
             classification = ml_label
@@ -544,7 +539,6 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         suggested_classification = ml_label
         suggestion_confidence = ml_confidence
 
-    # Clarify ambiguous intents instead of forcing hard labels on uncertain input.
     if ml_label == "Unclear" or max(ml_confidence, dict_confidence) < 0.62:
         needs_clarification = True
         issue = "Activity intent is understandable but ambiguous between indoor and outdoor"

@@ -48,7 +48,6 @@ class MLSystem:
         request = PredictionRequest(phrase=phrase)
         response = self.inference.predict(request)
         
-        # Auto-flag uncertain predictions
         if response.confidence < CONFIG.confidence_threshold:
             self.learning.flag_uncertain(
                 phrase=phrase,
@@ -105,10 +104,8 @@ class MLSystem:
         trainer = Trainer(train_path, val_path, test_path, hardset_path, output_dir)
         results = trainer.train()
         
-        # Reload inference engine
         self.inference = InferenceEngine()
         
-        # Register version
         self.learning.register_version(
             version_id=f"v{len(self.learning.version_registry.list_versions()) + 1}",
             model_path=str(output_dir / "model.json"),
@@ -119,7 +116,6 @@ class MLSystem:
             hardset_f1=results["hardset_f1"],
         )
         
-        # Promote to active
         self.learning.promote_version(f"v{len(self.learning.version_registry.list_versions())}")
         
         return results
@@ -181,7 +177,6 @@ class MLSystem:
         }
 
 
-# Global instance
 _ml_system = None
 
 

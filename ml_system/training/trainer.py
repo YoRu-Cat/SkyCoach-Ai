@@ -66,7 +66,6 @@ class Trainer:
     def train(self) -> dict:
         """Train models and return results."""
         
-        # Load data
         train_rows = load_dataset(self.train_path)
         val_rows = load_dataset(self.val_path)
         test_rows = load_dataset(self.test_path)
@@ -119,7 +118,6 @@ class Trainer:
 
         labels = sorted({*y_train, *y_val, *y_test, *y_hard})
 
-        # Train tokenizer
         tokenizer = Tokenizer(
             min_token_freq=CONFIG.tokenizer_min_freq,
             max_vocab_size=CONFIG.tokenizer_max_vocab,
@@ -129,7 +127,6 @@ class Trainer:
         )
         tokenizer.train(x_train)
 
-        # Train models
         nb = NaiveBayesModel(labels=labels, alpha=CONFIG.laplace_alpha)
         nb.fit(x_train, y_train, tokenizer)
 
@@ -141,7 +138,6 @@ class Trainer:
         )
         linear.fit(x_train, y_train, tokenizer)
 
-        # Evaluate on validation set and select champion
         best_name = ""
         best_val_f1 = -1.0
         best_model = None
@@ -155,11 +151,9 @@ class Trainer:
                 best_val_f1 = f1
                 best_model = model
 
-        # Apply temperature scaling
         val_probs = best_model.predict_proba(x_val, tokenizer)
         temperature = self._calibrate_temperature(y_val, val_probs)
 
-        # Final evaluation
         def calibrated_predict(texts: list[str]) -> list[str]:
             probs = best_model.predict_proba(texts, tokenizer)
             calibrated = [self._apply_temperature(p, temperature) for p in probs]
@@ -171,7 +165,6 @@ class Trainer:
         test_f1 = macro_f1_score(y_test, test_preds, labels)
         hard_f1 = macro_f1_score(y_hard, hard_preds, labels)
 
-        # Save artifacts
         report = {
             "champion_model": best_name,
             "labels": labels,

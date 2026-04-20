@@ -8,9 +8,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-# ============================================================================
-# DATA PIPELINE SCHEMAS
-# ============================================================================
 
 @dataclass(frozen=True)
 class RawPhraseRecord:
@@ -46,9 +43,6 @@ class TrainingRecord:
     split: str  # "train", "val", "test", "hardset"
 
 
-# ============================================================================
-# PREDICTION AND FEEDBACK SCHEMAS
-# ============================================================================
 
 @dataclass(frozen=True)
 class PredictionRequest:
@@ -88,9 +82,6 @@ class UncertainPrediction:
     confidence_threshold: float = 0.72
 
 
-# ============================================================================
-# MODEL and VERSIONING SCHEMAS
-# ============================================================================
 
 @dataclass(frozen=True)
 class ModelVersion:
@@ -124,9 +115,6 @@ class TrainingReport:
     model_path: str
 
 
-# ============================================================================
-# MONITORING SCHEMAS
-# ============================================================================
 
 @dataclass(frozen=True)
 class DriftMetrics:

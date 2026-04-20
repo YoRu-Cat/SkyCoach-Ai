@@ -60,8 +60,6 @@ def _activity_variants(activity: str, label: str) -> list[str]:
         variants.add(_normalize_text(f"my {cleaned}"))
         variants.add(_normalize_text(f"let us {cleaned}"))
 
-    # Add context-aware variants so the model learns environment cues
-    # from data instead of brittle runtime overrides.
     if label == "Outdoor":
         variants.add(_normalize_text(f"{cleaned} outside"))
         variants.add(_normalize_text(f"outside {cleaned}"))

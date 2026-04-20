@@ -38,7 +38,6 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
     factors = []
     requires_travel = _requires_travel(task)
     
-    # Check rain
     if weather.is_raining or weather.rain_1h > config.rain_threshold:
         factors.append(f"🌧️ Rain: {weather.rain_1h:.1f}mm/h")
         if task.classification == "Outdoor":
@@ -51,7 +50,6 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
             score += config.indoor_rain_bonus
             bonuses.append(("Perfect rain weather", config.indoor_rain_bonus, "Great time for indoor activities!"))
     
-    # Check wind
     if weather.wind_mph > config.wind_threshold_mph:
         factors.append(f"💨 Wind: {weather.wind_mph:.1f} mph")
         if task.classification == "Outdoor":
@@ -61,7 +59,6 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
             score -= 12
             penalties.append(("Commute wind exposure", -12, "Strong wind can impact travel comfort and safety"))
     
-    # Check temperature
     temp_c = weather.temp_celsius if hasattr(weather, 'temp_celsius') else weather.temperature
     if temp_c > config.heat_threshold_c:
         factors.append(f"🌡️ Hot: {weather.temperature:.1f}{weather.temp_unit}")
@@ -69,16 +66,13 @@ def calculate_sky_score(task: TaskAnalysis, weather: WeatherData, config: Config
             score += config.indoor_heat_bonus
             bonuses.append(("Hot outside", config.indoor_heat_bonus, "Good choice staying indoors with AC"))
     
-    # Neutral factors
     if not weather.is_raining and weather.rain_1h <= 0:
         factors.append(f"☀️ No rain")
     if weather.wind_mph <= config.wind_threshold_mph:
         factors.append(f"🍃 Light wind: {weather.wind_mph:.1f} mph")
     
-    # Clamp score
     score = max(0, min(100, score))
     
-    # Generate recommendation
     if score >= 80:
         recommendation = "🎉 Perfect conditions! Go ahead with your activity."
     elif score >= 60:
@@ -187,7 +181,6 @@ def _score_slot_for_task(task: TaskAnalysis, slot: dict) -> tuple[float, str]:
         else:
             reasons.append("comfortable outdoor conditions")
     else:
-        # Commute-aware indoor mode: destination is indoor, but travel may be exposed.
         if requires_travel:
             if is_raining or rain_1h > 0.2:
                 score -= 55
@@ -207,7 +200,6 @@ def _score_slot_for_task(task: TaskAnalysis, slot: dict) -> tuple[float, str]:
             if not reasons:
                 reasons.append("commute conditions look manageable")
         else:
-            # Home/fully-indoor tasks can benefit from poor outdoor weather.
             if is_raining or rain_1h > 0.2:
                 score += 8
                 reasons.append("rain favors indoor focus")
@@ -312,7 +304,6 @@ def recommend_best_schedule(
 
     requires_travel = _requires_travel(task)
 
-    # Indoor: travel-required plans should avoid rain-heavy windows.
     if requires_travel and (weather.is_raining or weather.rain_1h > 0.2):
         return (
             tomorrow.isoformat(),
@@ -320,7 +311,6 @@ def recommend_best_schedule(
             "Destination is indoor, but commute exposure is high in current rain; next drier slot is safer.",
         )
 
-    # Indoor: allow flexibility, but leverage bad weather/high heat as strong positives.
     if weather.is_raining or weather.rain_1h > 0.2:
         return (
             today.isoformat(),
