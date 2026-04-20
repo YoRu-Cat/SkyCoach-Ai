@@ -1,8 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Plus, Trash2 } from "lucide-react";
 import type { TaskStore } from "@hooks/useTaskStore";
 
+type ThemeMode = "dark" | "light";
+const TASKS_PER_PAGE = 5;
+
 export default function TodoPage({
+  themeMode = "dark",
   tasks,
   stats,
   addTask,
@@ -15,25 +19,45 @@ export default function TodoPage({
   testReminder,
   completeDueTask,
   rescheduleDueTask,
-}: TaskStore) {
+}: TaskStore & { themeMode?: ThemeMode }) {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [testingPreset, setTestingPreset] = useState<
     "bell" | "chime" | "alarm"
   >("bell");
   const [reminderStatus, setReminderStatus] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const orderedTasks = useMemo(
     () => [...tasks].sort((a, b) => Number(a.completed) - Number(b.completed)),
     [tasks],
   );
 
+  const taskById = useMemo(
+    () => new Map(tasks.map((task) => [task.id, task])),
+    [tasks],
+  );
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(orderedTasks.length / TASKS_PER_PAGE),
+  );
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  const pagedTasks = useMemo(() => {
+    const start = (currentPage - 1) * TASKS_PER_PAGE;
+    return orderedTasks.slice(start, start + TASKS_PER_PAGE);
+  }, [orderedTasks, currentPage]);
+
   const duePromptTasks = useMemo(
     () =>
       pendingDueTaskIds
-        .map((id) => tasks.find((task) => task.id === id))
+        .map((id) => taskById.get(id))
         .filter((task): task is NonNullable<typeof task> => Boolean(task)),
-    [pendingDueTaskIds, tasks],
+    [pendingDueTaskIds, taskById],
   );
 
   const onSubmit = (e: React.FormEvent) => {
@@ -198,12 +222,33 @@ export default function TodoPage({
       <section className="card space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Tasks</h3>
-          <button
-            type="button"
-            onClick={clearCompleted}
-            className="text-xs px-3 py-1.5 rounded-lg border border-slate-600 hover:border-violet-300/60 transition-colors">
-            Clear Completed
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 hover:border-violet-300/60 transition-colors disabled:opacity-45 disabled:cursor-not-allowed">
+              Prev 5
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
+              disabled={currentPage === totalPages}
+              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 hover:border-violet-300/60 transition-colors disabled:opacity-45 disabled:cursor-not-allowed">
+              Next 5
+            </button>
+            <button
+              type="button"
+              onClick={clearCompleted}
+              className="text-xs px-3 py-1.5 rounded-lg border border-slate-600 hover:border-violet-300/60 transition-colors">
+              Clear Completed
+            </button>
+          </div>
         </div>
 
         {orderedTasks.length === 0 ? (
@@ -211,7 +256,7 @@ export default function TodoPage({
             No tasks yet. Add your first task above.
           </p>
         ) : (
-          orderedTasks.map((task) => (
+          pagedTasks.map((task) => (
             <div
               key={task.id}
               className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg space-y-3">
@@ -228,8 +273,12 @@ export default function TodoPage({
                   }
                   className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-transparent ${
                     task.completed
-                      ? "border-violet-200 bg-violet-500/80 text-white shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_0_14px_rgba(168,85,247,0.25)]"
-                      : "border-violet-200/80 bg-[rgba(62,16,101,0.96)] text-violet-100 shadow-[0_0_0_1px_rgba(168,85,247,0.18)] hover:bg-violet-500/25 hover:border-violet-100"
+                      ? themeMode === "light"
+                        ? "border-[#7c45b8] bg-[#8a59d5] text-white shadow-[0_0_0_1px_rgba(124,69,184,0.3),0_0_10px_rgba(138,89,213,0.2)]"
+                        : "border-violet-200 bg-violet-500/80 text-white shadow-[0_0_0_1px_rgba(217,70,239,0.35),0_0_14px_rgba(168,85,247,0.25)]"
+                      : themeMode === "light"
+                        ? "border-[#9d77e4] bg-[#f1e9fb] text-[#6a47a8] shadow-[0_0_0_1px_rgba(157,119,228,0.24)] hover:bg-[#e8dbf8] hover:border-[#8a59d5]"
+                        : "border-violet-200/80 bg-[rgba(62,16,101,0.96)] text-violet-100 shadow-[0_0_0_1px_rgba(168,85,247,0.18)] hover:bg-violet-500/25 hover:border-violet-100"
                   }`}>
                   {task.completed ? <Check className="h-4 w-4" /> : null}
                 </button>

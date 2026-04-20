@@ -102,7 +102,7 @@ export default function AppShell() {
           />
         );
       case "todo":
-        return <TodoPage {...taskStore} />;
+        return <TodoPage {...taskStore} themeMode={themeMode} />;
       case "timetable":
         return <TimetablePage {...taskStore} />;
       case "planner":
@@ -203,8 +203,7 @@ export default function AppShell() {
           loco.on("scroll", updatePanelByScroll);
         }
       })
-      .catch(() => {
-      });
+      .catch(() => {});
 
     const onWindowScroll = () => updatePanelByScroll();
     window.addEventListener("scroll", onWindowScroll, { passive: true });
