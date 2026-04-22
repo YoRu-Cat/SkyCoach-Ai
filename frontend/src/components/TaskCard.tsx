@@ -27,6 +27,12 @@ export default function TaskCard({
     suggestionText.length > 0 &&
     suggestionText.toLowerCase() !== task.activity.toLowerCase() &&
     suggestionText.toLowerCase() !== task.original_text.toLowerCase();
+  const hasAlternateClassificationSuggestion =
+    !!task.suggested_classification &&
+    task.suggestion_confidence >= 0.55 &&
+    task.suggested_classification !== task.classification;
+  const showSuggestionPanel =
+    hasActionableSuggestion || hasAlternateClassificationSuggestion;
 
   const getClassificationColor = (classification: string) => {
     return classification === "Outdoor"
@@ -121,14 +127,14 @@ export default function TaskCard({
         </div>
       </div>
 
-      {(task.suggested_activity || task.suggested_classification) && (
+      {showSuggestionPanel && (
         <div className="pt-4 border-t border-slate-700">
           <div className="bg-fuchsia-500/10 border border-fuchsia-400/30 rounded-lg p-3">
             <p className="text-xs font-semibold text-fuchsia-300 uppercase tracking-wide mb-2">
               💡 Auto-Judge Suggestion
             </p>
             <div className="space-y-2">
-              {task.suggested_activity && (
+              {hasActionableSuggestion && task.suggested_activity && (
                 <div>
                   <p className="text-xs text-slate-400">Likely activity</p>
                   <p className="text-slate-200 font-semibold">
@@ -137,15 +143,16 @@ export default function TaskCard({
                 </div>
               )}
               <div className="flex gap-4">
-                {task.suggested_classification && (
-                  <div>
-                    <p className="text-xs text-slate-400">Did you mean</p>
-                    <p
-                      className={`font-semibold ${getClassificationColor(task.suggested_classification || "")}`}>
-                      {task.suggested_classification}
-                    </p>
-                  </div>
-                )}
+                {hasAlternateClassificationSuggestion &&
+                  task.suggested_classification && (
+                    <div>
+                      <p className="text-xs text-slate-400">Did you mean</p>
+                      <p
+                        className={`font-semibold ${getClassificationColor(task.suggested_classification || "")}`}>
+                        {task.suggested_classification}
+                      </p>
+                    </div>
+                  )}
                 <div>
                   <p className="text-xs text-slate-400">Confidence</p>
                   <p className="text-slate-200 font-semibold">

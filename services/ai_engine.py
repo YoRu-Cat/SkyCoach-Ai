@@ -531,9 +531,13 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
     suggestion_confidence = 0.0
 
     if ml_suggestions:
-        top = ml_suggestions[0]
-        suggested_classification = top.get("label")
-        suggestion_confidence = float(top.get("confidence", 0.0) or 0.0)
+        alternate = next(
+            (item for item in ml_suggestions if item.get("label") and item.get("label") != classification),
+            None,
+        )
+        if alternate and (needs_clarification or disagreement_override):
+            suggested_classification = alternate.get("label")
+            suggestion_confidence = float(alternate.get("confidence", 0.0) or 0.0)
 
     if disagreement_override and not suggested_classification:
         suggested_classification = ml_label

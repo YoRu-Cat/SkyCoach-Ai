@@ -67,20 +67,84 @@ class InferenceEngine:
         self.temperature = self.report.get("temperature", 1.0)
         self.model_name = self.report.get("champion_model", "unknown")
 
-    def _apply_temperature(self, logits: dict[str, float]) -> dict[str, float]:
-        """Apply temperature scaling."""
-        max_logit = max(logits.values())
-        scaled = {k: (v - max_logit) / self.temperature for k, v in logits.items()}
-        exp_scores = {k: math.exp(v) for k, v in scaled.items()}
+    def _apply_temperature(self, probs: dict[str, float]) -> dict[str, float]:
+        """Apply temperature scaling to probabilities using log-space for numerical stability."""
+        if self.temperature <= 0:
+            return probs
+
+        safe_logs = {
+            label: math.log(max(value, 1e-12))
+            for label, value in probs.items()
+        }
+        max_log = max(safe_logs.values())
+        scaled = {
+            label: (value - max_log) / self.temperature
+            for label, value in safe_logs.items()
+        }
+        exp_scores = {label: math.exp(value) for label, value in scaled.items()}
         total = sum(exp_scores.values())
-        return {k: v / total for k, v in exp_scores.items()}
+        if total <= 0:
+            return probs
+        return {label: value / total for label, value in exp_scores.items()}
+
+    def _token_signal_strength(self, phrase: str) -> float:
+        tokens = self.tokenizer.tokenize(phrase)
+
+        if hasattr(self.model, "weights"):
+            weighted_tokens: set[str] = set()
+            for label in getattr(self.model, "labels", []):
+                weighted_tokens.update(getattr(self.model, "weights", {}).get(label, {}).keys())
+            if not tokens:
+                return 0.0
+            overlap = sum(1 for token in tokens if token in weighted_tokens)
+            return overlap / max(1, len(tokens))
+
+        if hasattr(self.model, "token_count_per_class"):
+            vocab: set[str] = set()
+            for counts in getattr(self.model, "token_count_per_class", {}).values():
+                vocab.update(counts.keys())
+            if not tokens:
+                return 0.0
+            overlap = sum(1 for token in tokens if token in vocab)
+            return overlap / max(1, len(tokens))
+
+        return 1.0
 
     def predict(self, request: PredictionRequest) -> PredictionResponse:
         """Make a prediction."""
-        probs_list = self.model.predict_proba([request.phrase], self.tokenizer)
+        phrase = (request.phrase or "").strip()
+        if not phrase:
+            uniform = {
+                label: 1.0 / max(1, len(self.model.labels))
+                for label in self.model.labels
+            }
+            return PredictionResponse(
+                label="Unclear",
+                confidence=0.0,
+                rationale="Empty input",
+                model=self.model_name,
+                all_scores=uniform,
+            )
+
+        probs_list = self.model.predict_proba([phrase], self.tokenizer)
         all_scores = probs_list[0]
 
-        calibrated = self._apply_temperature(all_scores)
+        signal_strength = self._token_signal_strength(phrase)
+        if signal_strength < 0.08:
+            # If almost all tokens are unseen, avoid overconfident bias-only predictions.
+            uniform = {
+                label: 1.0 / max(1, len(self.model.labels))
+                for label in self.model.labels
+            }
+            return PredictionResponse(
+                label="Unclear",
+                confidence=0.0,
+                rationale="Insufficient known activity signals in input",
+                model=self.model_name,
+                all_scores=uniform,
+            )
+
+        calibrated = all_scores
 
         ranked = sorted(calibrated.items(), key=lambda x: x[1], reverse=True)
         top_label, top_confidence = ranked[0]
