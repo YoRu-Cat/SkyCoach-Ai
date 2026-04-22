@@ -28,6 +28,8 @@ class MLSystemConfig:
     learning_rate: float = 0.05
     l2_regularization: float = 1e-4
     laplace_alpha: float = 1.0
+    linear_backend: str = "pytorch"
+    linear_batch_size: int = 32
     
     confidence_threshold: float = 0.62
     min_confidence_floor: float = 0.55
