@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   Home,
   CalendarDays,
@@ -11,14 +19,15 @@ import {
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import "locomotive-scroll/dist/locomotive-scroll.css";
-import Dashboard from "../pages/Dashboard";
-import TodoPage from "../pages/TodoPage";
-import TimetablePage from "../pages/TimetablePage";
-import PlannerPage from "../pages/PlannerPage";
-import ChatPage from "../pages/ChatPage";
-import HomePage from "../pages/HomePage";
-import ParticlesComponent from "@components/ParticlesComponent";
 import { useTaskStore } from "@hooks/useTaskStore";
+
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const TodoPage = lazy(() => import("../pages/TodoPage"));
+const TimetablePage = lazy(() => import("../pages/TimetablePage"));
+const PlannerPage = lazy(() => import("../pages/PlannerPage"));
+const ChatPage = lazy(() => import("../pages/ChatPage"));
+const HomePage = lazy(() => import("../pages/HomePage"));
+const ParticlesComponent = lazy(() => import("@components/ParticlesComponent"));
 
 export type AppView =
   | "home"
@@ -55,6 +64,9 @@ export default function AppShell() {
   const panelRef = useRef<HTMLDivElement>(null);
   const panelWrapRef = useRef<HTMLDivElement>(null);
   const cursorOrbRef = useRef<HTMLDivElement>(null);
+  const viewLoadingFallback = (
+    <div className="card py-8 text-center text-slate-300">Loading view...</div>
+  );
 
   const navItems: NavItem[] = useMemo(
     () => [
@@ -276,10 +288,12 @@ export default function AppShell() {
           : "theme-dark bg-midnight_violet-100 text-alabaster_grey-900"
       }`}>
       <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
-        <ParticlesComponent
-          id="skycoach-tech-particles"
-          themeMode={themeMode}
-        />
+        <Suspense fallback={null}>
+          <ParticlesComponent
+            id="skycoach-tech-particles"
+            themeMode={themeMode}
+          />
+        </Suspense>
       </div>
 
       <div
@@ -425,7 +439,7 @@ export default function AppShell() {
                 ? "border-[#b596e5]/55 bg-[#f7f4fd]/80"
                 : "border-[#5c0390]/55 bg-[#11001c]/78"
             }`}>
-            {renderView()}
+            <Suspense fallback={viewLoadingFallback}>{renderView()}</Suspense>
           </main>
         </div>
       </div>

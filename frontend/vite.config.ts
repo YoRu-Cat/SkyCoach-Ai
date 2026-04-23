@@ -32,9 +32,23 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          query: ["react-query"],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+
+          if (id.includes("react-query")) return "query";
+          if (id.includes("@tsparticles")) return "particles";
+          if (id.includes("leaflet") || id.includes("react-leaflet"))
+            return "maps";
+          if (
+            id.includes("framer-motion") ||
+            id.includes("gsap") ||
+            id.includes("locomotive-scroll")
+          ) {
+            return "motion";
+          }
+          if (id.includes("react") || id.includes("scheduler")) return "vendor";
+
+          return "vendor-misc";
         },
       },
     },

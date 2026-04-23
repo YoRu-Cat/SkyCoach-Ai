@@ -153,11 +153,22 @@ class Trainer:
                 best_model = model
 
         val_probs = best_model.predict_proba(x_val, tokenizer)
-        temperature = self._calibrate_temperature(y_val, val_probs)
+        temperature, confidence_smoothing = self._calibrate_probability_mapping(
+            y_val,
+            val_probs,
+            labels,
+        )
 
         def calibrated_predict(texts: list[str]) -> list[str]:
             probs = best_model.predict_proba(texts, tokenizer)
-            calibrated = [self._apply_temperature(p, temperature) for p in probs]
+            calibrated = [
+                self._apply_calibration(
+                    p,
+                    temperature=temperature,
+                    smoothing=confidence_smoothing,
+                )
+                for p in probs
+            ]
             return [max(p.items(), key=lambda x: x[1])[0] for p in calibrated]
 
         test_preds = calibrated_predict(x_test)
@@ -173,7 +184,10 @@ class Trainer:
             "val": {"macro_f1": best_val_f1},
             "test": {"macro_f1": test_f1},
             "hardset": {"macro_f1": hard_f1},
+            "calibration_version": 2,
+            "calibration_method": "probability_temperature_plus_uniform_smoothing",
             "temperature": temperature,
+            "confidence_smoothing": confidence_smoothing,
         }
 
         report_path = self.output_dir / "report.json"
@@ -200,6 +214,7 @@ class Trainer:
             "test_f1": test_f1,
             "hardset_f1": hard_f1,
             "temperature": temperature,
+            "confidence_smoothing": confidence_smoothing,
             "report_path": str(report_path),
             "tokenizer_path": str(tokenizer_path),
             "model_path": str(model_path),
@@ -495,30 +510,85 @@ class Trainer:
         return linear
 
     @staticmethod
-    def _calibrate_temperature(y_true: list[str], probs: list[dict[str, float]]) -> float:
-        """Find best temperature scaling parameter."""
+    def _calibrate_probability_mapping(
+        y_true: list[str],
+        probs: list[dict[str, float]],
+        labels: list[str],
+    ) -> tuple[float, float]:
+        """Fit temperature and uniform smoothing jointly by minimizing validation NLL."""
         best_temp = 1.0
+        best_smoothing = 0.0
         best_nll = float("inf")
 
-        for temp in [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 3.0]:
-            nll = 0.0
-            for label, prob_dict in zip(y_true, probs):
-                calibrated = Trainer._apply_temperature(prob_dict, temp)
-                label_prob = calibrated.get(label, 1e-10)
-                nll += -math.log(max(label_prob, 1e-10))
-            
-            if nll < best_nll:
-                best_nll = nll
-                best_temp = temp
+        temp_candidates = [
+            0.8,
+            0.9,
+            1.0,
+            1.1,
+            1.2,
+            1.35,
+            1.5,
+            1.75,
+            2.0,
+            2.5,
+            3.0,
+            4.0,
+        ]
+        smoothing_candidates = [0.0, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12]
 
-        return best_temp
+        for temp in temp_candidates:
+            for smoothing in smoothing_candidates:
+                nll = 0.0
+                for label, prob_dict in zip(y_true, probs):
+                    calibrated = Trainer._apply_calibration(
+                        prob_dict,
+                        temperature=temp,
+                        smoothing=smoothing,
+                    )
+                    label_prob = calibrated.get(label, 1e-10)
+                    nll += -math.log(max(label_prob, 1e-10))
+
+                if nll < best_nll:
+                    best_nll = nll
+                    best_temp = temp
+                    best_smoothing = smoothing
+
+        if len(labels) <= 1:
+            return 1.0, 0.0
+
+        return best_temp, best_smoothing
 
     @staticmethod
-    def _apply_temperature(logits: dict[str, float], temperature: float) -> dict[str, float]:
-        """Apply temperature scaling."""
-        import math
-        max_logit = max(logits.values())
-        scaled = {k: (v - max_logit) / temperature for k, v in logits.items()}
+    def _apply_calibration(
+        probs: dict[str, float],
+        temperature: float,
+        smoothing: float,
+    ) -> dict[str, float]:
+        calibrated = Trainer._apply_temperature(probs, temperature)
+        if smoothing <= 0:
+            return calibrated
+
+        uniform = 1.0 / max(1, len(calibrated))
+        mixed = {
+            label: (1.0 - smoothing) * value + smoothing * uniform
+            for label, value in calibrated.items()
+        }
+        total = sum(mixed.values())
+        if total <= 0:
+            return calibrated
+        return {label: value / total for label, value in mixed.items()}
+
+    @staticmethod
+    def _apply_temperature(probs: dict[str, float], temperature: float) -> dict[str, float]:
+        """Apply temperature scaling in probability space using log probabilities."""
+        if temperature <= 0:
+            return probs
+
+        safe_logs = {k: math.log(max(v, 1e-12)) for k, v in probs.items()}
+        max_log = max(safe_logs.values())
+        scaled = {k: (v - max_log) / temperature for k, v in safe_logs.items()}
         exp_scores = {k: math.exp(v) for k, v in scaled.items()}
         total = sum(exp_scores.values())
+        if total <= 0:
+            return probs
         return {k: v / total for k, v in exp_scores.items()}

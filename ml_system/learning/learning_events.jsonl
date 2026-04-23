@@ -2,3 +2,4 @@
 {"event_id": "promote_v2_1775983265.118157", "event_type": "model_promotion", "timestamp": "2026-04-12T13:41:05.118187Z", "description": "Promoted model version v2 to active", "version_id": "v2"}
 {"event_id": "promote_v3_1775984601.896643", "event_type": "model_promotion", "timestamp": "2026-04-12T14:03:21.896673Z", "description": "Promoted model version v3 to active", "version_id": "v3"}
 {"event_id": "promote_v4_1776088865.370909", "event_type": "model_promotion", "timestamp": "2026-04-13T19:01:05.370945Z", "description": "Promoted model version v4 to active", "version_id": "v4"}
+{"event_id": "promote_v5_1776960091.962791", "event_type": "model_promotion", "timestamp": "2026-04-23T16:01:31.962791Z", "description": "Promoted model version v5 to active", "version_id": "v5"}

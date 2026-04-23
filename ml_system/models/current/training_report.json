@@ -6,6 +6,7 @@
     "Outdoor",
     "Unclear"
   ],
+  "linear_backend": "pytorch",
   "val": {
     "macro_f1": 1.0
   },
@@ -15,5 +16,6 @@
   "hardset": {
     "macro_f1": 1.0
   },
-  "temperature": 0.5
+  "temperature": 0.8,
+  "confidence_smoothing": 0.0
 }

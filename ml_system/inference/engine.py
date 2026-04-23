@@ -64,12 +64,20 @@ class InferenceEngine:
         self.confidence_threshold = confidence_threshold
         self.min_confidence_floor = CONFIG.min_confidence_floor
         self.ambiguity_margin = CONFIG.ambiguity_margin
-        self.temperature = self.report.get("temperature", 1.0)
+        calibration_version = int(self.report.get("calibration_version", 0) or 0)
+        if calibration_version >= 2:
+            self.temperature = float(self.report.get("temperature", 1.0) or 1.0)
+            self.confidence_smoothing = float(
+                self.report.get("confidence_smoothing", 0.0) or 0.0
+            )
+        else:
+            self.temperature = 1.0
+            self.confidence_smoothing = 0.0
         self.model_name = self.report.get("champion_model", "unknown")
 
     def _apply_temperature(self, probs: dict[str, float]) -> dict[str, float]:
         """Apply temperature scaling to probabilities using log-space for numerical stability."""
-        if self.temperature <= 0:
+        if self.temperature <= 0 or abs(self.temperature - 1.0) < 1e-9:
             return probs
 
         safe_logs = {
@@ -86,6 +94,21 @@ class InferenceEngine:
         if total <= 0:
             return probs
         return {label: value / total for label, value in exp_scores.items()}
+
+    def _apply_smoothing(self, probs: dict[str, float]) -> dict[str, float]:
+        if self.confidence_smoothing <= 0:
+            return probs
+
+        uniform = 1.0 / max(1, len(probs))
+        mixed = {
+            label: (1.0 - self.confidence_smoothing) * value
+            + self.confidence_smoothing * uniform
+            for label, value in probs.items()
+        }
+        total = sum(mixed.values())
+        if total <= 0:
+            return probs
+        return {label: value / total for label, value in mixed.items()}
 
     def _token_signal_strength(self, phrase: str) -> float:
         tokens = self.tokenizer.tokenize(phrase)
@@ -144,7 +167,7 @@ class InferenceEngine:
                 all_scores=uniform,
             )
 
-        calibrated = all_scores
+        calibrated = self._apply_smoothing(self._apply_temperature(all_scores))
 
         ranked = sorted(calibrated.items(), key=lambda x: x[1], reverse=True)
         top_label, top_confidence = ranked[0]
