@@ -147,6 +147,7 @@ const vibrateDevice = () => {
       navigator.vibrate([300, 150, 300, 150, 650]);
     }
   } catch {
+    return;
   }
 };
 

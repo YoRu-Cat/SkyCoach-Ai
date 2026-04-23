@@ -116,9 +116,11 @@ export default function PlannerPage({ tasks, updateTask }: PlannerPageProps) {
             setCity(resolvedCity);
           }
         } catch {
+          return;
         }
       },
       () => {
+        return;
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 },
     );

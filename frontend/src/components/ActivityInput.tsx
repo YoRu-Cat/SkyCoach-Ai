@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePreferredCity } from "@hooks/usePreferredCity";
 
 interface LocationCoords {
@@ -51,7 +51,7 @@ export default function ActivityInput({
     "hiking in mountain trail",
   ];
 
-  const detectLocation = () => {
+  const detectLocation = useCallback(() => {
     if (!("geolocation" in navigator)) {
       setLocationStatus(
         "Geolocation is not supported by this browser. Switch to manual location.",
@@ -94,13 +94,13 @@ export default function ActivityInput({
         maximumAge: 300000,
       },
     );
-  };
+  }, [setLocation]);
 
   useEffect(() => {
     if (locationMode === "auto") {
       detectLocation();
     }
-  }, [locationMode]);
+  }, [locationMode, detectLocation]);
 
   useEffect(() => {
     setLocation({ mode: locationMode });
