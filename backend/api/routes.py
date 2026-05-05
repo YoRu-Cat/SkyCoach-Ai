@@ -361,6 +361,33 @@ async def submit_prediction_feedback(request: dict) -> dict:
         raise HTTPException(status_code=400, detail=f"Feedback submission failed: {str(e)}")
 
 
+@router.get("/model-comparison")
+async def get_model_comparison(refresh: bool = False) -> dict:
+    """Return the Model 1 vs Model 2 evaluation report.
+
+    Reads ``ml_system/models/current/evaluation_report.json`` by default.
+    If the file is missing or ``refresh=true`` is passed, the evaluation
+    harness is run on the spot to produce a fresh report.
+    """
+    try:
+        import json as _json
+        from pathlib import Path as _Path
+        from ml_system.config.settings import CONFIG as _CONFIG
+
+        report_path = _CONFIG.get_current_model_path() / "evaluation_report.json"
+
+        if refresh or not report_path.exists():
+            from ml_system.training.evaluation import run_evaluation
+            return run_evaluation(output_path=report_path)
+
+        return _json.loads(report_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model comparison failed: {str(e)}",
+        )
+
+
 @router.get("/learning-status")
 async def get_learning_status() -> dict:
     """Get continuous learning system status."""

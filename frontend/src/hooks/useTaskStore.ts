@@ -176,7 +176,7 @@ const loadTasks = (): UserTask[] => {
 
 export const useTaskStore = () => {
   const [tasks, setTasks] = useState<UserTask[]>(() => loadTasks());
-  const [pendingDueTaskIds, setPendingDueTaskIds] = useState<string[]>([]);
+  const [nowTick, setNowTick] = useState<number>(() => Date.now());
   const [notificationPermission, setNotificationPermission] = useState<
     NotificationPermission | "unsupported"
   >(() => {
@@ -237,8 +237,13 @@ export const useTaskStore = () => {
   };
 
   const completeDueTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    setPendingDueTaskIds((prev) => prev.filter((id) => id !== taskId));
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, completed: true, remindedAt: undefined }
+          : task,
+      ),
+    );
   };
 
   const rescheduleDueTask = (taskId: string) => {
@@ -256,7 +261,6 @@ export const useTaskStore = () => {
         };
       }),
     );
-    setPendingDueTaskIds((prev) => prev.filter((id) => id !== taskId));
   };
 
   useEffect(() => {
@@ -331,11 +335,6 @@ export const useTaskStore = () => {
               dueIds.has(task.id) ? { ...task, remindedAt } : task,
             ),
           );
-          setPendingDueTaskIds((prev) => {
-            const merged = new Set(prev);
-            dueIds.forEach((id) => merged.add(id));
-            return Array.from(merged);
-          });
         }
 
         scheduleNextReminderCheck();
@@ -376,25 +375,25 @@ export const useTaskStore = () => {
           dueIds.has(task.id) ? { ...task, remindedAt } : task,
         ),
       );
-      setPendingDueTaskIds((prev) => {
-        const merged = new Set(prev);
-        dueIds.forEach((id) => merged.add(id));
-        return Array.from(merged);
-      });
 
       scheduleNextReminderCheck();
     };
 
     checkRemindersNow();
-    const intervalId = window.setInterval(checkRemindersNow, SAFETY_POLL_MS);
+    const intervalId = window.setInterval(() => {
+      setNowTick(Date.now());
+      checkRemindersNow();
+    }, SAFETY_POLL_MS);
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") {
+        setNowTick(Date.now());
         checkRemindersNow();
       }
     };
 
     const onWindowFocus = () => {
+      setNowTick(Date.now());
       checkRemindersNow();
     };
 
@@ -467,12 +466,15 @@ export const useTaskStore = () => {
     setTasks((prev) => prev.filter((task) => !task.completed));
   };
 
-  useEffect(() => {
-    const validIds = new Set(
-      tasks.filter((task) => !task.completed).map((task) => task.id),
-    );
-    setPendingDueTaskIds((prev) => prev.filter((id) => validIds.has(id)));
-  }, [tasks]);
+  const pendingDueTaskIds = useMemo(() => {
+    return tasks
+      .filter((task) => {
+        if (task.completed || !task.scheduledAt) return false;
+        const dueTime = parseScheduledAt(task.scheduledAt);
+        return !!dueTime && dueTime.getTime() <= nowTick;
+      })
+      .map((task) => task.id);
+  }, [tasks, nowTick]);
 
   const stats = useMemo(() => {
     const completed = tasks.filter((task) => task.completed).length;

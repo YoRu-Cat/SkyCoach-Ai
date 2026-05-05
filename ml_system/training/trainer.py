@@ -7,6 +7,7 @@ from pathlib import Path
 from ml_system.config.settings import CONFIG
 from .tokenizer import Tokenizer
 from .models import NaiveBayesModel, LinearSoftmaxModel
+from . import metrics as cls_metrics
 
 
 def load_dataset(path: str | Path) -> list[dict]:
@@ -177,6 +178,53 @@ class Trainer:
         test_f1 = macro_f1_score(y_test, test_preds, labels)
         hard_f1 = macro_f1_score(y_hard, hard_preds, labels)
 
+        # ----- Rich, JSON-persistable evaluation for BOTH models -----
+        def _full_eval(
+            model,
+            split_name: str,
+            x: list[str],
+            y: list[str],
+        ) -> dict:
+            preds = [
+                max(p.items(), key=lambda kv: kv[1])[0]
+                for p in model.predict_proba(x, tokenizer)
+            ]
+            return cls_metrics.evaluate(y, preds, labels)
+
+        models_eval = {
+            "naive_bayes": {
+                "val": _full_eval(nb, "val", x_val, y_val),
+                "test": _full_eval(nb, "test", x_test, y_test),
+                "hardset": _full_eval(nb, "hardset", x_hard, y_hard),
+            },
+            "linear_softmax": {
+                "val": _full_eval(linear, "val", x_val, y_val),
+                "test": _full_eval(linear, "test", x_test, y_test),
+                "hardset": _full_eval(linear, "hardset", x_hard, y_hard),
+            },
+        }
+
+        # Comparison summary (used by the API endpoint and the notebook)
+        comparison_rows = []
+        for model_name, splits_eval in models_eval.items():
+            row = {"model": model_name}
+            for split_name, ev in splits_eval.items():
+                row[f"{split_name}_accuracy"] = ev["accuracy"]
+                row[f"{split_name}_precision_macro"] = ev["macro"]["precision"]
+                row[f"{split_name}_recall_macro"] = ev["macro"]["recall"]
+                row[f"{split_name}_f1_macro"] = ev["macro"]["f1"]
+                row[f"{split_name}_f1_weighted"] = ev["weighted"]["f1"]
+            comparison_rows.append(row)
+
+        winner_test = max(
+            comparison_rows,
+            key=lambda r: (r["test_f1_macro"], r["hardset_f1_macro"], r["val_f1_macro"]),
+        )["model"]
+        winner_hardset = max(
+            comparison_rows,
+            key=lambda r: (r["hardset_f1_macro"], r["test_f1_macro"], r["val_f1_macro"]),
+        )["model"]
+
         report = {
             "champion_model": best_name,
             "labels": labels,
@@ -188,6 +236,20 @@ class Trainer:
             "calibration_method": "probability_temperature_plus_uniform_smoothing",
             "temperature": temperature,
             "confidence_smoothing": confidence_smoothing,
+            "models": models_eval,
+            "comparison": comparison_rows,
+            "winners": {
+                "by_test_macro_f1": winner_test,
+                "by_hardset_macro_f1": winner_hardset,
+            },
+            "metric_definitions": {
+                "accuracy": "Fraction of phrases where the predicted label matches the gold label.",
+                "precision_macro": "Unweighted mean of per-class precision (TP / (TP+FP)).",
+                "recall_macro": "Unweighted mean of per-class recall (TP / (TP+FN)).",
+                "f1_macro": "Harmonic mean of macro precision and macro recall.",
+                "f1_weighted": "Per-class F1 averaged with class-support weights.",
+                "confusion_matrix": "Rows = true label, columns = predicted label (order matches 'labels').",
+            },
         }
 
         report_path = self.output_dir / "report.json"
