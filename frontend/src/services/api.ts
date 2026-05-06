@@ -17,16 +17,18 @@ export interface AnalysisParams {
   longitude?: number;
 }
 
-const isNetlifyRuntime =
-  typeof window !== "undefined" &&
-  window.location.hostname.endsWith("netlify.app");
+// Resolution order:
+//   1. explicit VITE_API_URL (from .env.production or the host's UI)
+//   2. relative '' in any production build - the host (Netlify) proxies /api/*
+//   3. local dev fallback for `npm run dev`
+const explicitApiUrl =
+  (import.meta.env.VITE_API_URL ?? "").toString().trim();
 
-export const API_BASE_URL = isNetlifyRuntime
-  ? ""
-  : import.meta.env.VITE_API_URL ||
-    (import.meta.env.PROD
-      ? "https://skycoach-ai.onrender.com"
-      : "http://127.0.0.1:8012");
+export const API_BASE_URL = explicitApiUrl
+  ? explicitApiUrl.replace(/\/$/, "")
+  : import.meta.env.PROD
+    ? ""
+    : "http://127.0.0.1:8012";
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,

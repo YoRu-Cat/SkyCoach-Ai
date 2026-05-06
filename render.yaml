@@ -1,0 +1,33 @@
+# Render Blueprint for SkyCoach AI
+# --------------------------------
+# After connecting this repo to Render, the "Blueprint" flow reads this file
+# and provisions the backend service in one click. Set OPENAI_API_KEY and
+# OPENWEATHER_API_KEY in the Render dashboard (or here under envVars with
+# `sync: false` to mark them as secrets the dashboard prompts for).
+
+services:
+  - type: web
+    name: skycoach-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: .
+    pythonVersion: "3.11.10"
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: ALLOWED_ORIGIN_REGEX
+        value: ^https://.*\.netlify\.app$
+      - key: ALLOWED_ORIGINS
+        value: https://skycoach-ai.netlify.app
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini

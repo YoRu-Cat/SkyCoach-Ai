@@ -1,11 +1,12 @@
-import folium
-from folium.plugins import Fullscreen, MiniMap, MousePosition
-from streamlit_folium import st_folium
-import streamlit as st
 from models.data_classes import WeatherData
 
 
-def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> folium.Map:
+def render_map(lat: float, lon: float, city: str, weather: WeatherData):
+    # Lazy imports so importing this module never forces folium / streamlit
+    # to be installed (the FastAPI server side does not call render_map).
+    import folium
+    from folium.plugins import Fullscreen, MiniMap, MousePosition
+
     m = folium.Map(
         location=[lat, lon],
         zoom_start=10,
@@ -76,6 +77,9 @@ def render_map(lat: float, lon: float, city: str, weather: WeatherData) -> foliu
 
 def display_map_section(weather: WeatherData):
     """Display map in a glass-card container."""
+    import streamlit as st
+    from streamlit_folium import st_folium
+
     st.markdown(
         f"""
         <div class="glass-card">

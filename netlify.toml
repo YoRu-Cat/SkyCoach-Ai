@@ -1,15 +1,44 @@
+# Netlify config for the SkyCoach AI frontend
+# --------------------------------------------
+# When you connect the repo to Netlify, set the site's "base directory" to
+# `frontend` (this file already does that for you). The /api/* redirect
+# proxies API calls to the Render backend so the frontend can use relative
+# URLs like fetch('/api/predict') with no CORS friction.
+
 [build]
   base = "frontend"
-  command = "npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--no-audit --no-fund"
+  # Empty so axios falls back to relative '/api' URLs that the redirect below
+  # proxies to Render. Set to an absolute URL in the Netlify UI to bypass.
+  VITE_API_URL = ""
+
+# Proxy /api/* to the Render backend so the SPA can use relative URLs.
+# Update the `to = ...` host if your Render service has a different name.
 [[redirects]]
   from = "/api/*"
-  to = "https://skycoach-ai.onrender.com/api/:splat"
+  to = "https://skycoach-api.onrender.com/api/:splat"
   status = 200
   force = true
 
+# SPA fallback for client-side routing.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Long-cache hashed assets.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Don't cache index.html so deploys take effect immediately.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

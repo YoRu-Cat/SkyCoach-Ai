@@ -15,7 +15,6 @@ from services.ai_engine import (
     get_weather_forecast,
     get_weather_forecast_by_city,
 )
-from services.maps import render_map
 from services.chat_assistant import chat_assistant_reply
 from core.scoring_engine import (
     calculate_sky_score,
