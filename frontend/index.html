@@ -5,14 +5,70 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+        content="SkyCoach AI - weather-aware activity planner with ML-based intent classification." />
   <title>SkyCoach AI - Weather-Based Activity Advisor</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet">
+  <style>
+    /* Pre-React boot styles - everything here runs before the JS bundle
+       evaluates so the user never stares at a blank purple void. */
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0c2e 0%, #2a0a3a 50%, #0c0419 100%);
+      color: #f5f3ff;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #boot-fallback {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    #boot-fallback .ring {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 3px solid rgba(187, 77, 251, 0.25);
+      border-top-color: #bb4dfb;
+      animation: skycoach-spin 0.9s linear infinite;
+    }
+    #boot-fallback h1 {
+      margin: 0; font-size: 1.4rem; font-weight: 600;
+    }
+    #boot-fallback p {
+      margin: 0; color: #cbd5e1; max-width: 28rem; font-size: 0.95rem;
+    }
+    #boot-fallback .hint {
+      color: rgba(203, 213, 225, 0.55); font-size: 0.8rem;
+    }
+    @keyframes skycoach-spin { to { transform: rotate(360deg); } }
+    /* React mounts into #root and clears boot fallback automatically. */
+  </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Pre-React boot UI. Replaced the moment <App /> renders. -->
+    <div id="boot-fallback" aria-live="polite">
+      <div class="ring" aria-hidden="true"></div>
+      <h1>SkyCoach AI</h1>
+      <p>Loading the planner. If this stays on screen for more than a few seconds, hard-refresh the page or check your network.</p>
+      <span class="hint">v1.0 - weather-aware activity planning</span>
+    </div>
+  </div>
+  <noscript>
+    <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;">
+      <div>
+        <h1 style="margin:0 0 0.5rem 0;">SkyCoach AI needs JavaScript</h1>
+        <p style="color:#cbd5e1;">Please enable JavaScript and reload the page.</p>
+      </div>
+    </div>
+  </noscript>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

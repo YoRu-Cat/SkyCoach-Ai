@@ -30,26 +30,18 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
+    // CRITICAL: do NOT manually split node_modules into multiple chunks.
+    // The previous manualChunks config produced production errors like
+    //   "Cannot read properties of undefined (reading 'createContext')"
+    // and
+    //   "Cannot read properties of undefined (reading 'forwardRef')"
+    // because secondary chunks (lucide-react, framer-motion, react-leaflet,
+    // etc.) evaluated before React was hydrated into the module scope.
+    // Letting Rollup pick its own chunking guarantees React loads first
+    // for any chunk that depends on it.
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return undefined;
-
-          if (id.includes("react-query")) return "query";
-          if (id.includes("@tsparticles")) return "particles";
-          if (id.includes("leaflet") || id.includes("react-leaflet"))
-            return "maps";
-          if (
-            id.includes("framer-motion") ||
-            id.includes("gsap") ||
-            id.includes("locomotive-scroll")
-          ) {
-            return "motion";
-          }
-          if (id.includes("react") || id.includes("scheduler")) return "vendor";
-
-          return "vendor-misc";
-        },
+        manualChunks: undefined,
       },
     },
   },
