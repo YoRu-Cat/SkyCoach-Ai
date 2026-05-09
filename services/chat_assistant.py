@@ -488,7 +488,8 @@ def chat_assistant_reply(
     try:
         from openai import OpenAI
 
-        client = OpenAI(api_key=api_key)
+        # 20s request-level timeout so a hung upstream cannot stall a worker.
+        client = OpenAI(api_key=api_key, timeout=20.0)
         system_prompt = (
             "You are SkyCoach Chat Assistant. Help users operate the app conversationally like a real assistant. "
             "You can fully control the app: create tasks, remove tasks, mark complete/incomplete, reschedule tasks, clear completed tasks, list tasks, and navigate views. "

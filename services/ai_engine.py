@@ -308,8 +308,8 @@ Use the original text, the rephrased text, and the local judgment. If the local 
 def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> TaskAnalysis:
     from openai import OpenAI
     
-    client = OpenAI(api_key=api_key)
-    
+    client = OpenAI(api_key=api_key, timeout=20.0)
+
     rephrase_prompt = """You normalize user activities.
 Return ONLY JSON:
 {

@@ -1,6 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { API_BASE_URL, healthCheck } from "@services/api";
+import {
+  API_BASE_URL,
+  healthCheckWithRetry,
+  onApiError,
+} from "@services/api";
 import AppShell from "@components/AppShell";
 import "@styles/globals.css";
 
@@ -22,108 +26,102 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
-  const [isHealthy, setIsHealthy] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [themeMode] = useState<ThemeMode>(() => loadTheme());
+type ApiState = "checking" | "online" | "offline";
 
+function App() {
+  const [themeMode] = useState<ThemeMode>(() => loadTheme());
+  const [apiState, setApiState] = useState<ApiState>("checking");
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator !== "undefined" ? navigator.onLine : true,
+  );
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
+
+  // Apply theme class on mount.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
   }, [themeMode]);
 
+  // Track network connectivity (browser online/offline).
   useEffect(() => {
-    const checkApi = async () => {
-      try {
-        const healthy = await healthCheck();
-        setIsHealthy(healthy);
-      } catch (error) {
-        console.error("API health check failed:", error);
-        setIsHealthy(false);
-      } finally {
-        setIsLoading(false);
-      }
+    const updateOnline = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", updateOnline);
+    window.addEventListener("offline", updateOnline);
+    return () => {
+      window.removeEventListener("online", updateOnline);
+      window.removeEventListener("offline", updateOnline);
     };
-
-    checkApi();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div
-        className={`min-h-screen flex items-center justify-center ${
-          themeMode === "light"
-            ? "theme-light bg-[#f6f2fc] text-[#210f3c]"
-            : "theme-dark bg-gradient-to-br from-dark_amethyst-500 via-midnight_violet-500 to-midnight_violet-300 text-alabaster_grey-900"
-        }`}>
-        <div className="card text-center">
-          <div
-            className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 ${
-              themeMode === "light" ? "border-[#7c45b8]" : "border-[#bb4dfb]"
-            }`}
-          />
-          <p
-            className={
-              themeMode === "light" ? "text-[#311a53]" : "text-slate-300"
-            }>
-            Initializing SkyCoach...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Probe backend health, but DO NOT block UI rendering on the result.
+  // This handles Render free-tier cold starts (~30s) gracefully.
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      const ok = await healthCheckWithRetry();
+      if (!cancelled) setApiState(ok ? "online" : "offline");
+    };
+    run();
+    const interval = window.setInterval(() => {
+      if (apiState === "offline") {
+        void run();
+      }
+    }, 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (!isHealthy) {
-    return (
-      <div
-        className={`min-h-screen flex items-center justify-center px-4 ${
-          themeMode === "light"
-            ? "theme-light bg-[#f6f2fc] text-[#210f3c]"
-            : "theme-dark bg-gradient-to-br from-dark_amethyst-500 via-midnight_violet-500 to-midnight_violet-300 text-alabaster_grey-900"
-        }`}>
-        <div
-          className={`card max-w-md w-full border ${
-            themeMode === "light"
-              ? "border-[#b596e5]/55"
-              : "border-[#5f2e86]/45"
-          }`}>
-          <h1
-            className={`text-2xl font-bold mb-4 ${
-              themeMode === "light" ? "text-[#5f2a8c]" : "text-red-300"
-            }`}>
-            Connection Error
-          </h1>
-          <p
-            className={`mb-4 ${
-              themeMode === "light" ? "text-[#311a53]" : "text-slate-300"
-            }`}>
-            Could not connect to the SkyCoach API backend.
-          </p>
-          <p
-            className={`text-sm ${
-              themeMode === "light" ? "text-[#4a2a76]" : "text-slate-400"
-            }`}>
-            Make sure the backend server is running on{" "}
-            <code
-              className={`px-2 py-1 rounded ${
-                themeMode === "light"
-                  ? "bg-[#e7dcf8] text-[#3c1f67]"
-                  : "bg-slate-800 text-slate-200"
-              }`}>
-              {API_BASE_URL}
-            </code>
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="btn btn-primary mt-6 w-full">
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Lightweight error toast plumbed in from the axios interceptor.
+  useEffect(() => {
+    const unsubscribe = onApiError(({ status, message }) => {
+      if (status === 429) {
+        setErrorToast("Too many requests - please slow down.");
+      } else if (status && status >= 500) {
+        setErrorToast("Backend error - retrying may help.");
+      } else if (status === null) {
+        setErrorToast("Network unreachable - check your connection.");
+      } else {
+        setErrorToast(message.slice(0, 140));
+      }
+      window.setTimeout(() => setErrorToast(null), 5000);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const showBanner =
+    !bannerDismissed && (apiState === "offline" || !isOnline);
 
   return (
     <QueryClientProvider client={queryClient}>
+      {showBanner ? (
+        <div
+          role="status"
+          className="fixed top-0 inset-x-0 z-50 px-4 py-2 text-sm flex items-center justify-center gap-3 bg-amber-500/95 text-amber-950 shadow-lg">
+          <span>
+            {!isOnline
+              ? "You appear to be offline."
+              : `Backend at ${API_BASE_URL || "/api"} is unreachable - the SkyCoach service may be cold-starting (free tier wakes in ~30s). Retrying every minute.`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setBannerDismissed(true)}
+            className="px-2 py-0.5 rounded bg-amber-900/20 hover:bg-amber-900/40">
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+      {errorToast ? (
+        <div
+          role="alert"
+          className="fixed bottom-4 right-4 z-50 max-w-sm px-4 py-3 rounded-lg bg-red-600/95 text-white shadow-xl">
+          {errorToast}
+        </div>
+      ) : null}
       <AppShell />
     </QueryClientProvider>
   );

@@ -41,7 +41,7 @@ def detect_location_by_ip() -> Optional[GeoLocation]:
     """
     try:
         resp = requests.get(
-            "http://ip-api.com/json/?fields=status,city,country,lat,lon,query",
+            "https://ip-api.com/json/?fields=status,city,country,lat,lon,query",
             timeout=5,
         )
         resp.raise_for_status()

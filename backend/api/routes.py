@@ -1,8 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime, timezone
 import sys
 import os
 import shlex
+
+from backend.security import (
+    assert_valid_coords,
+    rate_limit_dependency,
+    require_admin_token,
+    safe_http_error,
+)
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -100,7 +107,13 @@ def _enrich_task_with_ml_suggestions(task: TaskAnalysis, input_text: str) -> Non
         pass
 
 
-@router.post("/analyze-task", response_model=TaskAnalysisResponse)
+@router.post(
+    "/analyze-task",
+    response_model=TaskAnalysisResponse,
+    dependencies=[
+        Depends(rate_limit_dependency(requests=20, window_seconds=60)),
+    ],
+)
 async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
     try:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
@@ -112,15 +125,22 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
         )
 
         _enrich_task_with_ml_suggestions(task, request.text)
-        
+
         return convert_task_to_response(task)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Task analysis failed: {str(e)}")
+        raise safe_http_error(400, "Task analysis failed.", log_exception=e)
 
 
-@router.post("/weather", response_model=WeatherResponse)
+@router.post(
+    "/weather",
+    response_model=WeatherResponse,
+    dependencies=[
+        Depends(rate_limit_dependency(requests=60, window_seconds=60)),
+    ],
+)
 async def get_weather(request: WeatherRequest) -> WeatherResponse:
     try:
+        assert_valid_coords(request.latitude, request.longitude)
         if request.use_demo or not request.api_key:
             if request.city:
                 weather = get_demo_weather(request.city)
@@ -133,11 +153,13 @@ async def get_weather(request: WeatherRequest) -> WeatherResponse:
                 from services.ai_engine import get_weather
                 weather = get_weather(request.latitude, request.longitude, request.api_key)
             else:
-                raise ValueError("Provide either city name or coordinates")
-        
+                raise HTTPException(status_code=400, detail="Provide either city name or coordinates.")
+
         return convert_weather_to_response(weather)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Weather fetch failed: {str(e)}")
+        raise safe_http_error(400, "Weather fetch failed.", log_exception=e)
 
 
 @router.post("/score", response_model=SkyScoreResponse)
@@ -197,7 +219,7 @@ async def calculate_score(request: SkyScoreRequest) -> SkyScoreResponse:
             recommendation=result.recommendation,
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Score calculation failed: {str(e)}")
+        raise safe_http_error(400, "Score calculation failed.", log_exception=e)
 
 
 @router.post("/alternatives", response_model=AlternativeActivitiesResponse)
@@ -220,13 +242,20 @@ async def get_alternatives(
             reason=f"Based on {classification.lower()} activity and weather conditions",
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not get alternatives: {str(e)}")
+        raise safe_http_error(400, "Could not get alternatives.", log_exception=e)
 
 
-@router.post("/analyze", response_model=AnalysisResponse)
+@router.post(
+    "/analyze",
+    response_model=AnalysisResponse,
+    dependencies=[
+        Depends(rate_limit_dependency(requests=10, window_seconds=60)),
+    ],
+)
 async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
     """Complete end-to-end analysis: task → weather → score → alternatives."""
     try:
+        assert_valid_coords(request.latitude, request.longitude)
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
         task = analyze_task_smart(
             text=request.activity_text,
@@ -291,8 +320,10 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
             ),
             alternatives=alternatives,
         )
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Full analysis failed: {str(e)}")
+        raise safe_http_error(400, "Full analysis failed.", log_exception=e)
 
 
 @router.get("/health")
@@ -305,15 +336,26 @@ async def health_check():
     }
 
 
-@router.post("/predict")
+VALID_LABELS = {"Indoor", "Outdoor", "Mixed", "Unclear"}
+MAX_PREDICT_PHRASE = 2000
+
+
+@router.post(
+    "/predict",
+    dependencies=[
+        Depends(rate_limit_dependency(requests=60, window_seconds=60)),
+    ],
+)
 async def predict_activity_type(request: dict) -> dict:
     """Classify activity as Indoor/Outdoor/Mixed/Unclear using unified ML system."""
     try:
         from ml_system.api import get_ml_system
-        
-        phrase = request.get("phrase", "")
-        if not phrase or not phrase.strip():
-            raise ValueError("Phrase cannot be empty")
+
+        phrase = (request.get("phrase") or "").strip()
+        if not phrase:
+            raise HTTPException(status_code=400, detail="Phrase cannot be empty.")
+        if len(phrase) > MAX_PREDICT_PHRASE:
+            raise HTTPException(status_code=400, detail="Phrase too long.")
 
         ml_system = get_ml_system()
         result = ml_system.predict(phrase)
@@ -323,68 +365,102 @@ async def predict_activity_type(request: dict) -> dict:
             "predicted_label": result.get("label"),
             "predicted_confidence": result.get("confidence"),
         }
+    except HTTPException:
+        raise
     except FileNotFoundError as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"ML service not initialized: {str(e)}"
-        )
+        raise safe_http_error(503, "ML service not initialized.", log_exception=e)
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Prediction failed: {str(e)}"
-        )
+        raise safe_http_error(400, "Prediction failed.", log_exception=e)
 
 
-@router.post("/feedback")
+@router.post(
+    "/feedback",
+    dependencies=[
+        Depends(rate_limit_dependency(requests=10, window_seconds=60)),
+    ],
+)
 async def submit_prediction_feedback(request: dict) -> dict:
-    """Record user feedback to a model prediction for continuous learning."""
+    """Record user feedback to a model prediction for continuous learning.
+
+    Validation:
+        - ``corrected_label`` must be one of the four canonical labels.
+        - ``phrase`` must be non-empty and within MAX_PREDICT_PHRASE chars.
+        - ``predicted_confidence`` must be a finite float in [0, 1].
+    Auto-retraining is opt-in via the ``ADMIN_API_TOKEN`` flow on the model
+    refresh endpoint - feedback alone never triggers training.
+    """
     try:
         from ml_system.api import get_ml_system
-        
-        phrase = request.get("phrase", "")
-        predicted_label = request.get("predicted_label") or request.get("label", "")
-        predicted_confidence = request.get("predicted_confidence", request.get("confidence", 0.0))
-        corrected_label = request.get("corrected_label", "")
-        
-        if not all([phrase, predicted_label, corrected_label]):
-            raise ValueError("Missing required fields: phrase, predicted_label, corrected_label")
+
+        phrase = (request.get("phrase") or "").strip()
+        predicted_label = (request.get("predicted_label") or request.get("label") or "").strip()
+        corrected_label = (request.get("corrected_label") or "").strip()
+
+        try:
+            predicted_confidence = float(
+                request.get("predicted_confidence", request.get("confidence", 0.0))
+            )
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="Confidence must be numeric.")
+
+        if not (phrase and predicted_label and corrected_label):
+            raise HTTPException(
+                status_code=400,
+                detail="Missing required fields: phrase, predicted_label, corrected_label.",
+            )
+        if len(phrase) > MAX_PREDICT_PHRASE:
+            raise HTTPException(status_code=400, detail="Phrase too long.")
+        if predicted_label not in VALID_LABELS or corrected_label not in VALID_LABELS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Labels must be one of {sorted(VALID_LABELS)}.",
+            )
+        if not (0.0 <= predicted_confidence <= 1.0):
+            raise HTTPException(status_code=400, detail="Confidence must be in [0, 1].")
 
         ml_system = get_ml_system()
         return ml_system.submit_feedback(
             phrase=phrase,
             predicted=predicted_label,
-            confidence=float(predicted_confidence),
+            confidence=predicted_confidence,
             corrected=corrected_label,
         )
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Feedback submission failed: {str(e)}")
+        raise safe_http_error(400, "Feedback submission failed.", log_exception=e)
 
 
 @router.get("/model-comparison")
-async def get_model_comparison(refresh: bool = False) -> dict:
+async def get_model_comparison(
+    request: Request,
+    refresh: bool = False,
+) -> dict:
     """Return the Model 1 vs Model 2 evaluation report.
 
     Reads ``ml_system/models/current/evaluation_report.json`` by default.
-    If the file is missing or ``refresh=true`` is passed, the evaluation
-    harness is run on the spot to produce a fresh report.
+    Pass ``refresh=true`` (admin-token gated when ``ADMIN_API_TOKEN`` is set)
+    to recompute the report on the fly.
     """
     try:
         import json as _json
-        from pathlib import Path as _Path
         from ml_system.config.settings import CONFIG as _CONFIG
 
         report_path = _CONFIG.get_current_model_path() / "evaluation_report.json"
 
-        if refresh or not report_path.exists():
+        if refresh:
+            require_admin_token(request)
             from ml_system.training.evaluation import run_evaluation
             return run_evaluation(output_path=report_path)
 
+        if not report_path.exists():
+            raise HTTPException(status_code=404, detail="Evaluation report not yet generated.")
+
         return _json.loads(report_path.read_text(encoding="utf-8"))
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Model comparison failed: {str(e)}",
-        )
+        raise safe_http_error(400, "Model comparison failed.", log_exception=e)
 
 
 @router.get("/learning-status")
@@ -392,9 +468,9 @@ async def get_learning_status() -> dict:
     """Get continuous learning system status."""
     try:
         from ml_system.api import get_ml_system
-        
+
         status = get_ml_system().get_status()
-        
+
         return {
             "feedback_records": status["feedback_records"],
             "uncertain_predictions": status["uncertain_predictions"],
@@ -406,10 +482,16 @@ async def get_learning_status() -> dict:
             "drift_alert_count": status["drift_alert_count"],
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Learning status query failed: {str(e)}")
+        raise safe_http_error(400, "Learning status query failed.", log_exception=e)
 
 
-@router.post("/chat-assistant", response_model=ChatAssistantResponse)
+@router.post(
+    "/chat-assistant",
+    response_model=ChatAssistantResponse,
+    dependencies=[
+        Depends(rate_limit_dependency(requests=15, window_seconds=60)),
+    ],
+)
 async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse:
     try:
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
@@ -437,16 +519,26 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
             openai_model=model_name,
         )
 
+        # SECURITY: prompt-injection defense.
+        # The LLM can only return task IDs that the *user* sent us in
+        # task_context. Anything else - even if the model fabricates it -
+        # gets dropped here so the frontend can't be tricked into operating
+        # on tasks the user does not own.
+        allowed_ids = {task.id for task in request.task_context}
+
+        def whitelist(value):
+            return value if value in allowed_ids else None
+
         return ChatAssistantResponse(
             assistant_message=reply["assistant_message"],
             draft=reply["draft"],
             missing_fields=reply["missing_fields"],
             requires_confirmation=reply["requires_confirmation"],
             create_task=reply["create_task"],
-            remove_task_id=reply.get("remove_task_id"),
-            complete_task_id=reply.get("complete_task_id"),
-            uncomplete_task_id=reply.get("uncomplete_task_id"),
-            reschedule_task_id=reply.get("reschedule_task_id"),
+            remove_task_id=whitelist(reply.get("remove_task_id")),
+            complete_task_id=whitelist(reply.get("complete_task_id")),
+            uncomplete_task_id=whitelist(reply.get("uncomplete_task_id")),
+            reschedule_task_id=whitelist(reply.get("reschedule_task_id")),
             reschedule_date=reply.get("reschedule_date"),
             reschedule_time=reply.get("reschedule_time"),
             clear_completed=bool(reply.get("clear_completed", False)),
@@ -454,7 +546,7 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
             reset_draft=reply["reset_draft"],
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Chat assistant failed: {str(e)}")
+        raise safe_http_error(400, "Chat assistant failed.", log_exception=e)
 
 
 @router.post("/backend-cli", response_model=BackendCliResponse)

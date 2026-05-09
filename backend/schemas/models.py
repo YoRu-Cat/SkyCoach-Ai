@@ -1,15 +1,26 @@
 """Pydantic models for API request/response validation."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Tuple, Optional, Literal
+
+
+# Field length caps - prevents LLM-quota DoS / memory blowups.
+MAX_USER_TEXT = 2000      # single phrase / chat message
+MAX_API_KEY = 200         # generous; real keys are < 100 chars
+MAX_CITY_NAME = 120
+MAX_MODEL_NAME = 120
+MAX_CHAT_MESSAGES = 50    # full conversation length cap
 
 
 class TaskAnalysisRequest(BaseModel):
     """Request to analyze an activity task."""
-    text: str = Field(..., description="Activity description in plain language", min_length=1)
+    text: str = Field(..., description="Activity description in plain language",
+                      min_length=1, max_length=MAX_USER_TEXT)
     use_openai: bool = Field(False, description="Use OpenAI API instead of fallback")
-    openai_api_key: Optional[str] = Field(None, description="OpenAI API key if using OpenAI")
-    openai_model: Optional[str] = Field(None, description="OpenAI model override, e.g. gpt-4.1-mini")
+    openai_api_key: Optional[str] = Field(None, description="OpenAI API key if using OpenAI",
+                                          max_length=MAX_API_KEY)
+    openai_model: Optional[str] = Field(None, description="OpenAI model override, e.g. gpt-4.1-mini",
+                                        max_length=MAX_MODEL_NAME)
 
 
 class TaskAnalysisResponse(BaseModel):
@@ -32,10 +43,10 @@ class TaskAnalysisResponse(BaseModel):
 
 class WeatherRequest(BaseModel):
     """Request weather data by city or coordinates."""
-    city: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    api_key: Optional[str] = None
+    city: Optional[str] = Field(None, max_length=MAX_CITY_NAME)
+    latitude: Optional[float] = Field(None, ge=-90.0, le=90.0)
+    longitude: Optional[float] = Field(None, ge=-180.0, le=180.0)
+    api_key: Optional[str] = Field(None, max_length=MAX_API_KEY)
     use_demo: bool = True
 
 
@@ -93,14 +104,14 @@ class AlternativeActivitiesResponse(BaseModel):
 
 class AnalysisRequest(BaseModel):
     """Complete analysis request combining task, weather, and scoring."""
-    activity_text: str
-    city: str = "New York"
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    activity_text: str = Field(..., min_length=1, max_length=MAX_USER_TEXT)
+    city: str = Field("New York", max_length=MAX_CITY_NAME)
+    latitude: Optional[float] = Field(None, ge=-90.0, le=90.0)
+    longitude: Optional[float] = Field(None, ge=-180.0, le=180.0)
     use_openai: bool = False
-    openai_api_key: Optional[str] = None
-    openai_model: Optional[str] = None
-    weather_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = Field(None, max_length=MAX_API_KEY)
+    openai_model: Optional[str] = Field(None, max_length=MAX_MODEL_NAME)
+    weather_api_key: Optional[str] = Field(None, max_length=MAX_API_KEY)
     use_demo_weather: bool = True
 
 
@@ -114,30 +125,31 @@ class AnalysisResponse(BaseModel):
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
-    content: str
+    content: str = Field(..., min_length=1, max_length=MAX_USER_TEXT)
 
 
 class ChatDraft(BaseModel):
-    task_title: Optional[str] = None
-    date: Optional[str] = None
-    time: Optional[str] = None
-    notes: Optional[str] = None
+    task_title: Optional[str] = Field(None, max_length=MAX_USER_TEXT)
+    date: Optional[str] = Field(None, max_length=40)
+    time: Optional[str] = Field(None, max_length=40)
+    notes: Optional[str] = Field(None, max_length=MAX_USER_TEXT)
+
+
+class ChatTaskContext(BaseModel):
+    id: str = Field(..., max_length=120)
+    title: str = Field(..., max_length=MAX_USER_TEXT)
+    completed: bool = False
+    scheduled_at: Optional[str] = Field(None, max_length=40)
 
 
 class ChatAssistantRequest(BaseModel):
-    class ChatTaskContext(BaseModel):
-        id: str
-        title: str
-        completed: bool = False
-        scheduled_at: Optional[str] = None
-
-    messages: List[ChatMessage]
+    messages: List[ChatMessage] = Field(..., max_length=MAX_CHAT_MESSAGES)
     draft: ChatDraft = Field(default_factory=ChatDraft)
-    task_context: List[ChatTaskContext] = Field(default_factory=list)
-    today_iso: Optional[str] = None
+    task_context: List[ChatTaskContext] = Field(default_factory=list, max_length=500)
+    today_iso: Optional[str] = Field(None, max_length=40)
     use_openai: bool = True
-    openai_api_key: Optional[str] = None
-    openai_model: Optional[str] = None
+    openai_api_key: Optional[str] = Field(None, max_length=MAX_API_KEY)
+    openai_model: Optional[str] = Field(None, max_length=MAX_MODEL_NAME)
 
 
 class ChatAssistantResponse(BaseModel):
@@ -158,7 +170,7 @@ class ChatAssistantResponse(BaseModel):
 
 
 class BackendCliRequest(BaseModel):
-    command: str = Field(..., min_length=1, description="CLI command text")
+    command: str = Field(..., min_length=1, max_length=MAX_USER_TEXT, description="CLI command text")
 
 
 class BackendCliResponse(BaseModel):

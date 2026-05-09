@@ -1,13 +1,25 @@
+import logging
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api import router
+from backend.security import BodySizeLimitMiddleware
+
+# Structured-ish logging so Render's tail captures real signal, not garbage.
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 app = FastAPI(
     title="SkyCoach API",
     description="Weather-based activity scoring API",
     version="1.0.0",
 )
+
+# Cap incoming request bodies. Override via MAX_REQUEST_BYTES if needed.
+_max_bytes = int(os.getenv("MAX_REQUEST_BYTES", "1000000"))
+app.add_middleware(BodySizeLimitMiddleware, max_bytes=_max_bytes)
 
 def _parse_origins(env_value: str) -> list[str]:
     return [origin.strip() for origin in env_value.split(",") if origin.strip()]

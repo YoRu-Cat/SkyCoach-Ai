@@ -35,7 +35,39 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  // Render free tier can sleep; first cold request can take ~30s.
+  // 25s gives that headroom without hanging on a truly dead backend.
+  timeout: 25000,
 });
+
+// Lightweight pub/sub so any UI surface can react to API errors
+// (toast, offline banner, etc.) without prop-drilling.
+type ApiErrorListener = (info: {
+  status: number | null;
+  message: string;
+  url: string;
+}) => void;
+const apiErrorListeners = new Set<ApiErrorListener>();
+export const onApiError = (listener: ApiErrorListener) => {
+  apiErrorListeners.add(listener);
+  return () => apiErrorListeners.delete(listener);
+};
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status ?? null;
+    const url = error?.config?.url ?? "";
+    const message =
+      error?.response?.data?.detail ||
+      error?.message ||
+      "Request failed";
+    apiErrorListeners.forEach((listener) =>
+      listener({ status, message, url }),
+    );
+    return Promise.reject(error);
+  },
+);
 
 const useDemoWeather = import.meta.env.VITE_USE_DEMO_WEATHER === "true";
 const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
@@ -93,11 +125,28 @@ export const getAlternatives = async (
 
 export const healthCheck = async (): Promise<boolean> => {
   try {
-    const response = await apiClient.get("/health");
-    return response.data.status === "healthy";
+    const response = await apiClient.get("/health", { timeout: 6000 });
+    return response.data?.status === "healthy";
   } catch {
     return false;
   }
+};
+
+/**
+ * Non-blocking probe with retry suited to Render's free-tier cold start
+ * (first request can take ~30s while the dyno wakes up).
+ */
+export const healthCheckWithRetry = async (
+  attempts: number = 4,
+  delayMs: number = 4000,
+): Promise<boolean> => {
+  for (let i = 0; i < attempts; i++) {
+    if (await healthCheck()) return true;
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return false;
 };
 
 export const chatAssistant = async (

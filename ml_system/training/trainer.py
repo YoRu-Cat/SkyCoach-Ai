@@ -388,6 +388,11 @@ class Trainer:
         except Exception:
             return None
 
+        # Reproducibility: pin all torch RNGs.
+        torch.manual_seed(42)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(42)
+
         label_to_idx = {label: idx for idx, label in enumerate(labels)}
         encoded = [self._encode_text_to_sparse_ids(text, tokenizer) for text in texts]
         targets = [label_to_idx[label] for label in y]
