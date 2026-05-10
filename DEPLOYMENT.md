@@ -97,14 +97,14 @@ The dev server reads `frontend/.env.local` so you can point it at any backend yo
 
 ## 5. Troubleshooting
 
-**Render build fails with "Could not find tensorflow"**
-You're on a stale `requirements.txt`. The fixed file no longer pins TensorFlow / PyTorch / Streamlit at runtime. Pull the latest commit, redeploy.
+**Render build fails with "Could not find tensorflow".**
+Confirm that `requirements.txt` is the slim runtime list shipped at the repository root. TensorFlow, PyTorch, and Streamlit are intentionally omitted from the runtime requirements; they live in `requirements-dev.txt` for local use only.
 
-**Netlify build fails with `command not found: npm ci`**
-Set `NODE_VERSION = "20"` in the Netlify UI under *Site settings → Build & deploy → Environment*. (`netlify.toml` already does this for new sites.)
+**Netlify build fails with `command not found: npm ci`.**
+Set `NODE_VERSION = "20"` in the Netlify UI under *Site settings → Build & deploy → Environment*. The repository's `netlify.toml` already specifies this for new sites.
 
-**The deployed frontend gets CORS errors**
-Either you set `VITE_API_URL` to a full URL but didn't add the Netlify domain to `ALLOWED_ORIGINS` / `ALLOWED_ORIGIN_REGEX` on Render, or the redirect in `netlify.toml` is pointed at the wrong service. Either fix the env vars or stick with the default empty `VITE_API_URL` so the redirect proxy is used.
+**The deployed frontend reports CORS errors.**
+Either `VITE_API_URL` points at a full backend URL while the Netlify domain is not listed in `ALLOWED_ORIGINS` or `ALLOWED_ORIGIN_REGEX` on the backend, or the redirect in `netlify.toml` is pointed at the wrong service. Update the environment variables, or remove `VITE_API_URL` so the proxy redirect is used.
 
-**Local backend imports fail with `ModuleNotFoundError: streamlit`**
-Streamlit is now lazy-imported inside [`services/maps.py`](services/maps.py). If you're calling the Streamlit UI, install dev deps: `pip install -r requirements-dev.txt`.
+**Local backend imports fail with `ModuleNotFoundError: streamlit`.**
+The Streamlit dependencies are imported lazily inside [`services/maps.py`](services/maps.py). If the Streamlit UI is being used directly, install the development extras with `pip install -r requirements-dev.txt`.

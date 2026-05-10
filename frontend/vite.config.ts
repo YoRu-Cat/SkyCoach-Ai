@@ -30,15 +30,10 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    // CRITICAL: do NOT manually split node_modules into multiple chunks.
-    // The previous manualChunks config produced production errors like
-    //   "Cannot read properties of undefined (reading 'createContext')"
-    // and
-    //   "Cannot read properties of undefined (reading 'forwardRef')"
-    // because secondary chunks (lucide-react, framer-motion, react-leaflet,
-    // etc.) evaluated before React was hydrated into the module scope.
-    // Letting Rollup pick its own chunking guarantees React loads first
-    // for any chunk that depends on it.
+    // Rollup decides chunking automatically based on the import graph.
+    // This keeps React loaded before any chunk that depends on it; manual
+    // chunk splits would otherwise break libraries that consume React's
+    // context API (react-query, framer-motion, lucide-react, etc.).
     rollupOptions: {
       output: {
         manualChunks: undefined,

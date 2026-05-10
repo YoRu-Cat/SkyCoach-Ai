@@ -37,12 +37,14 @@ function App() {
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
 
-  // Apply theme class on mount.
+  // Apply the theme to the root <html> element so theme-scoped CSS rules
+  // pick up the correct palette.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
   }, [themeMode]);
 
-  // Track network connectivity (browser online/offline).
+  // Mirror the browser's online/offline state so the offline banner can
+  // distinguish between "no internet" and "backend is slow".
   useEffect(() => {
     const updateOnline = () => setIsOnline(navigator.onLine);
     window.addEventListener("online", updateOnline);
@@ -53,8 +55,8 @@ function App() {
     };
   }, []);
 
-  // Probe backend health, but DO NOT block UI rendering on the result.
-  // This handles Render free-tier cold starts (~30s) gracefully.
+  // Probe backend health in the background. The UI is rendered immediately
+  // regardless of the result; this state only drives the optional banner.
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -74,7 +76,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Lightweight error toast plumbed in from the axios interceptor.
+  // Surface API errors to the user as a transient toast notification.
   useEffect(() => {
     const unsubscribe = onApiError(({ status, message }) => {
       if (status === 429) {
@@ -105,7 +107,7 @@ function App() {
           <span>
             {!isOnline
               ? "You appear to be offline."
-              : `Backend at ${API_BASE_URL || "/api"} is unreachable - the SkyCoach service may be cold-starting (free tier wakes in ~30s). Retrying every minute.`}
+              : `Backend at ${API_BASE_URL || "/api"} is currently unreachable. The service may need a moment to start up; retrying every minute.`}
           </span>
           <button
             type="button"

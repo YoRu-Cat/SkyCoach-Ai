@@ -1,10 +1,14 @@
-# SkyCoach AI - Backend runtime dependencies
-# ==========================================
-# This file is what cloud deploys (Render, Railway, Fly, Docker) install.
-# Only what the FastAPI server needs at runtime.
+# SkyCoach AI - backend runtime dependencies.
 #
-# For the full local toolkit (Streamlit app, optional TF/PyTorch training
-# backends), install requirements-dev.txt on top of this.
+# This file is installed by cloud deployments (Render, Railway, Fly,
+# Docker) and lists only what the FastAPI server needs at runtime. The
+# trained model itself is shipped as JSON inside the repository, so the
+# server does not require any deep-learning framework to serve
+# predictions.
+#
+# For the full local toolkit (Streamlit dashboard, optional accelerated
+# training backends, notebook execution), additionally install
+# requirements-dev.txt.
 
 # FastAPI server
 fastapi>=0.104.0

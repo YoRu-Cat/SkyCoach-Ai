@@ -17,10 +17,11 @@ export interface AnalysisParams {
   longitude?: number;
 }
 
-// Resolution order:
-//   1. explicit VITE_API_URL (from .env.production or the host's UI)
-//   2. relative '' in any production build - the host (Netlify) proxies /api/*
-//   3. local dev fallback for `npm run dev`
+// Backend base URL resolution:
+//   1. An explicit VITE_API_URL from .env.production or the hosting UI.
+//   2. An empty string in any production build, so the SPA uses relative
+//      '/api' URLs and the hosting platform's proxy handles the redirect.
+//   3. A localhost fallback for `npm run dev`.
 const explicitApiUrl =
   (import.meta.env.VITE_API_URL ?? "").toString().trim();
 
@@ -35,13 +36,14 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  // Render free tier can sleep; first cold request can take ~30s.
-  // 25s gives that headroom without hanging on a truly dead backend.
+  // Generous timeout so a backend that takes a moment to wake up after
+  // idle still resolves successfully.
   timeout: 25000,
 });
 
-// Lightweight pub/sub so any UI surface can react to API errors
-// (toast, offline banner, etc.) without prop-drilling.
+// Pub/sub for API-level errors. UI surfaces (toasts, banners) subscribe
+// here so they can react to network or server failures without each
+// individual call site having to handle them.
 type ApiErrorListener = (info: {
   status: number | null;
   message: string;
@@ -133,8 +135,8 @@ export const healthCheck = async (): Promise<boolean> => {
 };
 
 /**
- * Non-blocking probe with retry suited to Render's free-tier cold start
- * (first request can take ~30s while the dyno wakes up).
+ * Non-blocking health probe with retry. Tolerates the short delay that
+ * a backend may need to wake up after a period of inactivity.
  */
 export const healthCheckWithRetry = async (
   attempts: number = 4,

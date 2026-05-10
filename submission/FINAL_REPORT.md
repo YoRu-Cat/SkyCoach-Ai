@@ -70,9 +70,9 @@ Evaluation is performed across **three** regimes:
 
 1. **Clean test split** - the held-out `test.jsonl` data
 2. **Hardset** - curated ambiguous phrases (`hardset.jsonl`)
-3. **Noisy test split** - the test phrases passed through a character-level perturbation (drop / duplicate / swap at ~8% rate). This is a synthetic stress test we added because clean test phrases are easy enough that both models reach the F1 ceiling, and we need a tougher regime to actually separate them.
+3. **Noisy test split** - the test phrases passed through a character-level perturbation (drop / duplicate / swap at roughly an 8 % per-character rate). The clean test phrases are large enough that both models reach the F1 ceiling, so this synthetic stress test provides a tougher regime that differentiates them on robustness.
 
-We also measure **median per-phrase inference latency** because both models are deployed in the SkyCoach FastAPI backend and latency is part of the cost-benefit.
+The harness also reports **median per-phrase inference latency**, since both models are deployed inside the SkyCoach FastAPI backend and latency is part of the cost-benefit trade-off.
 
 ## 4. Comparison of the Models Implemented
 
@@ -112,16 +112,16 @@ Naive Bayes remains a strong, fast baseline and stays in the codebase as the sec
 
 ## 6. Own Contribution
 
-The work in this submission and the surrounding application is original to the SkyCoach project. Specifically:
+All of the artefacts described below are original work produced for this project.
 
-1. **Dataset construction.** The activity-intent corpus, the four-way label scheme (Indoor / Outdoor / Mixed / Unclear), and the curated `hardset` of ambiguous phrases were all created for SkyCoach.
-2. **Model 2 design.** Combining word TF-IDF (1-2 grams) with character TF-IDF (3-5 char n-grams) inside a single `FeatureUnion` is the bespoke part of Model 2 and is what gives it its measurable robustness advantage on noisy input.
-3. **Robustness evaluation harness.** The character-perturbation logic that produces the noisy test split is implemented from scratch (`ml_system/training/evaluation.py::_perturb_phrase`) and is mirrored 1:1 inside the notebook so the assignment numbers and the production numbers come from the same definition.
-4. **Rich metrics module.** `ml_system/training/metrics.py` is a new pure-Python implementation of accuracy / precision / recall / F1 / confusion matrix that lets the SkyCoach training pipeline persist full per-class metrics without any sklearn dependency at runtime.
-5. **Trainer upgrade.** `ml_system/training/trainer.py` was extended to compute and persist accuracy, per-class precision / recall / F1, macro / weighted aggregates, confusion matrices, and per-model summaries for **both** models on the val / test / hardset splits, in addition to the existing macro F1 it used to produce.
-6. **Standalone evaluation harness.** `ml_system/training/evaluation.py` is new. It loads the saved champion model, trains the other model family from scratch on the same tokenizer, and produces a JSON head-to-head report including noise robustness and latency. Output: `ml_system/models/current/evaluation_report.json`.
-7. **Backend endpoint.** A new `GET /api/model-comparison` route was added in `backend/api/routes.py`. It returns the JSON report directly so the comparison is part of the live application, not just an artefact of the notebook. Pass `?refresh=true` to recompute on demand.
-8. **Comprehensive notebook.** The submission notebook (`submission/SkyCoach_AI_Models.ipynb`) is end-to-end runnable, contains all required sections (data description, preprocessing, visualisation, modelling, evaluation), produces confusion matrices for **both** models, runs the noise stress test, and prints the final verdict in code.
+1. **Dataset construction.** The activity-intent corpus, the four-way label scheme (Indoor / Outdoor / Mixed / Unclear), and the curated `hardset` of ambiguous phrases were designed and generated for SkyCoach. The generation scripts ship in `ml_system/data/datasets/`.
+2. **Model 2 architecture.** Combining word-level TF-IDF (1-2 grams) with character-level TF-IDF (3-5 character n-grams) inside a single `FeatureUnion` is the distinguishing design choice of Model 2, and is the source of its measurable robustness advantage on noisy input.
+3. **Robustness evaluation harness.** The character-perturbation logic that produces the noisy test split is implemented in pure Python (`ml_system/training/evaluation.py`, `_perturb_phrase`) and mirrored inside the submission notebook, so the assignment numbers and the production numbers are produced by the same definition.
+4. **Pure-Python metrics module.** `ml_system/training/metrics.py` provides accuracy, precision, recall, F1, and confusion-matrix calculations without a scikit-learn dependency at inference time. The module powers both the training pipeline and the evaluation harness.
+5. **Training pipeline reporting.** `ml_system/training/trainer.py` computes and persists accuracy, per-class precision / recall / F1, macro and weighted aggregates, and confusion matrices for both models on the validation, test, and hardset splits, alongside the macro F1 that originally drove model selection.
+6. **Standalone evaluation harness.** `ml_system/training/evaluation.py` loads the saved champion, trains the alternative model family on the same tokenizer, and writes a JSON head-to-head report - including noise robustness and per-phrase inference latency - to `ml_system/models/current/evaluation_report.json`.
+7. **Backend integration.** The route `GET /api/model-comparison` (`backend/api/routes.py`) serves the evaluation report directly, so the head-to-head comparison is a feature of the live application rather than a notebook-only artefact. Passing `?refresh=true` regenerates the report on demand; in production this branch is gated by an admin token when configured.
+8. **Submission notebook.** `submission/SkyCoach_AI_Models.ipynb` runs end to end and covers the full assignment scope: data description, preprocessing, visualisation, both models with the standard metrics, confusion matrices for each, the noise stress test, and a code-driven verdict cell.
 
 ## 7. How to Reproduce
 

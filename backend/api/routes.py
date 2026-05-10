@@ -380,14 +380,17 @@ async def predict_activity_type(request: dict) -> dict:
     ],
 )
 async def submit_prediction_feedback(request: dict) -> dict:
-    """Record user feedback to a model prediction for continuous learning.
+    """Record a user correction so the continuous-learning pool grows.
 
     Validation:
-        - ``corrected_label`` must be one of the four canonical labels.
-        - ``phrase`` must be non-empty and within MAX_PREDICT_PHRASE chars.
-        - ``predicted_confidence`` must be a finite float in [0, 1].
-    Auto-retraining is opt-in via the ``ADMIN_API_TOKEN`` flow on the model
-    refresh endpoint - feedback alone never triggers training.
+        * ``corrected_label`` must be one of the four canonical labels.
+        * ``phrase`` must be non-empty and at most ``MAX_PREDICT_PHRASE``
+          characters long.
+        * ``predicted_confidence`` must be a finite float in ``[0, 1]``.
+
+    Submitting feedback does not by itself retrain the model. Retraining
+    is invoked explicitly by the model-refresh flow, which is gated by
+    ``ADMIN_API_TOKEN`` when configured.
     """
     try:
         from ml_system.api import get_ml_system
@@ -436,11 +439,13 @@ async def get_model_comparison(
     request: Request,
     refresh: bool = False,
 ) -> dict:
-    """Return the Model 1 vs Model 2 evaluation report.
+    """Return the head-to-head evaluation report for the two models.
 
-    Reads ``ml_system/models/current/evaluation_report.json`` by default.
-    Pass ``refresh=true`` (admin-token gated when ``ADMIN_API_TOKEN`` is set)
-    to recompute the report on the fly.
+    By default the response is read from
+    ``ml_system/models/current/evaluation_report.json``. Pass
+    ``refresh=true`` to regenerate the report on demand; when
+    ``ADMIN_API_TOKEN`` is configured this branch additionally requires
+    the matching ``X-Admin-Token`` header.
     """
     try:
         import json as _json
@@ -519,11 +524,10 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
             openai_model=model_name,
         )
 
-        # SECURITY: prompt-injection defense.
-        # The LLM can only return task IDs that the *user* sent us in
-        # task_context. Anything else - even if the model fabricates it -
-        # gets dropped here so the frontend can't be tricked into operating
-        # on tasks the user does not own.
+        # Whitelist returned task IDs against the task_context the client
+        # supplied. Any ID the language model fabricates outside of that
+        # set is dropped, which prevents a model response from causing the
+        # client to operate on tasks the user does not own.
         allowed_ids = {task.id for task in request.task_context}
 
         def whitelist(value):

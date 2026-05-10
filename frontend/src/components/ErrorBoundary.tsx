@@ -10,9 +10,9 @@ interface State {
 }
 
 /**
- * Last-line-of-defence error boundary at the root of the React tree.
- * If anything throws during render, we still want the user to see a
- * recognisable SkyCoach screen instead of a blank/purple page.
+ * Root-level error boundary. Catches any uncaught rendering error in the
+ * React tree and renders a styled fallback so the user always sees a
+ * recognisable interface instead of a blank screen.
  */
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, message: "" };
@@ -25,8 +25,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // Surface the failure for the deployed-site case too - the Netlify
-    // log won't show this, but a user opening DevTools will see it.
+    // Logs the failure to the browser console so it is visible in DevTools
+    // even when no remote error-tracking service is configured.
     // eslint-disable-next-line no-console
     console.error("[SkyCoach] root error boundary caught:", error, info);
   }

@@ -1,13 +1,19 @@
-"""Centralised security helpers for the FastAPI backend.
+"""Security helpers for the FastAPI backend.
 
-Provides:
+This module bundles the cross-cutting concerns that protect the API
+endpoints:
 
-- A scrubbed error responder that never echoes raw exception text (keeps
-  caller-supplied OpenAI / weather API keys from leaking).
-- A simple per-IP rate limiter so we never need an extra dependency on
-  slowapi (Render free tier and small VMs prefer fewer moving parts).
-- A request-body size limit middleware.
-- An optional admin-token check for write endpoints.
+* :func:`safe_http_error` returns sanitised error responses that never
+  echo raw exception text, which prevents accidental leakage of
+  caller-supplied API keys.
+* :func:`rate_limit_dependency` is a dependency factory that enforces a
+  sliding-window per-IP request limit on the routes it decorates.
+* :class:`BodySizeLimitMiddleware` rejects requests whose body exceeds a
+  configurable maximum.
+* :func:`require_admin_token` is an optional dependency that gates write
+  or compute-heavy endpoints behind a shared secret header.
+* :func:`assert_valid_coords` validates geographic coordinates before
+  they are forwarded to upstream services.
 """
 from __future__ import annotations
 
@@ -37,9 +43,12 @@ def safe_http_error(
     log_exception: BaseException | None = None,
     extra: dict | None = None,
 ) -> HTTPException:
-    """Log the underlying exception with full detail, but raise an HTTPException
-    that contains only ``public_message`` so secrets and stack traces stay out
-    of the response body.
+    """Build an HTTPException whose detail is safe to return to the client.
+
+    The original exception, if provided, is logged server-side with full
+    detail. Only ``public_message`` is included in the HTTP response, which
+    keeps internal stack traces and any caller-supplied secrets out of the
+    response body.
     """
     if log_exception is not None:
         logger.warning(
@@ -89,10 +98,17 @@ def _client_key(request: Request) -> str:
 
 
 def rate_limit_dependency(*, requests: int, window_seconds: float):
-    """FastAPI dependency factory that enforces a per-IP rate limit on the
-    decorated route. Use:
+    """FastAPI dependency factory that enforces a sliding-window per-IP
+    rate limit on the route that depends on it.
 
-        @router.post("/foo", dependencies=[Depends(rate_limit_dependency(requests=10, window_seconds=60))])
+    Example::
+
+        @router.post(
+            "/foo",
+            dependencies=[
+                Depends(rate_limit_dependency(requests=10, window_seconds=60)),
+            ],
+        )
     """
     def _dep(request: Request) -> None:
         route = request.url.path
@@ -111,12 +127,12 @@ def rate_limit_dependency(*, requests: int, window_seconds: float):
 # ---------------------------------------------------------------------------
 
 class BodySizeLimitMiddleware(BaseHTTPMiddleware):
-    """Reject requests with a Content-Length larger than ``max_bytes``.
+    """Reject requests whose ``Content-Length`` header exceeds ``max_bytes``.
 
-    This is a cheap pre-filter; for chunked uploads where Content-Length is
-    absent, FastAPI's worker would still need to consume the stream, so this
-    is best paired with a reverse proxy limit upstream (Render does this
-    automatically).
+    The check is performed before the request body is consumed, so large
+    payloads are short-circuited cheaply. Chunked-encoded uploads that omit
+    ``Content-Length`` should be additionally bounded by a reverse-proxy
+    limit upstream of the application server.
     """
 
     def __init__(self, app, max_bytes: int = 1_000_000) -> None:
@@ -138,10 +154,12 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
 # ---------------------------------------------------------------------------
 
 def require_admin_token(request: Request) -> None:
-    """Block the request unless ``X-Admin-Token`` matches ``ADMIN_API_TOKEN``.
+    """Reject the request unless its ``X-Admin-Token`` header matches the
+    configured ``ADMIN_API_TOKEN`` environment variable.
 
-    If ``ADMIN_API_TOKEN`` is unset (typical local dev), the dependency is a
-    no-op so the existing local workflow is unaffected.
+    If ``ADMIN_API_TOKEN`` is not set, the check is skipped. This makes
+    local development unaffected while still allowing production
+    deployments to opt into a shared-secret gate on sensitive endpoints.
     """
     expected = os.getenv("ADMIN_API_TOKEN")
     if not expected:
@@ -159,7 +177,11 @@ def require_admin_token(request: Request) -> None:
 # ---------------------------------------------------------------------------
 
 def assert_valid_coords(lat: float | None, lon: float | None) -> None:
-    """Raise 400 if the supplied coordinates are not on Earth."""
+    """Validate that ``(lat, lon)`` describe a point on Earth.
+
+    Raises a 400 ``HTTPException`` if either value is out of range or only
+    one of the two is supplied.
+    """
     if lat is None and lon is None:
         return
     if lat is None or lon is None:

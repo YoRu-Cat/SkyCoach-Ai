@@ -488,7 +488,8 @@ def chat_assistant_reply(
     try:
         from openai import OpenAI
 
-        # 20s request-level timeout so a hung upstream cannot stall a worker.
+        # A bounded request timeout prevents a stalled upstream call from
+        # tying up an application worker indefinitely.
         client = OpenAI(api_key=api_key, timeout=20.0)
         system_prompt = (
             "You are SkyCoach Chat Assistant. Help users operate the app conversationally like a real assistant. "
