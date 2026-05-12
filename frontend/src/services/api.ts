@@ -67,9 +67,9 @@ const openAIModel = import.meta.env.VITE_OPENAI_MODEL || "gpt-4o-mini";
 export const analyzeTask = async (text: string): Promise<TaskAnalysis> => {
   const response = await apiClient.post("/analyze-task", {
     text,
-    use_openai: false,
+    use_openai: true,
     openai_api_key: null,
-    openai_model: null,
+    openai_model: openAIModel,
   });
   return response.data;
 };
@@ -77,7 +77,7 @@ export const analyzeTask = async (text: string): Promise<TaskAnalysis> => {
 export const getWeather = async (city: string): Promise<WeatherData> => {
   const response = await apiClient.post("/weather", {
     city,
-    use_demo: true,
+    use_demo: useDemoWeather,
     api_key: null,
   });
   return response.data;
@@ -93,7 +93,7 @@ export const fullAnalysis = async (
     city,
     latitude,
     longitude,
-    use_openai: false,
+    use_openai: true,
     weather_api_key: null,
     openai_api_key: null,
     openai_model: openAIModel,
@@ -109,7 +109,7 @@ export const getAlternatives = async (
     params: {
       classification,
       weather_city: "New York",
-      use_demo: true,
+      use_demo: useDemoWeather,
     },
   });
   return response.data.suggestions;

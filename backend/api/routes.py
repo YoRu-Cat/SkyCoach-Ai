@@ -141,19 +141,22 @@ async def analyze_task(request: TaskAnalysisRequest) -> TaskAnalysisResponse:
 async def get_weather(request: WeatherRequest) -> WeatherResponse:
     try:
         assert_valid_coords(request.latitude, request.longitude)
-        if request.use_demo or not request.api_key:
-            if request.city:
-                weather = get_demo_weather(request.city)
-            else:
-                weather = get_demo_weather("New York")
+        resolved_key = request.api_key or os.getenv("OPENWEATHER_API_KEY")
+        if request.use_demo or not resolved_key:
+            weather = get_demo_weather(request.city or "New York")
         else:
-            if request.city:
-                weather = get_weather_by_city(request.city, request.api_key)
-            elif request.latitude is not None and request.longitude is not None:
-                from services.ai_engine import get_weather
-                weather = get_weather(request.latitude, request.longitude, request.api_key)
-            else:
-                raise HTTPException(status_code=400, detail="Provide either city name or coordinates.")
+            try:
+                if request.city:
+                    weather = get_weather_by_city(request.city, resolved_key)
+                elif request.latitude is not None and request.longitude is not None:
+                    from services.ai_engine import get_weather
+                    weather = get_weather(request.latitude, request.longitude, resolved_key)
+                else:
+                    raise HTTPException(status_code=400, detail="Provide either city name or coordinates.")
+            except HTTPException:
+                raise
+            except Exception:
+                weather = get_demo_weather(request.city or "New York")
 
         return convert_weather_to_response(weather)
     except HTTPException:
@@ -278,22 +281,30 @@ async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
             )
             forecast_slots = get_demo_weather_forecast(request.city)
         else:
-            if has_coordinates:
-                weather = get_weather(request.latitude, request.longitude, weather_api_key)
-                try:
-                    forecast_slots = get_weather_forecast(
-                        request.latitude,
-                        request.longitude,
-                        weather_api_key,
-                    )
-                except Exception:
-                    forecast_slots = []
-            else:
-                weather = get_weather_by_city(request.city, weather_api_key)
-                try:
-                    forecast_slots = get_weather_forecast_by_city(request.city, weather_api_key)
-                except Exception:
-                    forecast_slots = []
+            try:
+                if has_coordinates:
+                    weather = get_weather(request.latitude, request.longitude, weather_api_key)
+                    try:
+                        forecast_slots = get_weather_forecast(
+                            request.latitude,
+                            request.longitude,
+                            weather_api_key,
+                        )
+                    except Exception:
+                        forecast_slots = []
+                else:
+                    weather = get_weather_by_city(request.city, weather_api_key)
+                    try:
+                        forecast_slots = get_weather_forecast_by_city(request.city, weather_api_key)
+                    except Exception:
+                        forecast_slots = []
+            except Exception:
+                weather = get_demo_weather(
+                    request.city,
+                    latitude=request.latitude if has_coordinates else None,
+                    longitude=request.longitude if has_coordinates else None,
+                )
+                forecast_slots = get_demo_weather_forecast(request.city)
         
         config = Config()
         score_result = calculate_sky_score(task, weather, config)
