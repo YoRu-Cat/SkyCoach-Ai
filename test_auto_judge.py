@@ -21,6 +21,6 @@ for test in test_cases:
     print(f'  Classification: {result.classification}')
     print(f'  Needs Clarification: {result.needs_clarification}')
     if result.suggested_activity:
-        print(f'  ✓ Auto-Judge Suggestion: {result.suggested_activity}')
-        print(f'  ✓ Suggestion Confidence: {result.suggestion_confidence:.2f}')
+        print(f'  [ok]Auto-Judge Suggestion: {result.suggested_activity}')
+        print(f'  [ok]Suggestion Confidence: {result.suggestion_confidence:.2f}')
     print(f'  Confidence: {result.confidence:.2f}')

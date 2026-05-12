@@ -1,10 +1,9 @@
-# Local dev extras. Install on top of requirements.txt for the Streamlit
-# dashboard, the optional accelerated training backends, and the tools
-# needed to run the submission notebook end to end.
+# Local dev extras. Install on top of requirements.txt for ML training
+# and submission-notebook execution.
 #
 #   pip install -r requirements.txt -r requirements-dev.txt
 #
-# torch and tensorflow have prebuilt wheels for Python 3.11 / 3.12; newer
+# torch / tensorflow ship prebuilt wheels for Python 3.11 / 3.12; newer
 # Python releases may not yet be supported.
 
 -r requirements.txt
@@ -12,15 +11,9 @@
 torch>=2.2.0
 tensorflow>=2.16.0
 
-streamlit>=1.31.0
-streamlit-folium>=0.18.0
-streamlit-extras>=0.3.0
-streamlit-lottie>=0.0.5
-streamlit-js-eval>=0.1.0
-folium>=0.15.0
-
 nbclient>=0.10.0
 nbformat>=5.10.0
 ipykernel>=6.29.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
+pytest>=8.0.0

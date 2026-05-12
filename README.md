@@ -1,6 +1,6 @@
-﻿# SkyCoach AI
+# SkyCoach AI
 
-SkyCoach AI is a weather-aware task planning system with a FastAPI backend, React frontend, ML-based task classification, and a reminder-driven Todo workflow.
+Weather-aware task planning system. FastAPI backend + React frontend, with a hybrid ML/dictionary/token-semantics classifier and a reminder-driven todo workflow.
 
 ## Runtime Defaults
 
@@ -22,26 +22,6 @@ flowchart LR
   Score --> Alt[Alternative Activities]
   UI --> Store[Task Store + Reminder Scheduler]
   Store --> Browser[Notification + Vibration + Ringtone]
-```
-
-## End-to-End Analysis Flow
-
-```mermaid
-sequenceDiagram
-  participant F as Frontend
-  participant R as API /api/analyze
-  participant A as analyze_task_smart
-  participant W as Weather Layer
-  participant S as Scoring Engine
-
-  F->>R: activity_text + city or coordinates
-  R->>A: analyze_task_smart(text, use_openai, key, model)
-  A-->>R: TaskAnalysis
-  R->>W: demo/live weather + forecast
-  W-->>R: WeatherData + forecast_slots
-  R->>S: calculate_sky_score + recommend_best_schedule
-  S-->>R: score_result + best time/date
-  R-->>F: task + weather + score_result + alternatives
 ```
 
 ## Feature Set
@@ -85,56 +65,54 @@ sequenceDiagram
 ### 1) Install dependencies
 
 ```powershell
-cd "e:\Java\Project\Project Ai"
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ```powershell
-cd "e:\Java\Project\Project Ai\frontend"
+cd frontend
 npm install
 ```
 
-### 2) Run backend
+### 2) Configure environment
 
-```powershell
-cd "e:\Java\Project\Project Ai"
-.\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8012
+Copy `.env.example` to `.env` and fill in (both keys optional — app falls back to demo if absent):
+
+```env
+OPENAI_API_KEY=sk-...
+OPENWEATHER_API_KEY=...
+OPENAI_MODEL=gpt-4o-mini
 ```
 
-### 3) Run frontend
+Frontend defaults live in `frontend/.env.local`:
 
-```powershell
-cd "e:\Java\Project\Project Ai\frontend"
-npm.cmd run dev -- --host 127.0.0.1 --port 5173
+```env
+VITE_API_URL=http://127.0.0.1:8012
+VITE_USE_DEMO_WEATHER=false
 ```
 
-### 4) Open app
+### 3) Run backend
+
+```powershell
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8012
+```
+
+### 4) Run frontend
+
+```powershell
+cd frontend
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+### 5) Open app
 
 - <http://127.0.0.1:5173/index.html>
 - <http://127.0.0.1:8012/docs>
 
 ## Tests
 
-Use the root backend test runner:
-
 ```powershell
-cd "e:\Java\Project\Project Ai"
 .\run_backend_tests.cmd
 ```
-
-## Environment
-
-Create frontend/.env.local:
-
-```env
-VITE_API_URL=http://127.0.0.1:8012
-```
-
-Optional backend variables:
-
-- OPENWEATHER_API_KEY
-- OPENAI_API_KEY
-- OPENAI_MODEL
 
 ## Documentation Index
 

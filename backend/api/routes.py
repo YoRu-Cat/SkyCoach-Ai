@@ -225,7 +225,7 @@ async def calculate_score(request: SkyScoreRequest) -> SkyScoreResponse:
         raise safe_http_error(400, "Score calculation failed.", log_exception=e)
 
 
-@router.post("/alternatives", response_model=AlternativeActivitiesResponse)
+@router.get("/alternatives", response_model=AlternativeActivitiesResponse)
 async def get_alternatives(
     classification: str,
     weather_city: str = "New York",
@@ -233,13 +233,17 @@ async def get_alternatives(
 ) -> AlternativeActivitiesResponse:
     """Get alternative activity suggestions."""
     try:
-        if use_demo:
+        resolved_key = os.getenv("OPENWEATHER_API_KEY")
+        if use_demo or not resolved_key:
             weather = get_demo_weather(weather_city)
         else:
-            weather = get_demo_weather(weather_city)
-        
+            try:
+                weather = get_weather_by_city(weather_city, resolved_key)
+            except Exception:
+                weather = get_demo_weather(weather_city)
+
         suggestions = get_alternative_activities(classification, weather)
-        
+
         return AlternativeActivitiesResponse(
             suggestions=suggestions,
             reason=f"Based on {classification.lower()} activity and weather conditions",
