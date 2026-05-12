@@ -40,7 +40,7 @@ class MLSystemConfig:
     improvement_threshold: float = 0.02
     drift_confidence_drop_threshold: float = 0.05
     
-    labels: list[str] = None
+    labels: list[str] = None # type: ignore
     
     def __post_init__(self):
         if self.labels is None:

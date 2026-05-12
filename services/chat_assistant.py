@@ -459,7 +459,7 @@ def _local_assistant_response(
         next_draft,
         (
             f"I understood: add '{next_draft['task_title']}' on {next_draft['date']} at {next_draft['time']}. "
-            f"{('Notes: ' + next_draft['notes'] + '. ') if next_draft.get('notes') else ''}"
+            f"{('Notes: ' + next_draft['notes'] + '. ') if next_draft.get('notes') else ''}" # type: ignore
             "Should I create it now?"
         ),
     )

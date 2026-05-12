@@ -153,7 +153,7 @@ def _trained_ensemble() -> tuple[list[tuple[str, Pipeline, float]], ModelInfo]:
 
         for parameters in parameter_sets:
             candidate = clone(pipeline).set_params(**parameters)
-            scores = cross_val_score(candidate, texts, labels, scoring="accuracy", cv=cv, n_jobs=1)
+            scores = cross_val_score(candidate, texts, labels, scoring="accuracy", cv=cv, n_jobs=1) # type: ignore
             score = float(scores.mean())
 
             if score > best_model_score:
@@ -188,7 +188,7 @@ def predict_task_label(text: str) -> PredictionResult:
         for class_name, score in class_scores.items()
     }
 
-    best_class = max(averaged_scores, key=averaged_scores.get)
+    best_class = max(averaged_scores, key=averaged_scores.get) # type: ignore
     best_confidence = averaged_scores[best_class]
 
     return PredictionResult(

@@ -172,7 +172,7 @@ def run_evaluation(
             row[f"{split_name}_recall_macro"] = ev["macro"]["recall"]
             row[f"{split_name}_f1_macro"] = ev["macro"]["f1"]
             row[f"{split_name}_f1_weighted"] = ev["weighted"]["f1"]
-        row["median_inference_us"] = latency[name]
+        row["median_inference_us"] = latency[name] # type: ignore
         return row
 
     comparison = [

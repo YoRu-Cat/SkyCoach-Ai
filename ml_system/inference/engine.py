@@ -41,9 +41,9 @@ class InferenceEngine:
 
     def __init__(
         self,
-        tokenizer_path: str | Path = None,
-        model_path: str | Path = None,
-        report_path: str | Path = None,
+        tokenizer_path: str | Path = None, # pyright: ignore[reportArgumentType]
+        model_path: str | Path = None, # type: ignore
+        report_path: str | Path = None, # type: ignore
         confidence_threshold: float = CONFIG.confidence_threshold,
     ) -> None:
         current_dir = CONFIG.get_current_model_path()

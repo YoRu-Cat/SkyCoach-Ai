@@ -21,31 +21,17 @@ def load_dataset(path: str | Path) -> list[dict]:
 
 
 def split_xy(records: list[dict]) -> tuple[list[str], list[str]]:
-    """Split records into texts and labels."""
-    texts = [r.get("phrase") for r in records]
-    labels = [r.get("label") for r in records]
+    """Split records into texts and labels. Rows missing either field are skipped."""
+    texts: list[str] = []
+    labels: list[str] = []
+    for r in records:
+        phrase = r.get("phrase")
+        label = r.get("label")
+        if phrase is None or label is None:
+            continue
+        texts.append(phrase)
+        labels.append(label)
     return texts, labels
-
-
-def accuracy_score(y_true: list[str], y_pred: list[str]) -> float:
-    """Calculate accuracy."""
-    return sum(t == p for t, p in zip(y_true, y_pred)) / len(y_true) if y_true else 0.0
-
-
-def macro_f1_score(y_true: list[str], y_pred: list[str], labels: list[str]) -> float:
-    """Calculate macro F1 score."""
-    f1_scores = []
-    for label in labels:
-        tp = sum(1 for t, p in zip(y_true, y_pred) if t == label and p == label)
-        fp = sum(1 for t, p in zip(y_true, y_pred) if t != label and p == label)
-        fn = sum(1 for t, p in zip(y_true, y_pred) if t == label and p != label)
-        
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
-        f1_scores.append(f1)
-    
-    return sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
 
 
 class Trainer:
@@ -140,14 +126,17 @@ class Trainer:
             tokenizer=tokenizer,
         )
 
-        best_name = ""
+        candidates: list[tuple[str, NaiveBayesModel | LinearSoftmaxModel]] = [
+            ("naive_bayes", nb),
+            ("linear_softmax", linear),
+        ]
+        best_name, best_model = candidates[0]
         best_val_f1 = -1.0
-        best_model = None
 
-        for name, model in [("naive_bayes", nb), ("linear_softmax", linear)]:
+        for name, model in candidates:
             probs = model.predict_proba(x_val, tokenizer)
             preds = [max(p.items(), key=lambda x: x[1])[0] for p in probs]
-            f1 = macro_f1_score(y_val, preds, labels)
+            f1 = cls_metrics.macro_f1(y_val, preds, labels)
             if f1 > best_val_f1:
                 best_name = name
                 best_val_f1 = f1
@@ -175,8 +164,8 @@ class Trainer:
         test_preds = calibrated_predict(x_test)
         hard_preds = calibrated_predict(x_hard)
 
-        test_f1 = macro_f1_score(y_test, test_preds, labels)
-        hard_f1 = macro_f1_score(y_hard, hard_preds, labels)
+        test_f1 = cls_metrics.macro_f1(y_test, test_preds, labels)
+        hard_f1 = cls_metrics.macro_f1(y_hard, hard_preds, labels)
 
         def _full_eval(
             model,
@@ -302,7 +291,7 @@ class Trainer:
 
         def has_torch() -> bool:
             try:
-                import torch  # noqa: F401
+                import torch  # type: ignore # noqa: F401
 
                 return True
             except Exception:
@@ -310,25 +299,15 @@ class Trainer:
 
         def has_tf() -> bool:
             try:
-                import tensorflow as tf  # noqa: F401
+                import tensorflow as tf  # type: ignore # noqa: F401
 
                 return True
             except Exception:
                 return False
 
-        if requested == "pytorch":
-            if not has_torch():
-                raise RuntimeError(
-                    "Configured linear backend is 'pytorch' but torch is not installed. "
-                    "Install torch or change CONFIG.linear_backend."
-                )
+        if requested == "pytorch" and has_torch():
             return "pytorch"
-        if requested == "tensorflow":
-            if not has_tf():
-                raise RuntimeError(
-                    "Configured linear backend is 'tensorflow' but tensorflow is not installed. "
-                    "Install tensorflow or change CONFIG.linear_backend."
-                )
+        if requested == "tensorflow" and has_tf():
             return "tensorflow"
         if requested == "scratch":
             return "scratch"
@@ -381,9 +360,9 @@ class Trainer:
         tokenizer: Tokenizer,
     ) -> LinearSoftmaxModel | None:
         try:
-            import torch
-            import torch.nn as nn
-            import torch.nn.functional as F
+            import torch # type: ignore
+            import torch.nn as nn # type: ignore
+            import torch.nn.functional as F # type: ignore
         except Exception:
             return None
 
@@ -581,6 +560,9 @@ class Trainer:
         labels: list[str],
     ) -> tuple[float, float]:
         """Fit temperature and uniform smoothing jointly by minimizing validation NLL."""
+        if len(labels) <= 1:
+            return 1.0, 0.0
+
         best_temp = 1.0
         best_smoothing = 0.0
         best_nll = float("inf")
@@ -617,9 +599,6 @@ class Trainer:
                     best_nll = nll
                     best_temp = temp
                     best_smoothing = smoothing
-
-        if len(labels) <= 1:
-            return 1.0, 0.0
 
         return best_temp, best_smoothing
 

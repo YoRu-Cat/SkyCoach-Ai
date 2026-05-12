@@ -132,10 +132,10 @@ def _resolve_demo_city_coords(city: str, city_coords: dict) -> tuple[float, floa
     try:
         from geopy.geocoders import Nominatim
 
-        geolocator = Nominatim(user_agent="skycoach_demo_locator", timeout=3)
+        geolocator = Nominatim(user_agent="skycoach_demo_locator", timeout=3) # type: ignore
         location = geolocator.geocode(city)
         if location is not None:
-            return (round(location.latitude, 4), round(location.longitude, 4))
+            return (round(location.latitude, 4), round(location.longitude, 4)) # type: ignore
     except Exception:
         pass
 
@@ -437,7 +437,7 @@ Keep intent unchanged. Do not classify."""
         original_text=text,
         cleaned_text=cleaned_text,
         activity=activity,
-        classification=classification,
+        classification=classification, # type: ignore
         confidence=confidence,
         reasoning=reasoning,
         needs_clarification=needs_clarification,
@@ -585,7 +585,7 @@ def analyze_task_fallback(text: str) -> TaskAnalysis:
         original_text=text,
         cleaned_text=compact_text,
         activity=activity,
-        classification=classification,
+        classification=classification, # type: ignore
         confidence=confidence,
         reasoning=reasoning,
         needs_clarification=needs_clarification,

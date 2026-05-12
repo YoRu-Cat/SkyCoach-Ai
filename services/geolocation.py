@@ -77,13 +77,13 @@ def reverse_geocode(lat: float, lon: float) -> Optional[GeoLocation]:
     try:
         from geopy.geocoders import Nominatim
 
-        geolocator = Nominatim(user_agent="skycoach_auto_location", timeout=5)
-        location = geolocator.reverse(f"{lat}, {lon}", exactly_one=True, language="en")
+        geolocator = Nominatim(user_agent="skycoach_auto_location", timeout=5) # type: ignore
+        location = geolocator.reverse(f"{lat}, {lon}", exactly_one=True, language="en") # type: ignore
 
         if location is None:
             return None
 
-        address = location.raw.get("address", {})
+        address = location.raw.get("address", {}) # type: ignore
         city = (
             address.get("city")
             or address.get("town")
