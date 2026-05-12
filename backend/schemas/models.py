@@ -4,14 +4,12 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Tuple, Optional, Literal
 
 
-# Field length limits applied at the API boundary. Values are deliberately
-# generous so legitimate input is never rejected, while still being small
-# enough to bound memory use and prevent abusive payloads.
-MAX_USER_TEXT = 2000      # single phrase or chat message
-MAX_API_KEY = 200         # provider keys are typically under 100 characters
+# Field length limits applied at the API boundary.
+MAX_USER_TEXT = 2000
+MAX_API_KEY = 200
 MAX_CITY_NAME = 120
 MAX_MODEL_NAME = 120
-MAX_CHAT_MESSAGES = 50    # maximum conversation length per request
+MAX_CHAT_MESSAGES = 50
 
 
 class TaskAnalysisRequest(BaseModel):

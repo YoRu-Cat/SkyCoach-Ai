@@ -5,8 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api import router
 from backend.security import BodySizeLimitMiddleware
 
-# Application-wide logging configuration. The format is friendly to
-# log aggregators while remaining readable in a plain terminal.
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -18,8 +16,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Maximum incoming request body in bytes. Override at deploy time with
-# the MAX_REQUEST_BYTES environment variable.
 _max_bytes = int(os.getenv("MAX_REQUEST_BYTES", "1000000"))
 app.add_middleware(BodySizeLimitMiddleware, max_bytes=_max_bytes)
 

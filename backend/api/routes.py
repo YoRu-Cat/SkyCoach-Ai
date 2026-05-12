@@ -253,7 +253,7 @@ async def get_alternatives(
     ],
 )
 async def full_analysis(request: AnalysisRequest) -> AnalysisResponse:
-    """Complete end-to-end analysis: task → weather → score → alternatives."""
+    """End-to-end analysis: task, weather, score, alternatives."""
     try:
         assert_valid_coords(request.latitude, request.longitude)
         model_name = request.openai_model or os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
@@ -380,17 +380,12 @@ async def predict_activity_type(request: dict) -> dict:
     ],
 )
 async def submit_prediction_feedback(request: dict) -> dict:
-    """Record a user correction so the continuous-learning pool grows.
+    """Record a user correction. Does not retrain by itself: retraining is
+    triggered explicitly by the model-refresh flow.
 
-    Validation:
-        * ``corrected_label`` must be one of the four canonical labels.
-        * ``phrase`` must be non-empty and at most ``MAX_PREDICT_PHRASE``
-          characters long.
-        * ``predicted_confidence`` must be a finite float in ``[0, 1]``.
-
-    Submitting feedback does not by itself retrain the model. Retraining
-    is invoked explicitly by the model-refresh flow, which is gated by
-    ``ADMIN_API_TOKEN`` when configured.
+    ``corrected_label`` must be one of the four canonical labels, ``phrase``
+    must be non-empty (max ``MAX_PREDICT_PHRASE``), and confidence must be
+    in [0, 1].
     """
     try:
         from ml_system.api import get_ml_system
@@ -441,11 +436,9 @@ async def get_model_comparison(
 ) -> dict:
     """Return the head-to-head evaluation report for the two models.
 
-    By default the response is read from
-    ``ml_system/models/current/evaluation_report.json``. Pass
-    ``refresh=true`` to regenerate the report on demand; when
-    ``ADMIN_API_TOKEN`` is configured this branch additionally requires
-    the matching ``X-Admin-Token`` header.
+    Reads ``ml_system/models/current/evaluation_report.json``. Pass
+    ``refresh=true`` to regenerate; gated by ``X-Admin-Token`` when
+    ``ADMIN_API_TOKEN`` is set.
     """
     try:
         import json as _json
@@ -524,10 +517,8 @@ async def chat_assistant(request: ChatAssistantRequest) -> ChatAssistantResponse
             openai_model=model_name,
         )
 
-        # Whitelist returned task IDs against the task_context the client
-        # supplied. Any ID the language model fabricates outside of that
-        # set is dropped, which prevents a model response from causing the
-        # client to operate on tasks the user does not own.
+        # Only allow task IDs the client itself sent in task_context.
+        # Drops anything the model fabricates outside that set.
         allowed_ids = {task.id for task in request.task_context}
 
         def whitelist(value):

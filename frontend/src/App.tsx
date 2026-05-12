@@ -37,14 +37,10 @@ function App() {
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
 
-  // Apply the theme to the root <html> element so theme-scoped CSS rules
-  // pick up the correct palette.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
   }, [themeMode]);
 
-  // Mirror the browser's online/offline state so the offline banner can
-  // distinguish between "no internet" and "backend is slow".
   useEffect(() => {
     const updateOnline = () => setIsOnline(navigator.onLine);
     window.addEventListener("online", updateOnline);
@@ -55,8 +51,8 @@ function App() {
     };
   }, []);
 
-  // Probe backend health in the background. The UI is rendered immediately
-  // regardless of the result; this state only drives the optional banner.
+  // Background health probe. UI renders immediately; result only drives
+  // the offline banner.
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -76,7 +72,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Surface API errors to the user as a transient toast notification.
+  // Toast plumbing for API errors.
   useEffect(() => {
     const unsubscribe = onApiError(({ status, message }) => {
       if (status === 429) {

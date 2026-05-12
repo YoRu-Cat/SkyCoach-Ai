@@ -91,7 +91,7 @@ The numbers below are from `ml_system/models/current/evaluation_report.json`, pr
 ### What this comparison says
 
 - Both models **completely saturate** the clean test split and the hardset - macro F1 = 1.0 across the board on accuracy, precision, recall, and F1.
-- The two models are essentially indistinguishable on the standard metrics, so the comparison is decided by:
+- The two models are indistinguishable on the standard metrics, so the comparison is decided by:
   - **Robustness to typos** - Model 1 (Naive Bayes) is fractionally better on noisy phrases (F1 0.9998 vs 0.9994). The win is marginal because both models share the same character-n-gram tokenizer in the production-side eval, which is what makes both robust.
   - **Inference latency** - Model 2 (Linear Softmax) is **~25% faster** per phrase (78 µs vs 104 µs) because at inference time it is a single dot product against a dense weight matrix per class, whereas Naive Bayes has to walk every token through a per-class log-probability lookup.
 

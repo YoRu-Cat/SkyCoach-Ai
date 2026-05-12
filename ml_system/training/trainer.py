@@ -178,8 +178,6 @@ class Trainer:
         test_f1 = macro_f1_score(y_test, test_preds, labels)
         hard_f1 = macro_f1_score(y_hard, hard_preds, labels)
 
-        # Build a JSON-serialisable evaluation block for both models on
-        # every available split.
         def _full_eval(
             model,
             split_name: str,
@@ -205,8 +203,7 @@ class Trainer:
             },
         }
 
-        # Flat per-model comparison rows, consumed by the API endpoint
-        # and the submission notebook.
+        # Per-model rows consumed by the comparison API and the notebook.
         comparison_rows = []
         for model_name, splits_eval in models_eval.items():
             row = {"model": model_name}
@@ -390,7 +387,6 @@ class Trainer:
         except Exception:
             return None
 
-        # Pin every torch RNG so this training path is reproducible.
         torch.manual_seed(42)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(42)

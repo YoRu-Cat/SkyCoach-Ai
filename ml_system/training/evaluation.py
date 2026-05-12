@@ -1,19 +1,13 @@
-"""Standalone evaluation harness for the SkyCoach classifier.
+"""Standalone evaluation harness.
 
-The harness loads the currently saved champion model and trains a parallel
-candidate from the alternative model family on the same training data, so
-the report always describes both models side by side. The output is a
-JSON document containing accuracy, precision, recall, F1
-(per-class, macro-averaged, and weighted-averaged), confusion matrices,
-and per-phrase inference latency for each model on the validation, test,
-hardset, and noise-perturbed test splits.
-
-Run from the project root::
+Loads the saved champion model, trains the alternative model family on the
+same data, and writes a JSON report with accuracy, precision, recall, F1
+(per-class, macro, weighted), confusion matrices, and inference latency
+for both models across val / test / hardset / noisy-test splits.
 
     python -m ml_system.training.evaluation
 
-The report is written to
-``ml_system/models/current/evaluation_report.json`` by default.
+Writes to ``ml_system/models/current/evaluation_report.json``.
 """
 from __future__ import annotations
 
@@ -34,12 +28,8 @@ from ml_system.inference.engine import (
 
 
 def _perturb_phrase(text: str, rng: random.Random, char_swap_rate: float = 0.08) -> str:
-    """Apply character-level typo perturbations to a phrase.
-
-    For each alphabetic character the function may, with probability
-    ``char_swap_rate``, drop the character, duplicate it, or swap it with
-    the next character. The result simulates the kind of low-level noise
-    that real user input often contains.
+    """Drop, duplicate, or swap individual characters at ``char_swap_rate``.
+    Simulates the typo noise typical of real user input.
     """
     out: list[str] = []
     i = 0
@@ -107,13 +97,7 @@ def run_evaluation(
     datasets: dict[str, Path] = DEFAULT_DATASETS,
     output_path: Path | None = None,
 ) -> dict:
-    """Build the full head-to-head evaluation report for both models.
-
-    The report covers the validation, test, hardset, and noise-perturbed
-    test splits and includes per-phrase inference latency. The result is
-    written to ``output_path`` and returned so callers can use it
-    directly.
-    """
+    """Run the full head-to-head evaluation and persist the report."""
     train_rows = load_dataset(datasets["train"])
     val_rows = load_dataset(datasets["val"])
     test_rows = load_dataset(datasets["test"])
@@ -126,7 +110,7 @@ def run_evaluation(
 
     labels = sorted({*y_train, *y_val, *y_test, *y_hard})
 
-    # Robustness stress test: same labels, character-perturbed phrases.
+    # Same labels, perturbed phrases.
     x_noisy_test, y_noisy_test = _build_noisy_split(x_test, y_test, seed=1234)
 
     splits = {
@@ -141,9 +125,8 @@ def run_evaluation(
     champion = load_model_from_json(current_dir / "model.json")
     champion_type = champion.to_dict().get("model_type", "unknown")
 
-    # Train the alternative model family from scratch on the same
-    # tokenizer so the report always reflects two comparable models, even
-    # when only the champion is persisted on disk.
+    # Train the other model family on the same tokenizer so the report
+    # always covers two comparable models.
     if champion_type == "naive_bayes":
         challenger = LinearSoftmaxModel(
             labels=labels,
@@ -163,8 +146,7 @@ def run_evaluation(
     eval_one = _evaluate_model_on_splits(model_one_name, model_one, tokenizer, splits, labels)
     eval_two = _evaluate_model_on_splits(model_two_name, model_two, tokenizer, splits, labels)
 
-    # Median per-phrase inference latency on the test split, expressed in
-    # microseconds.
+    # Median per-phrase inference latency on the test split, in microseconds.
     def _latency_us(model) -> float:
         sample = x_test[: min(2000, len(x_test))] or x_test
         if not sample:

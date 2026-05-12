@@ -1,9 +1,5 @@
-# Netlify configuration for the SkyCoach AI frontend.
-#
-# When the repository is connected to Netlify, the values below configure
-# the build automatically. The redirect proxies /api/* requests to the
-# Render backend so the SPA can use relative URLs and never has to deal
-# with CORS or a runtime backend hostname.
+# Netlify config. The /api/* redirect proxies API calls to the backend
+# so the SPA uses relative URLs and never deals with CORS.
 
 [build]
   base = "frontend"
@@ -13,33 +9,24 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--no-audit --no-fund"
-  # Empty so Axios falls back to relative '/api' URLs that the redirect
-  # below proxies to the backend. Override in the Netlify UI to bypass
-  # the proxy and call the backend directly.
   VITE_API_URL = ""
 
-# Forward /api/* to the Render backend. Update the destination host if
-# the backend is deployed under a different name.
 [[redirects]]
   from = "/api/*"
   to = "https://skycoach-api.onrender.com/api/:splat"
   status = 200
   force = true
 
-# SPA fallback: every other path returns index.html so client-side
-# routing works on direct page loads.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Long-lived caching for hashed asset bundles.
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Never cache the entry HTML, so deploys take effect immediately.
 [[headers]]
   for = "/index.html"
   [headers.values]

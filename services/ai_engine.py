@@ -309,7 +309,6 @@ def analyze_task_openai(text: str, api_key: str, model: str = "gpt-4o-mini") -> 
     from openai import OpenAI
     
     client = OpenAI(api_key=api_key, timeout=20.0)
-
     rephrase_prompt = """You normalize user activities.
 Return ONLY JSON:
 {

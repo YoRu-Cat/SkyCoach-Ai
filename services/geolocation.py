@@ -1,8 +1,8 @@
 """
 Geolocation service for SkyCoach AI.
 Provides automatic location detection using:
-  1. Browser Geolocation API (GPS/WiFi — most accurate, requires user permission)
-  2. IP-based geolocation  (ip-api.com — free, no key, instant fallback)
+  1. Browser Geolocation API (GPS/WiFi, most accurate, requires user permission)
+  2. IP-based geolocation via ip-api.com (free, no key, instant fallback)
 """
 
 import requests

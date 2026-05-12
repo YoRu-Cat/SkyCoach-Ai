@@ -1,10 +1,7 @@
-"""Classification metrics used by the SkyCoach trainer and evaluation
-harness.
+"""Pure-Python classification metrics for the trainer and evaluator.
 
-The metrics here are implemented in pure Python so the runtime artifacts
-do not depend on scikit-learn at inference time. Every function returns a
-plain dictionary or list, which keeps the results trivially
-JSON-serialisable for persistence next to the saved model.
+No scikit-learn dependency at inference time. Returns plain dicts/lists so
+results are JSON-serialisable.
 """
 from __future__ import annotations
 

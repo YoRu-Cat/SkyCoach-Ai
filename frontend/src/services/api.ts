@@ -17,11 +17,7 @@ export interface AnalysisParams {
   longitude?: number;
 }
 
-// Backend base URL resolution:
-//   1. An explicit VITE_API_URL from .env.production or the hosting UI.
-//   2. An empty string in any production build, so the SPA uses relative
-//      '/api' URLs and the hosting platform's proxy handles the redirect.
-//   3. A localhost fallback for `npm run dev`.
+// Base URL resolution: VITE_API_URL > relative '' in prod > localhost in dev.
 const explicitApiUrl =
   (import.meta.env.VITE_API_URL ?? "").toString().trim();
 
@@ -33,17 +29,11 @@ export const API_BASE_URL = explicitApiUrl
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  // Generous timeout so a backend that takes a moment to wake up after
-  // idle still resolves successfully.
+  headers: { "Content-Type": "application/json" },
   timeout: 25000,
 });
 
-// Pub/sub for API-level errors. UI surfaces (toasts, banners) subscribe
-// here so they can react to network or server failures without each
-// individual call site having to handle them.
+// Pub/sub so any UI surface can react to API errors without prop-drilling.
 type ApiErrorListener = (info: {
   status: number | null;
   message: string;
@@ -134,10 +124,7 @@ export const healthCheck = async (): Promise<boolean> => {
   }
 };
 
-/**
- * Non-blocking health probe with retry. Tolerates the short delay that
- * a backend may need to wake up after a period of inactivity.
- */
+/** Health probe with retry. Tolerates a slow first request after idle. */
 export const healthCheckWithRetry = async (
   attempts: number = 4,
   delayMs: number = 4000,

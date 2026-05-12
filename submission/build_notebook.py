@@ -99,7 +99,7 @@ RANDOM_STATE = 42
 - `token_count` - number of whitespace-separated tokens per phrase
 - `phrase_length_capped` - IQR-capped variant used for plotting
 
-The `hardset.jsonl` split is a deliberately harder, ambiguous set used by the project as a stress test.
+The `hardset.jsonl` split is a harder, more ambiguous set used as a stress test.
 """
     ),
     code(
@@ -262,13 +262,13 @@ We use the project's existing fixed train / val / test splits so the numbers are
 Probabilistic baseline. Strong on short text, fast to train, easy to interpret. Word counts (with TF-IDF reweighting) are converted into class likelihoods using a Laplace-smoothed multinomial. Decision rule: pick the class with the highest posterior.
 
 ### Model 2 - TF-IDF + Logistic Regression (with character n-grams)
-Linear softmax classifier with L2 regularisation. We deliberately add **character n-gram features (3-5 chars)** alongside word unigrams + bigrams so the model can match misspellings and morphological variants - this is what gives Model 2 its robustness advantage on noisy inputs. Decision rule: argmax of the softmax output.
+Linear softmax classifier with L2 regularisation. Adds **character n-gram features (3-5 chars)** on top of word unigrams + bigrams, so the model can match misspellings and morphological variants. That is what gives Model 2 its robustness advantage on noisy inputs. Decision rule: argmax of the softmax output.
 
-### Why these two models specifically
-1. They cover two fundamentally different decision-rule families (generative probabilistic vs discriminative linear).
-2. They share the exact same feature extraction stage, so any performance gap is attributable to the classifier head, not preprocessing.
-3. They are both transparent enough that we can inspect feature weights when we want to debug a misclassification - critical for a product where users will actually receive these labels.
-4. They are deployed inside the SkyCoach FastAPI backend in their pure-Python forms (`ml_system/training/models.py`), so the comparison directly informs which classifier the production system should run.
+### Why these two models
+1. They cover two different decision-rule families: generative probabilistic vs discriminative linear.
+2. They share the same feature extraction stage, so any performance gap comes from the classifier head, not the preprocessing.
+3. Both are transparent enough to inspect feature weights when a prediction needs debugging.
+4. Both are deployed inside the FastAPI backend in pure-Python form (`ml_system/training/models.py`), so the comparison directly informs which classifier the production system should run.
 """
     ),
     code(

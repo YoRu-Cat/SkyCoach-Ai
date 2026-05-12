@@ -1,22 +1,17 @@
-# SkyCoach AI - local development extras.
+# Local dev extras. Install on top of requirements.txt for the Streamlit
+# dashboard, the optional accelerated training backends, and the tools
+# needed to run the submission notebook end to end.
 #
-# Install on top of requirements.txt for the full local toolkit:
-# the Streamlit dashboard, the optional accelerated training backends,
-# and the tools needed to execute the submission notebook end to end.
+#   pip install -r requirements.txt -r requirements-dev.txt
 #
-#     pip install -r requirements.txt -r requirements-dev.txt
-#
-# Note: torch and tensorflow are pinned for Python 3.11 / 3.12; newer
-# Python releases may not yet have prebuilt wheels for these packages.
+# torch and tensorflow have prebuilt wheels for Python 3.11 / 3.12; newer
+# Python releases may not yet be supported.
 
 -r requirements.txt
 
-# Optional accelerated training backends. CPU is sufficient; GPU is
-# optional and used automatically when available.
 torch>=2.2.0
 tensorflow>=2.16.0
 
-# Streamlit dashboard and supporting components.
 streamlit>=1.31.0
 streamlit-folium>=0.18.0
 streamlit-extras>=0.3.0
@@ -24,7 +19,6 @@ streamlit-lottie>=0.0.5
 streamlit-js-eval>=0.1.0
 folium>=0.15.0
 
-# Notebook execution and visualisation for the submission notebook.
 nbclient>=0.10.0
 nbformat>=5.10.0
 ipykernel>=6.29.0

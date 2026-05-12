@@ -1,9 +1,6 @@
-# Render Blueprint for the SkyCoach AI backend.
-#
-# When this repository is connected to Render, the Blueprint flow reads
-# this file and provisions the backend service automatically. The two
-# secrets, OPENAI_API_KEY and OPENWEATHER_API_KEY, are marked as
-# unsynced so Render prompts the operator to enter them on creation.
+# Render Blueprint. Connect the repo on Render and the Blueprint flow
+# reads this file to provision the backend. The two secrets are unsynced
+# so Render prompts for them on creation.
 
 services:
   - type: web

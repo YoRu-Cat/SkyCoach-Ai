@@ -30,14 +30,11 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    // Rollup decides chunking automatically based on the import graph.
-    // This keeps React loaded before any chunk that depends on it; manual
-    // chunk splits would otherwise break libraries that consume React's
-    // context API (react-query, framer-motion, lucide-react, etc.).
+    // Rollup decides chunking. Manual chunks split React's runtime away
+    // from its consumers (react-query, framer-motion, lucide-react) and
+    // breaks them in production.
     rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
+      output: { manualChunks: undefined },
     },
   },
 });

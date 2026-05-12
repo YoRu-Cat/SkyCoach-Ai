@@ -6,8 +6,6 @@ import "leaflet/dist/leaflet.css";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) {
-  // Surfaces a readable message if the React mount node is missing for
-  // any reason, instead of leaving the page blank.
   document.body.innerHTML =
     '<div style="color:#f5f3ff;padding:2rem;font-family:sans-serif">' +
     "<h1>SkyCoach failed to start</h1>" +

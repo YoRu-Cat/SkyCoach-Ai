@@ -12,8 +12,7 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <style>
-    /* Pre-React boot styles. These render immediately, before the JS
-       bundle evaluates, so the page never appears blank during load. */
+    /* Boot styles, rendered before the JS bundle evaluates. */
     html, body { margin: 0; padding: 0; }
     body {
       min-height: 100vh;
@@ -47,13 +46,11 @@
       color: rgba(203, 213, 225, 0.55); font-size: 0.8rem;
     }
     @keyframes skycoach-spin { to { transform: rotate(360deg); } }
-    /* React mounts into #root and replaces this fallback. */
   </style>
 </head>
 
 <body>
   <div id="root">
-    <!-- Pre-React boot UI. React replaces this content on mount. -->
     <div id="boot-fallback" aria-live="polite">
       <div class="ring" aria-hidden="true"></div>
       <h1>SkyCoach AI</h1>

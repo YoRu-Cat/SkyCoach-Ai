@@ -9,10 +9,8 @@ interface State {
   message: string;
 }
 
-/**
- * Root-level error boundary. Catches any uncaught rendering error in the
- * React tree and renders a styled fallback so the user always sees a
- * recognisable interface instead of a blank screen.
+/** Root-level error boundary. Renders a fallback with inline styles so it
+ *  works even if the app's external CSS failed to load.
  */
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, message: "" };
@@ -25,8 +23,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // Logs the failure to the browser console so it is visible in DevTools
-    // even when no remote error-tracking service is configured.
     // eslint-disable-next-line no-console
     console.error("[SkyCoach] root error boundary caught:", error, info);
   }

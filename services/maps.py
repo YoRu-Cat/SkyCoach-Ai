@@ -2,9 +2,7 @@ from models.data_classes import WeatherData
 
 
 def render_map(lat: float, lon: float, city: str, weather: WeatherData):
-    # The folium and streamlit dependencies are imported lazily so that
-    # importing this module from the FastAPI server never requires those
-    # heavyweight packages to be installed.
+    # Lazy import so the FastAPI server doesn't need folium installed.
     import folium
     from folium.plugins import Fullscreen, MiniMap, MousePosition
 
